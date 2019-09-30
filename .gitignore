@@ -8,3 +8,6 @@
 
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+
+#Ignore Data Folder
+data/
