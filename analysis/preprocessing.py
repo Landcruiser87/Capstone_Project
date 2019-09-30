@@ -49,3 +49,9 @@ df_fitness = pd.read_csv("data/PAMAP2_Dataset/Protocol/subject101.dat",
 df_fitness.head(10)
 
 #%%
+print("Structure of data:\n",df_fitness.shape,"\n")
+print("Count of missing values:\n",df_fitness.isnull().sum().sort_values(ascending=False),"\n")
+print("Count of NaN values in HeartRate: " ,df_fitness.loc[df_fitness.heartrate == 'NaN', 'heartrate'].count())
+
+
+#%%
