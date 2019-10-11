@@ -234,7 +234,7 @@ void position(void)
 	positionX[1] = positionX[0] + velocityx[0] + ((velocityx[1] - velocityx[0]) >> 1);
 	//first Y integration:       
 	velocityy[1] = velocityy[0] + accelerationy[0] + ((accelerationy[1] - accelerationy[0]) >> 1);
-	//second Y integration:       
+	//second Y integration:        	
 	positionY[1] = positionY[0] + velocityy[0] + ((velocityy[1] - velocityy[0]) >> 1);
 
 	accelerationx[0] = accelerationx[1];	//The current acceleration value must be sent to the previous acceleration 
