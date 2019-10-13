@@ -12,8 +12,6 @@ except:
 import pandas as pd
 import numpy as np
 import seaborn as sns
-# import plotly.plotly as py
-# import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 import timeit
 #get_ipython().run_line_magic('matplotlib', 'inline')
@@ -22,9 +20,6 @@ import timeit
 #imports the data into a dataframe
 #Exports it to a csv
 
-
-import pandas as pd
-import numpy as np
 from datetime import datetime
 from scripts import preprocessing as builder
 
@@ -33,25 +28,18 @@ filename = 'Andy_Punch_rnd1_20throws.txt'
 
 #Path to the text file
 path = "C:/Users/andyh/OneDrive/Documents/GitHub/Capstone_Project/data/Captured_Data/Punch/"
+
 #Read in the file
-df = pd.read_csv(path + filename, header=None, sep = "\t", skiprows = [1], names=column_names)
-
-
-#Every other row contains na's so we delete them
-df = df.dropna(axis = 'rows')
-#Resets the index, just in case this is used later
-df = df.reset_index(drop = True)
+df = builder.build_df(path,filename)
 
 #Sets the time to a datetime
-times = []
-for index, row in df.iterrows():
-    times.append(pd.Timestamp(row['Time_s']))
+#Not sure we need this actually, but keeping for now
+# times = []
+# for index, row in df.iterrows():
+#     times.append(pd.Timestamp(row['Time_s']))
 
 #create datetime variable
-df['Time_n'] = np.asarray(times)
-
-# #drops other two time variables
-# df.drop(df.columns['Time_s','ChipTime'], axis=1,inplace=True)
+# df['Time_n'] = np.asarray(times)
 
 # #Moves last column to first
 # cols = list(df.columns)
@@ -59,11 +47,10 @@ df['Time_n'] = np.asarray(times)
 # df = df[cols]
 
 #Print top of df
-
 df.head()
 
 #Saves the file to the same location with the same name, different extension
-df.to_csv(path + filename.split(".")[0] + ".csv", index = False)
+# df.to_csv(path + filename.split(".")[0] + ".csv", index = False)
 
 #%%
 
@@ -71,6 +58,12 @@ df.to_csv(path + filename.split(".")[0] + ".csv", index = False)
 print("Structure of data:\n",df.shape,"\n")
 print("Count of missing values:\n",df.isnull().sum().sort_values(ascending=False),"\n")
 print("Summary Statistic's:\n",round(df.describe(),2),"\n")
+
+#%%
+# Plot basic punch
+plot_accel('Punch', df)
+
+
 
 #%%
 # Another look at variable types
@@ -81,7 +74,6 @@ for i in df:
     "# unique: {}".format(df[i].nunique()),
     sep="\n  ", end="\n\n")
     
-print("Summary Statistic's:\n",round(df.describe().unstack(),2),"\n")
 
 
 #%%
@@ -111,7 +103,7 @@ plt.plot(Time_s,z,'.-')
 plt.title('Z Acceleration')
 #%%
 
-%matplotlib inline
+
 import matplotlib.pyplot as plt
 import numpy as np 
 import scipy.integrate as sint

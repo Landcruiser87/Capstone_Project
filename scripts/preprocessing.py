@@ -41,7 +41,41 @@ def convert_to_float(x):
     except:
         return np.nan
 
-
 def samplerate(n,t):
     sr = int(n/(t.max()-t.min()))
     return sr
+
+def df_info(dataframe):
+
+    # Shape and how many rows and columns
+    print('Number of columns in the dataframe: %i' % (dataframe.shape[1]))
+    print('Number of rows in the dataframe: %i\n' % (dataframe.shape[0]))
+
+
+####################
+## Basic Plots
+####################
+
+# Acceleration plot
+def plot_accel(activity, data):
+
+    fig, (ax0, ax1, ax2) = plt.subplots(nrows=3,
+         figsize=(15, 10),
+         sharex=True)
+    plot_axis(ax0, data['Time_s'], data['ax_g'], 'X-Axis')
+    plot_axis(ax1, data['Time_s'], data['ay_g'], 'Y-Axis')
+    plot_axis(ax2, data['Time_s'], data['az_g'], 'Z-Axis')
+    plt.subplots_adjust(hspace=0.2)
+    fig.suptitle(activity)
+    plt.subplots_adjust(top=0.90)
+    plt.show()
+
+def plot_axis(ax, x, y, title):
+
+    ax.plot(x, y, 'r')
+    ax.set_title(title)
+    ax.xaxis.set_visible(False)
+    ax.set_ylim([min(y) - np.std(y), max(y) + np.std(y)])
+    ax.set_xlim([min(x), max(x)])
+    ax.grid(True)
+
