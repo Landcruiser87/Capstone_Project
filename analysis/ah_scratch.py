@@ -115,4 +115,6 @@ def trapzl(y, x):
         s += (x[i]-x[i-1])*(y[i]+y[i-1])
     return s/2
 
-trapzl(y, x)
+trapzl(df['ax_g'], df['ay_g'])
+
+#%%
