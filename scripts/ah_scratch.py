@@ -24,6 +24,7 @@ import timeit
 
 
 import pandas as pd
+import numpy as np
 from datetime import datetime
 
 
@@ -50,17 +51,23 @@ df = df.dropna(axis = 'rows')
 df = df.reset_index(drop = True)
 
 #Sets the time to a datetime
-
-pd.Timestamp("13:44:37.744")
 times = []
 for index, row in df.iterrows():
     times.append(pd.Timestamp(row['Time_s']))
 
-df['Time_new'] = np.asarray(times)
+#create datetime variable
+df['Time_n'] = np.asarray(times)
 
+# #drops other two time variables
+# df.drop(df.columns['Time_s','ChipTime'], axis=1,inplace=True)
 
+# #Moves last column to first
+# cols = list(df.columns)
+# cols = [cols[-1]] + cols[:-1]
+# df = df[cols]
 
-#Print
+#Print top of df
+
 df.head()
 
 #Saves the file to the same location with the same name, different extension
@@ -82,7 +89,7 @@ for i in df:
     "# unique: {}".format(df[i].nunique()),
     sep="\n  ", end="\n\n")
     
-print("Summary Statistic's:\n",round(df_census.describe().unstack(),2),"\n")
+print("Summary Statistic's:\n",round(df.describe().unstack(),2),"\n")
 
 
 #%%
