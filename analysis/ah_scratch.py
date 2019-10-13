@@ -26,18 +26,10 @@ import timeit
 import pandas as pd
 import numpy as np
 from datetime import datetime
-
+from scripts import preprocessing as builder
 
 #File name including extension
 filename = 'Andy_Punch_rnd1_20throws.txt'
-
-#New names of the columns
-column_names = ['Sensor_id', 'Time_s', 'ChipTime', 'ax_g', 'ay_g', 'az_g',
-                'wx_deg_s', 'wy_deg_s', 'wz_deg_s', 'AngleX_deg',
-                'AngleY_deg', 'AngleZ_deg', 'T_deg', 'hx', 'hy', 'hz', 'D0',
-                'D1', 'D2', 'D3', 'Pressure_Pa', 'Altitude_m', 'Lon_deg',
-                'Lat_deg', 'GPSHeight_m', 'GPSYaw_deg', 'GPSV_km_h', 'q0',
-                'q1', 'q2', 'q3', 'SV', 'PDOP', 'HDOP', 'VDOP']
 
 #Path to the text file
 path = "C:/Users/andyh/OneDrive/Documents/GitHub/Capstone_Project/data/Captured_Data/Punch/"
