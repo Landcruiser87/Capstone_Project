@@ -14,7 +14,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import timeit
-#get_ipython().run_line_magic('matplotlib', 'inline')
 
 #%%
 #imports the data into a dataframe
@@ -61,7 +60,7 @@ print("Summary Statistic's:\n",round(df.describe(),2),"\n")
 
 #%%
 # Plot basic punch
-plot_accel('Punch', df)
+builder.plot_accel('Punch', df)
 
 
 
