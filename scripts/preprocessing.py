@@ -3,6 +3,7 @@ import numpy as np
 import seaborn as sns
 import timeit
 import matplotlib.pyplot as plt
+import scipy.integrate as sint
 
 ##########################
 ## Dataframe construction
@@ -41,15 +42,15 @@ def convert_to_float(x):
     except:
         return np.nan
 
-def samplerate(n,t):
-    sr = int(n/(t.max()-t.min()))
-    return sr
-
 def df_info(dataframe):
 
     # Shape and how many rows and columns
     print('Number of columns in the dataframe: %i' % (dataframe.shape[1]))
     print('Number of rows in the dataframe: %i\n' % (dataframe.shape[0]))
+
+def samplerate(n,t):
+    sr = int(n/(t.max()-t.min()))
+    return sr
 
 
 ####################

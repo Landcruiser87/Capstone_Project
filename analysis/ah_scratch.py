@@ -30,6 +30,7 @@ path = "C:/Users/andyh/OneDrive/Documents/GitHub/Capstone_Project/data/Captured_
 
 #Read in the file
 df = builder.build_df(path,filename)
+builder.df_info(df)
 
 #Sets the time to a datetime
 #Not sure we need this actually, but keeping for now
