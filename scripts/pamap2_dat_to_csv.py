@@ -1,8 +1,22 @@
 """
-    PAMAP2 DATASET.DAT TO .CSV
+                            PAMAP2 DATASET.DAT TO .CSV
     
-    Put all the .dat files in the same directory. Add the name of each of them
-    to the 'filenames' list. This program will convert and save them to .csv.
+    Place this script in a folder. Create 2 folders in the same directory and
+    name them 'cleaned' and 'raw'. The raw files must be contained within the
+    'raw' folder. The raw .dat file names should be subjectNUMBER. Add the name
+    of each of them to the 'filenames' list. This program will convert and save
+    them to .csv.
+
+    NO CLEANING DONE YET.
+    
+    Below all of the functions is a variable called 'path'. Change the 'path'
+    variable to the path that this script is contained within. Make sure to
+    include the '/' at the end.
+    
+    Directory Structure:
+    C:/Path/Cake/raw/
+    C:/Path/Cake/cleaned/
+    C:/Path/Cake/pamap2_dat_to_csv.py
 """
 
 import pandas as pd
@@ -35,15 +49,17 @@ def read_save(path, filenames):
 
     #Iterates through each of the files
     for fn in filenames:
-        df = pd.read_csv(path + fn, header = None, sep = " ") #Reads in .dat file
+        df = pd.read_csv(path + "raw/" + fn, header = None, sep = " ") #Reads in .dat file
         df.columns = cols                       #Sets the column names
         name = fn.split(".")[0] + ".csv"        #Replaces the .dat with .csv
-        df.to_csv(path + name, index = False)   #Saves the file
+        df.to_csv(path + "cleaned/" + name, index = False)   #Saves the file
         del df                                  #Removes the datafram from memory
 #------------------------------------------------------------------------------
 
+#Path to this script
 path = "C:/githubrepo/CapstoneA/data/PAMAP2_Dataset/Optional/"
-filenames = ["subject101.dat"]
+filenames = ["subject101.dat", "subject105.dat", "subject106.dat",
+             "subject108.dat", "subject109.dat"]
 
 read_save(path, filenames)
 
