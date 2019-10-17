@@ -78,4 +78,4 @@ for i in df:
 
 #%%
 # Lets work on getting the integral first. 
-
+path = "C:/Users/andyh/OneDrive/Documents/GitHub/Capstone_Project/data/Captured_Data/Punch/"
