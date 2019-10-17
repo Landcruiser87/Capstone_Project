@@ -79,7 +79,7 @@ drop_cols = [
     'IMU_ankle_orient_3'
     ]
 
-df_filt(df_filt, drop_cols)
+process_drops(df_filt, drop_cols)
 
 print("Summary Statistic's:\n",round(df_filt.describe(),2),"\n")
 
