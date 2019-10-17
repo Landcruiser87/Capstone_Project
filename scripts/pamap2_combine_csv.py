@@ -99,6 +99,7 @@ def CombineSaveAppendInfoCSVFiles(path, final_name):
 path = "C:/githubrepo/CapstoneA/data/PAMAP2_Dataset/Optional/"
 #The name for the combined .csv file
 final_name = "ComboPlatter.csv"
+#lol.  Niceoutput name.  Thanks for writing this!
 
 #Combines the text files
 CombineSaveAppendInfoCSVFiles(path, final_name)

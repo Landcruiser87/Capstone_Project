@@ -61,7 +61,7 @@ print("Summary Statistic's:\n",round(df.describe(),2),"\n")
 
 #%%
 # Plot basic punch
-builder.plot_accel('Punch', df)
+builder.plot_accel('Punch Acceleration Data', df)
 
 
 

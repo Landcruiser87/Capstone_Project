@@ -69,14 +69,19 @@ def plot_accel(activity, data):
     plt.subplots_adjust(hspace=0.2)
     fig.suptitle(activity)
     plt.subplots_adjust(top=0.90)
+    plt.xlabel('Time (s)')
+    plt.ylabel('Acceleration (g)')
     plt.show()
 
 def plot_axis(ax, x, y, title):
 
     ax.plot(x, y, 'r')
     ax.set_title(title)
-    ax.xaxis.set_visible(False)
+    ax.xaxis.set_visible(True)
     ax.set_ylim([min(y) - np.std(y), max(y) + np.std(y)])
     ax.set_xlim([min(x), max(x)])
     ax.grid(True)
+
+    # ax.set_xlabel('Time (s)')
+    # ax.set_ylabel('Acceleration (g)')
 
