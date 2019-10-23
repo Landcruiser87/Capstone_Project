@@ -20,7 +20,7 @@ import timeit
 #Exports it to a csv
 
 from datetime import datetime
-from scripts import preprocessing as builder
+from scripts.PAMAP2 import preprocessing as builder
 
 #File name including extension
 filename = 'Andy_Punch_rnd1_20throws.txt'
