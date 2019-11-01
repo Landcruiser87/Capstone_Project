@@ -52,7 +52,7 @@ def evaluate_model(x_train, y_train, x_test, y_test):
     model.add(Dense(32, activation='relu'))
     model.add(Dense(y_train.shape[1], activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    m
+
 	#Define model
 	#model = Sequential()
 	#model.add(ConvLSTM2D(filters=64, kernel_size=(1,3), activation='relu', input_shape=(n_steps, 1, n_length)))
