@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import numpy as np
 
-#os.chdir("C:/githubrepo/CapstoneA/data/")
+#os.chdir("C:/githubrepo/CapstoneA/data/Zenshin_Data/")
 
 #------------------------------------------------------------------------------
 #START FUNCTIONS
@@ -37,7 +37,7 @@ def File_Info(file):
     
     return (exercise_id, exercise_amt, session_id, subject_id)
 
-#Cleans the file from Witmotion(?)
+#Cleans the file from Zenshin
 def CleanFile(file):
     #Creates the new filename for saving
     new_filename = NewFilename_info(file)
@@ -66,6 +66,9 @@ def CleanFile(file):
     #Resets the index, just in case this is used later
     df = df.reset_index(drop = True)
     
+    #TODO: COMBINE ALL OF THE TIME SLOT INTO ONE ROW
+    df = join_by_timeslot(df)
+    
     #If the file already has these columns we skip the adding of these
     if 'exercise_id' in df.columns:
         return (df, new_filename)
@@ -85,6 +88,30 @@ def CleanFile(file):
     df["subject_id"] = np.asarray(subject_id_col)
     
     return (df, new_filename)
+
+def join_by_timeslot(df):
+    df_sens = []
+    df_sens.append(df[df.Sensor_id == 1])
+    df_sens.append(df[df.Sensor_id == 2])
+    df_sens.append(df[df.Sensor_id == 3])
+    
+    #RENAME THE COLUMNS FOR JOINING
+    for i in np.arange(len(df_sens)):
+        df_sens[i] = df_sens[i].drop("Sensor_id", axis=1)
+        new_names = []
+        for nm in df_sens[i].columns:
+            if nm == "TimeStamp_s":
+                new_names.append(nm)
+            else:
+                new_names.append("sID" + str(i+1) + "_" + nm)
+        df_sens[i].columns = new_names
+
+    #Inner join x2
+    merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
+                            left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+    merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
+                            left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+    return merged_inner1
 
 #Function to clean the text file
 def CleanCSVFiles(path):
