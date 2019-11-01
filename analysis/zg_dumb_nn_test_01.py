@@ -39,6 +39,7 @@ def load_dataset(prefix=''):
 
     print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 
+    #return x_train, y_train, x_test, y_test
     return x_train.to_numpy(), y_train, x_test.to_numpy(), y_test
  
 #Fit and evaluate a model
@@ -49,6 +50,7 @@ def evaluate_model(x_train, y_train, x_test, y_test):
     #model.add(Embedding(57, 32, input_length = 57))
     #model.add(LSTM(32))
     model.add(Dense(32, input_dim=57, activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Dense(32, activation='relu'))
     model.add(Dense(y_train.shape[1], activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -91,10 +93,10 @@ def run_experiment(repeats=5):
 	summarize_results(scores)
  
 # run the experiment
-run_experiment()
+run_experiment(5)
 
 #x_train, y_train, x_test, y_test = load_dataset()
-#print(x_train)#shape, y_train.shape, x_test.shape, y_test.shape)
+#print(x_test.columns)#shape, y_train.shape, x_test.shape, y_test.shape)
 #n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 #print(x_train.shape)
 
