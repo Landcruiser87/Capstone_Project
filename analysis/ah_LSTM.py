@@ -7,7 +7,6 @@ try:
 except:
 	pass
 
-
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -26,9 +25,12 @@ def split_df(X,y,split=0.2):
 def process_drops(df, cols):
     return df.drop(cols,axis=1,inplace=True)
 
+def process_window(df)
+    #This function will assign time windows as a categorical value for 
 
 def build_df(drops=["TimeStamp_s", "exercise_amt", "session_id", "subject_id"]):
     df = pd.read_csv("ComboPlatter.csv")
+    #process_window(df)
     process_drops(df,drops)
     y = df["exercise_id"]
     X = df.drop(columns=["exercise_id"])

@@ -13,7 +13,6 @@ from keras.layers import TimeDistributed
 from keras.layers import ConvLSTM2D
 from keras.utils import to_categorical
 from matplotlib import pyplot
-
 from sklearn.model_selection import train_test_split 
 
 import os
