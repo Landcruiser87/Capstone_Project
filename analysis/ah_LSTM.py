@@ -37,4 +37,5 @@ def build_df(drops=["TimeStamp_s", "exercise_amt", "session_id", "subject_id"]):
 
 X,y = build_df()
 X_train, X_test, y_train, y_test = split_df(X,y,0.2)
+print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
