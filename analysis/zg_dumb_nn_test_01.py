@@ -22,6 +22,35 @@ import warnings
 warnings.filterwarnings("ignore")
 
 #------------------------------------------------------------------------------
+#START| LOADING PAMAP2 DATASET
+
+# load the dataset, returns train and test X and y elements
+def pamap_load_dataset():
+    df = pd.read_csv("PAMA2P_Dataset/Protocol/ComboPlatter.csv")
+    df = df.drop(["timestamp_s", "subject_id"], axis = 1)
+	
+    #Need to make activities go from 0-12 for the to_categorical function
+    df.loc[df['activityID'] == 12, 'activityID'] = 8
+    df.loc[df['activityID'] == 13, 'activityID'] = 9
+    df.loc[df['activityID'] == 16, 'activityID'] = 10
+    df.loc[df['activityID'] == 17, 'activityID'] = 11
+    df.loc[df['activityID'] == 24, 'activityID'] = 12
+    
+    x_train = df.sample(frac = 0.8, random_state = 0)
+    x_test = df.drop(x_train.index)
+    y_train = x_train.pop('activityID')
+    y_test = x_test.pop('activityID')
+    
+    #Makes them categorical, (one hot encoded over X columns)
+    y_train = to_categorical(y_train, num_classes = 13)
+    y_test = to_categorical(y_test, num_classes = 13)
+
+    print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
+
+    #return x_train, y_train, x_test, y_test
+    return x_train.to_numpy(), y_train, x_test.to_numpy(), y_test
+
+#------------------------------------------------------------------------------
 #START| LOADING HAR DATASET
 
 # load a single file as a numpy array

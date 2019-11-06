@@ -53,13 +53,14 @@ def read_save(path, filenames):
         df.columns = cols                       #Sets the column names
         name = fn.split(".")[0] + ".csv"        #Replaces the .dat with .csv
         df.to_csv(path + "cleaned/" + name, index = False)   #Saves the file
-        del df                                  #Removes the datafram from memory
+        del df                                  #Removes the dataframe from memory
 #------------------------------------------------------------------------------
 
 #Path to this script
-path = "C:/githubrepo/CapstoneA/data/PAMAP2_Dataset/Optional/"
-filenames = ["subject101.dat", "subject105.dat", "subject106.dat",
-             "subject108.dat", "subject109.dat"]
+path = "C:/githubrepo/CapstoneA/data/PAMAP2_Dataset/Protocol/"
+filenames = ["subject101.dat", "subject102.dat", "subject103.dat",
+             "subject104.dat", "subject105.dat", "subject106.dat",
+             "subject107.dat", "subject108.dat", "subject109.dat"]
 
 read_save(path, filenames)
 

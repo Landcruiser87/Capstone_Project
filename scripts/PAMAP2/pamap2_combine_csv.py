@@ -77,9 +77,16 @@ def CreateInfoColumns(file):
     
     return df
 
+def clean_all_data(df_combined):
+    df_combined = df_combined.drop(["heart_rate"], axis = 1)
+    #CURRENTLY JUST DROPS THE ROWS WITH NA's
+    return df_combined.dropna()
+
 def CombineAndSaveFiles(list_df, path, final_name):
     #Combines all of the dataframes into a sile dataframe
     df_combined = pd.concat(list_df)
+    
+    df_combined = clean_all_data(df_combined)
     
     #Saves the combined dataframe to a .csv file
     df_combined.to_csv(path + final_name, index = False)
@@ -96,7 +103,7 @@ def CombineSaveAppendInfoCSVFiles(path, final_name):
 #------------------------------------------------------------------------------
 
 #Path to this .csv files to combine
-path = "C:/githubrepo/CapstoneA/data/PAMAP2_Dataset/Optional/"
+path = "C:/githubrepo/CapstoneA/data/PAMAP2_Dataset/Protocol/"
 #The name for the combined .csv file
 final_name = "ComboPlatter.csv"
 #lol.  Niceoutput name.  Thanks for writing this!
