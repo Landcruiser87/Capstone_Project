@@ -60,7 +60,7 @@ def build_df(drops=["exercise_amt"]):
 	process_drops(df,drops)											#Drop columns
 	#process_window(df)
 	y = df["exercise_id"]											#Split out exercise_id
-	X = df.drop(columns=['exercise_id','subject_id','session_id']) 	#Load rest of attritubtes into new dataframe X
+	X = df.drop(columns=['Timestamp_s','exercise_id','subject_id','session_id']) 	#Load rest of attritubtes into new dataframe X
 	return X,y,df
 	
 
@@ -88,11 +88,11 @@ def summarize_results(scores):
 def run_experiment(repeats=5):
 	# load data
 	X,y,df = build_df()
-	trainX, trainy, testX, testy = split_df(X,y,0.2)
+	X_train, X_test, y_train, y_test = split_df(X,y,0.2)
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):
-		score = evaluate_model(trainX, trainy, testX, testy)
+		score = evaluate_model(X_train, X_test, y_train, y_test)
 		score = score * 100.0
 		print('>#%d: %.3f' % (r+1, score))
 		scores.append(score)
