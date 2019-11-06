@@ -86,7 +86,7 @@ def summarize_results(scores):
 	print('Accuracy: %.3f%% (+/-%.3f)' % (m, s))
  
 # run an experiment
-def run_experiment(repeats=10):
+def run_experiment(repeats=1):
 	# load data
 	trainX, trainy, testX, testy = load_dataset()
 	# repeat experiment

@@ -40,14 +40,14 @@ def plot_accel(activity, subject, session, data):
 
 def split_df(X,y,split=0.2):
 	#Split data into test and train for attributes and target column
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split)
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split)
 	# offset class values from zero
 	y_train = y_train - 1
 	y_test = y_test - 1
 	# one hot encode y
 	y_train = to_categorical(y_train)
 	y_test = to_categorical(y_test)
-    return X_train, X_test, y_train, y_test
+	return X_train, X_test, y_train, y_test
 
 def process_drops(df, cols):
 	return df.drop(cols,axis=1,inplace=True)			 			#Drops columns
@@ -66,7 +66,7 @@ def build_df(drops=["exercise_amt"]):
 
 def evaluate_model(X_train, X_test, y_train, y_test):
 	verbose, epochs, batch_size = 0, 15, 64
-	n_timesteps, n_features, n_outputs = trainX.shape[1], trainX.shape[2], trainy.shape[1]
+	n_timesteps, n_features, n_outputs = X_train.shape[1], X_train.shape[2], y_train.shape[1]
 	model = Sequential()
 	model.add(LSTM(100, input_shape=(n_timesteps,n_features)))
 	model.add(Dropout(0.5))
@@ -76,7 +76,7 @@ def evaluate_model(X_train, X_test, y_train, y_test):
 	# fit network
 	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	# evaluate model
-	_, accuracy = model.evaluate(testX, testy, batch_size=batch_size, verbose=0)
+	_, accuracy = model.evaluate(X_test, y_test, batch_size=batch_size, verbose=0)
 	return accuracy
 # summarize scores
 def summarize_results(scores):
@@ -87,7 +87,8 @@ def summarize_results(scores):
 # run an experiment
 def run_experiment(repeats=5):
 	# load data
-	trainX, trainy, testX, testy = load_dataset()
+	X,y,df = build_df()
+	trainX, trainy, testX, testy = split_df(X,y,0.2)
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):
@@ -100,9 +101,9 @@ def run_experiment(repeats=5):
  
 # run the experiment
 run_experiment()
-X,y,df = build_df()
-X_train, X_test, y_train, y_test = split_df(X,y,0.2)
-print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
+# X,y,df = build_df()
+# X_train, X_test, y_train, y_test = split_df(X,y,0.2)
+# print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
 # plot_accel(1, 1, 1, df)
 
