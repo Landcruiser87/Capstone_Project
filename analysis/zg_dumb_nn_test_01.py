@@ -26,7 +26,7 @@ warnings.filterwarnings("ignore")
 
 # load the dataset, returns train and test X and y elements
 def pamap_load_dataset():
-    df = pd.read_csv("PAMA2P_Dataset/Protocol/ComboPlatter.csv")
+    df = pd.read_csv("PAMAP2_Dataset/Protocol/ComboPlatter.csv")
     df = df.drop(["timestamp_s", "subject_id"], axis = 1)
 	
     #Need to make activities go from 0-12 for the to_categorical function
@@ -132,12 +132,12 @@ def load_dataset():
 
 #Fit and evaluate a model
 def evaluate_model(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 25, 64
+	epochs, batch_size = 2, 64
 	
 	model = Sequential()
 	#model.add(Embedding(57, 32, input_length = 57))
 	#model.add(LSTM(32))
-	model.add(Dense(32, input_dim=57, activation='relu'))
+	model.add(Dense(32, input_dim=x_train.shape[1], activation='relu'))
 	model.add(Dropout(0.5))
 	model.add(Dense(32, activation='relu'))
 	model.add(Dense(y_train.shape[1], activation='softmax'))
