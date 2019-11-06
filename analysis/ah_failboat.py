@@ -68,3 +68,56 @@ if __name__ == "__main__":
     main()
 
 #%%
+def plot_accel(activity, subject, session, data):
+	data = data.iloc[500:1000]   									#Select a certain time period
+	data = data[data['subject_id']==subject] 						#Filter by person
+	data = data[data['session_id']==session] 						#Filter by session
+	data = data[data['exercise_id']==activity] 						#filter by exercise
+
+	#Graph all 3 axis on the same plot
+	plt.plot( 'TimeStamp_s', 'sID1_AccX_g', data=data, marker='', color='skyblue', linewidth=2, label='X-axis')
+	plt.plot( 'TimeStamp_s', 'sID1_AccY_g', data=data, marker='', color='olive', linewidth=2, label="Y-Axis")
+	plt.plot( 'TimeStamp_s', 'sID1_AccZ_g', data=data, marker='', color='brown', linewidth=2, label="Z-Axis")
+	plt.legend()
+
+    def plot_accel(activity, subject, session, data):
+	data = data.iloc[500:1000]   									#Select a certain time period
+	data = data[data['subject_id']==subject] 						#Filter by person
+	data = data[data['session_id']==session] 						#Filter by session
+	data = data[data['exercise_id']==activity] 						#filter by exercise
+
+	fig, (ax0, ax1, ax2) = plt.subplots(nrows=3,
+		figsize=(15, 10),
+		sharex=True)
+	#Graph all 3 axis on the same plot
+	#IMU1
+	plot_axis(ax0, data['Time_s'], data['sID1_AccX_g'], 'X-Axis')
+	plot_axis(ax0, data['Time_s'], data['sID1_AccY_g'], 'Y-Axis')
+	plot_axis(ax0, data['Time_s'], data['sID1_AccZ_g'], 'Z-Axis')
+
+	#IMU2
+	plot_axis(ax1, data['Time_s'], data['sID2_AccX_g'], 'X-Axis')
+	plot_axis(ax1, data['Time_s'], data['sID2_AccY_g'], 'Y-Axis')
+	plot_axis(ax1, data['Time_s'], data['sID2_AccZ_g'], 'Z-Axis')
+
+	#IMU3
+	plot_axis(ax2, data['Time_s'], data['sID3_AccX_g'], 'X-Axis')
+	plot_axis(ax2, data['Time_s'], data['sID3_AccY_g'], 'Y-Axis')
+	plot_axis(ax2, data['Time_s'], data['sID3_AccZ_g'], 'Z-Axis')
+
+	plt.subplots_adjust(hspace=0.2)
+	fig.suptitle(activity)
+	plt.subplots_adjust(top=0.90)
+	plt.xlabel('Time (s)')
+	plt.ylabel('Acceleration (g)')
+	plt.legend()
+	plt.show()
+
+	plt.plot( 'TimeStamp_s', 'sID1_AccX_g', data=data, marker='', color='skyblue', linewidth=2, label='X-axis')
+def plot_axis(ax, x, y, label):
+    ax.plot(x, y, label = label)
+    # ax.set_title(title)
+    ax.xaxis.set_visible(True)
+    ax.set_ylim([min(y) - np.std(y), max(y) + np.std(y)])
+    ax.set_xlim([min(x), max(x)])
+    ax.grid(True)
