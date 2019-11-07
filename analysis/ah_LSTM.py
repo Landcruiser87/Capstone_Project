@@ -55,8 +55,8 @@ def split_df(X,y,split=0.2):
 	
 	# reshape input to be 3D [samples, timesteps, features]
 	# Timestep = 2 seconds.  200 rows
-	X_train = X_train.values.reshape((X_train.shape[0], 200, X_train.shape[1]))
-	X_test = X_test.values.reshape((X_test.shape[0], 200, X_test.shape[1]))
+	X_train = np.reshape((X_train.shape[0], 200, X_train.shape[1]))
+	X_test = np.reshape((X_test.shape[0], 200, X_test.shape[1]))
 	print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 	
 
