@@ -41,12 +41,21 @@ def plot_accel(activity, subject, session, data):
 def split_df(X,y,split=0.2):
 	#Split data into test and train for attributes and target column
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split)
+
 	# offset class values from zero
 	y_train = y_train - 1
 	y_test = y_test - 1
+
 	# one hot encode y
 	y_train = to_categorical(y_train)
 	y_test = to_categorical(y_test)
+
+	# reshape input to be 3D [samples, timesteps, features]
+	X_train = X_train.values.reshape((X_train.shape[0], 50, X_train.values.shape[1]))
+	X_test = X_test.reshape((X_test.shape[0], 50, X_test.shape[1]))
+	print(X_train.shape, Y_train.shape, X_test.shape, Y_test.shape)
+	
+
 	return X_train, X_test, y_train, y_test
 
 def process_drops(df, cols):
@@ -60,7 +69,7 @@ def build_df(drops=["exercise_amt"]):
 	process_drops(df,drops)											#Drop columns
 	#process_window(df)
 	y = df["exercise_id"]											#Split out exercise_id
-	X = df.drop(columns=['Timestamp_s','exercise_id','subject_id','session_id']) 	#Load rest of attritubtes into new dataframe X
+	X = df.drop(columns=['TimeStamp_s','exercise_id','subject_id','session_id']) 	#Load rest of attributes into new dataframe X
 	return X,y,df
 	
 
@@ -74,7 +83,7 @@ def evaluate_model(X_train, X_test, y_train, y_test):
 	model.add(Dense(n_outputs, activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 	# fit network
-	model.fit(trainX, trainy, epochs=epochs, batch_size=batch_size, verbose=verbose)
+	model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=verbose)
 	# evaluate model
 	_, accuracy = model.evaluate(X_test, y_test, batch_size=batch_size, verbose=0)
 	return accuracy
@@ -85,7 +94,7 @@ def summarize_results(scores):
 	print('Accuracy: %.3f%% (+/-%.3f)' % (m, s))
  
 # run an experiment
-def run_experiment(repeats=5):
+def run_experiment(repeats=1):
 	# load data
 	X,y,df = build_df()
 	X_train, X_test, y_train, y_test = split_df(X,y,0.2)
