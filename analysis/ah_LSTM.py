@@ -12,6 +12,7 @@ import numpy as np
 from numpy import mean
 from numpy import std
 from numpy import dstack
+from numpy import array
 import seaborn as sns
 import matplotlib.pyplot as plt
 import timeit
@@ -38,6 +39,21 @@ def plot_accel(activity, subject, session, data):
 	plt.plot( 'TimeStamp_s', 'sID1_AccZ_g', data=data, marker='', color='brown', linewidth=2, label="Z-Axis")
 	plt.legend()
 
+def split_sequences(sequences, n_steps):
+	# split into samples (e.g. 5000/200 = 25)
+	# step over the data range in jumps of 200
+	print(sequences.shape)
+	samples = list()
+	for i in range(0,len(sequences),n_steps):
+		# grab from i to i + 200
+		sample = sequences[i:i+n_steps]
+		samples.append(sample)
+	data = array(samples)
+	print(data.shape)
+	data = data.reshape((len(samples), n_steps, 57))
+	print(data.shape)
+	return data
+
 def split_df(X,y,split=0.2):
 	#Split data into test and train for attributes and target column
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split)
@@ -50,16 +66,14 @@ def split_df(X,y,split=0.2):
 	y_train = to_categorical(y_train)
 	y_test = to_categorical(y_test)
 
-	t_window = 200
-	for i in range(0,n, t_window):
 	
 	# reshape input to be 3D [samples, timesteps, features]
 	# Timestep = 2 seconds.  200 rows
-	X_train = np.reshape((X_train.shape[0], 200, X_train.shape[1]))
-	X_test = np.reshape((X_test.shape[0], 200, X_test.shape[1]))
+	# Fuck i dont' know how to do this
+	t_window = 200
+	X_train = split_sequences(X_train, t_window)
+	X_test = split_sequences(X_test, t_window)
 	print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
-	
-
 	return X_train, X_test, y_train, y_test
 
 def process_drops(df, cols):
@@ -69,13 +83,12 @@ def process_drops(df, cols):
 #     #This function will assign time windows eventually
 
 def build_df(drops=["exercise_amt"]):
-	df = pd.read_csv("ComboPlatter.csv")  							#Load Data
-	process_drops(df,drops)											#Drop columns
-	#process_window(df)
-	y = df["exercise_id"]											#Split out exercise_id
+	df = pd.read_csv("ComboPlatter.csv")  											#Load Data
+	process_drops(df,drops)															#Drop columns
+	# process_window(df)
+	y = df["exercise_id"]															#Split out exercise_id
 	X = df.drop(columns=['TimeStamp_s','exercise_id','subject_id','session_id']) 	#Load rest of attributes into new dataframe X
 	return X,y,df
-	
 
 def evaluate_model(X_train, X_test, y_train, y_test):
 	verbose, epochs, batch_size = 0, 15, 64
