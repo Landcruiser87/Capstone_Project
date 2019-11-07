@@ -154,5 +154,42 @@ out_seq = out_seq.reshape((len(out_seq), 1))
 dataset = hstack((in_seq1, in_seq2, out_seq))
 print(dataset)
     
+# trying to understand array reshaping and why it hates me. 
 
 # %%
+from numpy import array
+ 
+# load...
+data = list()
+n = 5000
+for i in range(n):
+    data.append([i+1, (i+1)*10])
+data = array(data)
+print(data[:5, :])
+print(data.shape)
+
+#%%
+# drop time
+data = data[:, 1]
+print(data.shape)
+
+#%%
+samples = list()
+length = 200
+# step over the 5,000 in jumps of 200
+for i in range(0,n,length):
+	# grab from i to i + 200
+	sample = data[i:i+length]
+	samples.append(sample)
+print(len(samples))
+
+#%%
+# convert list of arrays into 2d array
+data = array(samples)
+print(data.shape)
+
+#%%
+# reshape into [samples, timesteps, features]
+# expect [25, 200, 1]
+data = data.reshape((len(samples), length, 1))
+print(data.shape)

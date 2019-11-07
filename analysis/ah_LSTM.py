@@ -39,8 +39,8 @@ def plot_accel(activity, subject, session, data):
 	plt.plot( 'TimeStamp_s', 'sID1_AccZ_g', data=data, marker='', color='brown', linewidth=2, label="Z-Axis")
 	plt.legend()
 
-def split_sequences(sequences, n_steps):
-	# split into samples (e.g. 5000/200 = 25)
+def fit_to_array(sequences, n_steps):
+	# split into samples (e.g. 31382/200 = 156)
 	# step over the data range in jumps of 200
 	print(sequences.shape)
 	samples = list()
@@ -48,9 +48,10 @@ def split_sequences(sequences, n_steps):
 		# grab from i to i + 200
 		sample = sequences[i:i+n_steps]
 		samples.append(sample)
-	data = array(samples)
-	print(data.shape)
-	data = data.reshape((len(samples), n_steps, 57))
+	samples = dstack(samples)
+	print(samples.shape)
+
+	data = data.reshape((len(samples), n_steps, 1))
 	print(data.shape)
 	return data
 
@@ -71,8 +72,8 @@ def split_df(X,y,split=0.2):
 	# Timestep = 2 seconds.  200 rows
 	# Fuck i dont' know how to do this
 	t_window = 200
-	X_train = split_sequences(X_train, t_window)
-	X_test = split_sequences(X_test, t_window)
+	X_train = fit_to_array(X_train, t_window)
+	X_test = fit_to_array(X_test, t_window)
 	print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 	return X_train, X_test, y_train, y_test
 
