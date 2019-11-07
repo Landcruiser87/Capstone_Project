@@ -50,9 +50,11 @@ def split_df(X,y,split=0.2):
 	y_train = to_categorical(y_train)
 	y_test = to_categorical(y_test)
 
+
 	# reshape input to be 3D [samples, timesteps, features]
-	X_train = X_train.values.reshape((X_train.shape[0], 50, X_train.values.shape[1]))
-	X_test = X_test.reshape((X_test.shape[0], 50, X_test.shape[1]))
+	# Timestep = 2 seconds.  200 rows
+	X_train = X_train.values.reshape((X_train.shape[0], 200, X_train.values.shape[1]))
+	X_test = X_test.reshape((X_test.shape[0], 200, X_test.shape[1]))
 	print(X_train.shape, Y_train.shape, X_test.shape, Y_test.shape)
 	
 
