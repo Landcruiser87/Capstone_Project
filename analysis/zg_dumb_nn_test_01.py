@@ -1,6 +1,7 @@
 from numpy import mean
 from numpy import std
 from numpy import dstack
+import numpy as np
 import pandas as pd
 from pandas import read_csv
 from keras.models import Sequential
@@ -12,6 +13,8 @@ from keras.layers import Dropout
 #from keras.layers import TimeDistributed
 #from keras.layers import ConvLSTM2D
 from keras.utils import to_categorical
+import itertools
+import random
 #from matplotlib import pyplot
 #from sklearn.model_selection import train_test_split 
 
@@ -103,6 +106,78 @@ def har_load_dataset():
 
 #------------------------------------------------------------------------------
 #START| LOADING FIREBUSTERS DATASET
+    
+def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
+    #get all exercise ID's
+    df_exid = df['exercise_id'].unique()
+    #get all subject ID's
+    df_subid = df['subject_id'].unique()
+    #get all session ID's
+    df_sesid = df['session_id'].unique()
+    
+    #This makes all possible combinations of session/exercise/subject
+    all_combo = list(itertools.product(df_exid, df_subid, df_sesid))
+    
+    #This makes a separate dataframe of each session/exercise/subject combination
+    df_all = []
+    for combo in all_combo:
+        if ((df['exercise_id'] == combo[0]) & (df['subject_id'] == combo[1]) & (df['session_id'] == combo[2])).any():
+            #This combination exists, get all rows that match this
+           df_all.append( df.loc[(df['exercise_id'] == combo[0]) & (df['subject_id'] == combo[1]) & (df['session_id'] == combo[2])] )
+
+    #Makes the windows
+    windows = []
+    for a_df in df_all:
+        #Number of rows in the dataframe
+        nrows = a_df.shape[0]
+        #Number of windows in the dataframe
+        num_windows = int(( (nrows-t_window)/(t_window*(1-t_overlap)) )+1)
+        #The starting offset (ex: t_window:200 t_overlap:0.25 offset:150)
+        offset = int(t_window*(1-t_overlap))
+        #Number of rows used from the dataframe, used to determine the last
+        #locations windows to start at
+        rows_used = int(t_window + (num_windows-2)*offset)
+        
+        #This puts the first window dataframe into the list
+        if rows_used >= t_window:
+            windows.append(a_df[0:t_window].to_numpy())
+        
+        #Puts the remaining windows into the list
+        for i in range(offset, rows_used, offset):
+            windows.append( a_df[i:i+t_window].to_numpy() )
+    
+    windows = np.array(windows)
+    
+    y_axis = df.columns.get_loc("exercise_id")
+
+    #Delete columns we don't want
+    cols_to_delete = []
+    cols_to_delete.append(df.columns.get_loc("TimeStamp_s"))
+    cols_to_delete.append(df.columns.get_loc("exercise_amt"))
+    cols_to_delete.append(df.columns.get_loc("session_id"))
+    cols_to_delete.append(df.columns.get_loc("subject_id"))
+    cols_to_delete.append(y_axis)
+    
+    y = windows[:, :, y_axis] - 1
+    y = to_categorical(y)
+    
+    x = np.copy(windows)
+    x = np.delete(x, cols_to_delete, axis = 2)
+    
+    #Train size
+    frac = 0.8
+    train_size = int(x.shape[0]*frac)
+    train_indices = list(random.sample(range(0, x.shape[0]), train_size))
+    all_values = np.arange(0, windows.shape[0])
+    test_indices = [ti for ti in all_values if ti not in train_indices]
+    
+    x_train = np.array([x[i,:,:] for i in train_indices])
+    y_train = np.array([y[i,:,:] for i in train_indices])
+    x_test = np.array([x[i,:,:] for i in test_indices])
+    y_test = np.array([y[i,:,:] for i in test_indices])
+    
+    print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
+    return (x_train, y_train, x_test, y_test)
 
 # load the dataset, returns train and test X and y elements
 def load_dataset():
@@ -184,16 +259,20 @@ def run_experiment(repeats=5):
 #START| MAIN
 
 # run the experiment
-run_experiment(1)
+#run_experiment(1)
 
 #x_train, y_train, x_test, y_test = load_dataset()
 #print(x_test.columns)#shape, y_train.shape, x_test.shape, y_test.shape)
 #n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 #print(x_train.shape)
 
+#print("Exercise_id, subject_id, session_id")
+df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
 
+x_train, y_train, x_test, y_test = load_dataset_windows(df)
+#print(x_test.shape, y_train.shape, x_test.shape, y_test.shape)
 
-
+#print(val)
 
 
 
