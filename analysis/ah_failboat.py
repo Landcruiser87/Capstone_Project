@@ -193,3 +193,101 @@ print(data.shape)
 # expect [25, 200, 1]
 data = data.reshape((len(samples), length, 1))
 print(data.shape)
+
+#%%
+
+# load dataset
+from numpy import dstack
+from pandas import read_csv
+import os
+
+os.chdir("C:/githubrepo/CapstoneA/data/HAR/HARdataset/")
+
+# load a single file as a numpy array
+def load_file(filepath):
+	dataframe = read_csv(filepath, header=None, delim_whitespace=True)
+	return dataframe.values
+ 
+# load a list of files, such as x, y, z data for a given variable
+def load_group(filenames, prefix=''):
+	loaded = list()
+	for name in filenames:
+		data = load_file(prefix + name)
+		loaded.append(data)
+        print(loaded.shape)
+	# stack group so that features are the 3rd dimension
+	loaded = dstack(loaded)
+	return loaded
+ 
+# load the total acc data
+filenames = ['total_acc_x_train.txt', 'total_acc_y_train.txt', 'total_acc_z_train.txt']
+total_acc = load_group(filenames, prefix='HARDataset/train/Inertial Signals/')
+print(total_acc.shape)
+
+
+# -------------------------Time Window Assignment-------------------------------------
+#%%
+
+import os
+import pandas as pd
+import numpy as np 
+import numpy as np
+import itertools
+
+from scipy import stats
+from numpy import mean
+from numpy import std
+from numpy import dstack
+from numpy import array
+
+os.chdir("C:/githubrepo/CapstoneA/data/")
+
+def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
+
+	#split by session and exercise and subject
+		#iterate through and make windows
+		#profit
+	#get all exercise ID's
+	df_exid = df['exercise_id'].unique()
+	#get all subject ID's
+	df_subid = df['subject_id'].unique()
+	#get all session ID's
+	df_sesid = df['session_id'].unique()
+
+	all_combo = list(itertools.product(df_exid, df_subid, df_sesid))
+	
+	for combo in all_combo:
+		df_all = []
+		if ((df['exercise_id'] == combo[0]) & (df['subject_id'] == combo[1]) & (df['session_id'] == combo[2])).any():
+			#This combination exists, get all rows that match this and add to the dataframe.
+			df_all.append( df.loc[(df['exercise_id'] == combo[0]) & (df['subject_id'] == combo[1]) & (df['session_id'] == combo[2])] )
+		step = 20
+		segments = []
+		labels = []
+		for i in range(0, len(df_all) - t_window, step):
+			xs = df_all['sID1_AccX_g'].values[i: i + t_window]
+			ys = df_all['sID1_AccY_g'].values[i: i + t_window]
+			zs = df_all['sID1_AccZ_g'].values[i: i + t_window]
+			label = stats.mode(df_all['exercise_id'][i: i + t_window])[0][0]
+			segments.append([xs, ys, zs])
+			labels.append(label)
+		
+		print(np.array(segments).shape)
+	# for a_df in df_all
+	# 		nwindows = int(a_df.shape[0]/t_window)
+	# 		print(a_df.shape) 
+	# 		print(nwindows)
+		# Next lowest divisible time stamp with the time window (round down probably)
+		# Drop data above that time stamp.
+		# Add it to the new array.  
+		# Calculate what the overlap is from the t_window
+		# iterate to the overlap % (should probably pass that into the load_dataset_windows as a class var)      
+		# First window ends at t_window
+		#ending after that is
+print("Exercise_id, subject_id, session_id")
+df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
+val = load_dataset_windows(df)
+print(val)
+
+
+# %%

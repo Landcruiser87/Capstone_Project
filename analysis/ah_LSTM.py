@@ -39,23 +39,42 @@ def plot_accel(activity, subject, session, data):
 	plt.plot( 'TimeStamp_s', 'sID1_AccZ_g', data=data, marker='', color='brown', linewidth=2, label="Z-Axis")
 	plt.legend()
 
-def fit_to_array(sequences, n_steps):
-	# split into samples (e.g. 31382/200 = 156)
-	# step over the data range in jumps of 200
-	print(sequences.shape)
-	samples = list()
-	for i in range(0,len(sequences),n_steps):
-		# grab from i to i + 200
-		sample = sequences[i:i+n_steps]
-		samples.append(sample)
-	samples = dstack(samples)
-	print(samples.shape)
 
-	data = data.reshape((len(samples), n_steps, 1))
-	print(data.shape)
+
+
+def split_window(df,t_window = 200 ):
+	# reshape input to be 3D [samples, timesteps, features]
+	# Timestep = 2 seconds.  200 rows
+	# Thought process
+		# create empty window list
+		# specify window depth
+		# Isolate each subject and activity in a for loop
+
+	# split into samples (e.g. train_x = 31382/200 = 156 time windows)
+	# step over the data range in jumps of 200
+	print(df.shape)
+
+	# Makes the windows, non-overlaping
+	windows = list()
+	items_in_window = []
+	window_counter = 0
+	for i in range(0,df.shape[0]):
+		items_in_window.append(df.iloc[i])
+		window_counter += 1
+		if window_counter >= t_window:
+			window_counter = 0
+			windows.append(item_in_window)
+			item_in_window = []
+
+	#samples = dstack(samples)
+	#print(samples.shape)
+
+	#data = data.reshape((len(samples), n_steps, 57))
+	#print(data.shape)
 	return data
 
 def split_df(X,y,split=0.2):
+
 	#Split data into test and train for attributes and target column
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split)
 
@@ -68,12 +87,7 @@ def split_df(X,y,split=0.2):
 	y_test = to_categorical(y_test)
 
 	
-	# reshape input to be 3D [samples, timesteps, features]
-	# Timestep = 2 seconds.  200 rows
-	# Fuck i dont' know how to do this
-	t_window = 200
-	X_train = fit_to_array(X_train, t_window)
-	X_test = fit_to_array(X_test, t_window)
+
 	print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 	return X_train, X_test, y_train, y_test
 
@@ -88,7 +102,7 @@ def build_df(drops=["exercise_amt"]):
 	process_drops(df,drops)															#Drop columns
 	# process_window(df)
 	y = df["exercise_id"]															#Split out exercise_id
-	X = df.drop(columns=['TimeStamp_s','exercise_id','subject_id','session_id']) 	#Load rest of attributes into new dataframe X
+	X = df.drop(columns=['exercise_id'])
 	return X,y,df
 
 def evaluate_model(X_train, X_test, y_train, y_test):
@@ -115,6 +129,7 @@ def summarize_results(scores):
 def run_experiment(repeats=1):
 	# load data
 	X,y,df = build_df()
+	df = split_window(df)
 	X_train, X_test, y_train, y_test = split_df(X,y,0.2)
 	# repeat experiment
 	scores = list()
