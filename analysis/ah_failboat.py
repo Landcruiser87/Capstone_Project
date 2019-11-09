@@ -275,7 +275,7 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
 		print(np.array(segments).shape)
 	# for a_df in df_all
 	# 		nwindows = int(a_df.shape[0]/t_window)
-	# 		print(a_df.shape) 
+	# 		print(a_df. shape) 
 	# 		print(nwindows)
 		# Next lowest divisible time stamp with the time window (round down probably)
 		# Drop data above that time stamp.
