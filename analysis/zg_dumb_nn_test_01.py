@@ -6,10 +6,10 @@ import pandas as pd
 from pandas import read_csv
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.layers import Embedding
+#from keras.layers import Embedding
 #from keras.layers import Flatten
 from keras.layers import Dropout
-#from keras.layers import LSTM
+from keras.layers import LSTM
 #from keras.layers import TimeDistributed
 #from keras.layers import ConvLSTM2D
 from keras.utils import to_categorical
@@ -107,7 +107,9 @@ def har_load_dataset():
 #------------------------------------------------------------------------------
 #START| LOADING FIREBUSTERS DATASET
     
-def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
+def load_dataset_windows(t_window = 200, t_overlap = 0.25):
+    df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
+
     #get all exercise ID's
     df_exid = df['exercise_id'].unique()
     #get all subject ID's
@@ -158,7 +160,7 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
     cols_to_delete.append(df.columns.get_loc("subject_id"))
     cols_to_delete.append(y_axis)
     
-    y = windows[:, :, y_axis] - 1
+    y = windows[:, 0, y_axis] - 1
     y = to_categorical(y)
     
     x = np.copy(windows)
@@ -172,9 +174,9 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
     test_indices = [ti for ti in all_values if ti not in train_indices]
     
     x_train = np.array([x[i,:,:] for i in train_indices])
-    y_train = np.array([y[i,:,:] for i in train_indices])
+    y_train = np.array([y[i,:] for i in train_indices])
     x_test = np.array([x[i,:,:] for i in test_indices])
-    y_test = np.array([y[i,:,:] for i in test_indices])
+    y_test = np.array([y[i,:] for i in test_indices])
     
     print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
     return (x_train, y_train, x_test, y_test)
@@ -204,6 +206,37 @@ def load_dataset():
 
 #------------------------------------------------------------------------------
 #START| MODEL STUFFS
+
+#Fit and evaluate a model
+def evaluate_model_lstm(x_train, y_train, x_test, y_test):
+	epochs, batch_size = 2, 64
+	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
+	model = Sequential()
+	model.add(LSTM(64, input_shape=(n_timesteps, n_features), return_sequences = False))
+	#model.add(LSTM(activation='relu', input_shape=(x_train.shape[0], 1, x_train[2])))
+	#model.add(Dense(32, input_dim=x_train.shape[1], activation='relu'))
+	model.add(Dropout(0.5))
+	model.add(Dense(32, activation='relu'))
+	model.add(Dense(y_train.shape[1], activation='softmax'))
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+	#Define model
+	#model = Sequential()
+	#model.add(ConvLSTM2D(filters=64, kernel_size=(1,3), activation='relu', input_shape=(n_steps, 1, n_length)))
+	#model.add(Dropout(0.5))
+	#model.add(Flatten())
+	#model.add(Dense(100, activation='relu'))
+	#model.add(Dense(n_outputs, activation='softmax'))
+	#model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+	print("HEREREEEEEEEEEEE")
+	# fit network
+	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+
+	# evaluate model
+	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
+
+	return accuracy
 
 #Fit and evaluate a model
 def evaluate_model(x_train, y_train, x_test, y_test):
@@ -244,11 +277,13 @@ def summarize_results(scores):
 # run an experiment
 def run_experiment(repeats=5):
 	# load data
-	x_train, y_train, x_test, y_test = load_dataset()
+	#x_train, y_train, x_test, y_test = load_dataset()
+	x_train, y_train, x_test, y_test = load_dataset_windows()
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):
-		score = evaluate_model(x_train, y_train, x_test, y_test)
+		#score = evaluate_model(x_train, y_train, x_test, y_test)
+		score = evaluate_model_lstm(x_train, y_train, x_test, y_test)
 		score = score * 100.0
 		print('>#%d: %.3f' % (r+1, score))
 		scores.append(score)
@@ -259,7 +294,7 @@ def run_experiment(repeats=5):
 #START| MAIN
 
 # run the experiment
-#run_experiment(1)
+run_experiment(1)
 
 #x_train, y_train, x_test, y_test = load_dataset()
 #print(x_test.columns)#shape, y_train.shape, x_test.shape, y_test.shape)
@@ -267,9 +302,9 @@ def run_experiment(repeats=5):
 #print(x_train.shape)
 
 #print("Exercise_id, subject_id, session_id")
-df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
+#df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
 
-x_train, y_train, x_test, y_test = load_dataset_windows(df)
+#x_train, y_train, x_test, y_test = load_dataset_windows(df)
 #print(x_test.shape, y_train.shape, x_test.shape, y_test.shape)
 
 #print(val)
