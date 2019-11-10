@@ -237,15 +237,17 @@ def evaluate_model_lstm(x_train, y_train, x_test, y_test):
 
 	return accuracy
 
-#Fit and evaluate a model
+#Fit and evaluate a model - 99.89% accuracy 11.10.19
 def evaluate_model(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 2, 64
+	epochs, batch_size = 10, 128
 	
 	model = Sequential()
 	#model.add(Embedding(57, 32, input_length = 57))
 	#model.add(LSTM(32))
-	model.add(Dense(32, input_dim=x_train.shape[1], activation='relu'))
-	model.add(Dropout(0.5))
+	model.add(Dense(500, input_dim=x_train.shape[1], activation='relu'))
+	model.add(Dropout(0.2))
+	model.add(Dense(100, activation='relu'))
+	model.add(Dropout(0.2))
 	model.add(Dense(32, activation='relu'))
 	model.add(Dense(y_train.shape[1], activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -276,13 +278,13 @@ def summarize_results(scores):
 # run an experiment
 def run_experiment(repeats=5):
 	# load data
-	#x_train, y_train, x_test, y_test = load_dataset()
-	x_train, y_train, x_test, y_test = load_dataset_windows()
+	x_train, y_train, x_test, y_test = load_dataset()
+	#x_train, y_train, x_test, y_test = load_dataset_windows()
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):
-		#score = evaluate_model(x_train, y_train, x_test, y_test)
-		score = evaluate_model_lstm(x_train, y_train, x_test, y_test)
+		score = evaluate_model(x_train, y_train, x_test, y_test)
+		#score = evaluate_model_lstm(x_train, y_train, x_test, y_test)
 		score = score * 100.0
 		print('>#%d: %.3f' % (r+1, score))
 		scores.append(score)
