@@ -207,17 +207,17 @@ def load_dataset():
 #------------------------------------------------------------------------------
 #START| MODEL STUFFS
 
-#Fit and evaluate a model
+#Fit and evaluate a model - 100% accuracy 11.10.19
 def evaluate_model_lstm(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 2, 64
+	epochs, batch_size = 4, 8
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	model = Sequential()
-	model.add(LSTM(64, input_shape=(n_timesteps, n_features), return_sequences = False))
-	#model.add(LSTM(activation='relu', input_shape=(x_train.shape[0], 1, x_train[2])))
-	#model.add(Dense(32, input_dim=x_train.shape[1], activation='relu'))
-	model.add(Dropout(0.5))
+	model.add(LSTM(500, input_shape=(n_timesteps, n_features), return_sequences = False))
+	model.add(Dropout(0.25))
+	model.add(Dense(100, activation='relu'))
+	model.add(Dropout(0.25))
 	model.add(Dense(32, activation='relu'))
-	model.add(Dense(y_train.shape[1], activation='softmax'))
+	model.add(Dense(n_outputs, activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	#Define model
@@ -229,7 +229,6 @@ def evaluate_model_lstm(x_train, y_train, x_test, y_test):
 	#model.add(Dense(n_outputs, activation='softmax'))
 	#model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-	print("HEREREEEEEEEEEEE")
 	# fit network
 	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
 
@@ -294,7 +293,7 @@ def run_experiment(repeats=5):
 #START| MAIN
 
 # run the experiment
-run_experiment(1)
+run_experiment(3)
 
 #x_train, y_train, x_test, y_test = load_dataset()
 #print(x_test.columns)#shape, y_train.shape, x_test.shape, y_test.shape)
