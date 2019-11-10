@@ -26,6 +26,6 @@ knn.fit(x_train, y_train)
 
 y_pred = knn.predict(x_test)
 
-confusion_matrix(y_test, y_pred)
+print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
 
