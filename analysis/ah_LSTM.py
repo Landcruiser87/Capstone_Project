@@ -144,7 +144,7 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
 
 #Fit and evaluate a model
 def evaluate_model(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 10, 8
+	epochs, batch_size = 5, 8
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	model = Sequential()
 	model.add(LSTM(500, input_shape=(n_timesteps, n_features), return_sequences = False))
@@ -155,9 +155,16 @@ def evaluate_model(x_train, y_train, x_test, y_test):
 	model.add(Dense(n_outputs, activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
-
+	# fit network and plot loss
+	# Attempting to chart loss
+	history = model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+	plt.plot(history.history['loss'])
+	# plt.plot(history.history['val_loss'])
+	plt.title('model train vs validation loss')
+	plt.ylabel('loss')
+	plt.xlabel('epoch')
+	plt.legend(['train', 'validation'], loc='upper right')
+	plt.show()
 	# evaluate model
 	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
 	return accuracy
@@ -181,19 +188,8 @@ def run_experiment(repeats=1):
 		print('>#%d: %.3f' % (r+1, score))
 		scores.append(score)
 	# summarize results
-
 	summarize_results(scores)
 
-# def plot_test_trainmodel():
-
-#     history = model.fit(x_train, y_train, epochs=100, validation_data=(x_test, y_test))
-#     plt.plot(history.history['loss'])
-#     plt.plot(history.history['val_loss'])
-#     plt.title('model train vs validation loss')
-#     plt.ylabel('loss')
-#     plt.xlabel('epoch')
-#     plt.legend(['train', 'validation'], loc='upper right')
-#     plt.show()
 
 #------------------------------------------------------------------------------
 #START| MAIN
