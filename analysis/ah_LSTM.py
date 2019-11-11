@@ -118,7 +118,7 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
     cols_to_delete.append(df.columns.get_loc("subject_id"))
     cols_to_delete.append(y_axis)
     
-    y = windows[:, :, y_axis] - 1
+    y = windows[:, 0, y_axis] - 1
     y = to_categorical(y)
     
     x = np.copy(windows)
@@ -132,9 +132,9 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
     test_indices = [ti for ti in all_values if ti not in train_indices]
     
     x_train = np.array([x[i,:,:] for i in train_indices])
-    y_train = np.array([y[i,:,:] for i in train_indices])
+    y_train = np.array([y[i,:] for i in train_indices])
     x_test = np.array([x[i,:,:] for i in test_indices])
-    y_test = np.array([y[i,:,:] for i in test_indices])
+    y_test = np.array([y[i,:] for i in test_indices])
     
     print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
     return (x_train, y_train, x_test, y_test)
@@ -144,17 +144,19 @@ def load_dataset_windows(df, t_window = 200, t_overlap = 0.25):
 
 #Fit and evaluate a model
 def evaluate_model(x_train, y_train, x_test, y_test):
-	verbose, epochs, batch_size = 0, 15, 64	
+	epochs, batch_size = 10, 8
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	model = Sequential()
-	model.add(LSTM(32, input_shape=(n_timesteps, n_features)))
-	model.add(Dropout(0.5))
+	model.add(LSTM(500, input_shape=(n_timesteps, n_features), return_sequences = False))
+	model.add(Dropout(0.25))
+	model.add(Dense(100, activation='relu'))
+	model.add(Dropout(0.25))
 	model.add(Dense(32, activation='relu'))
 	model.add(Dense(n_outputs, activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size, verbose=verbose)
+	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
 
 	# evaluate model
 	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
@@ -179,7 +181,19 @@ def run_experiment(repeats=1):
 		print('>#%d: %.3f' % (r+1, score))
 		scores.append(score)
 	# summarize results
+
 	summarize_results(scores)
+
+# def plot_test_trainmodel():
+
+#     history = model.fit(x_train, y_train, epochs=100, validation_data=(x_test, y_test))
+#     plt.plot(history.history['loss'])
+#     plt.plot(history.history['val_loss'])
+#     plt.title('model train vs validation loss')
+#     plt.ylabel('loss')
+#     plt.xlabel('epoch')
+#     plt.legend(['train', 'validation'], loc='upper right')
+#     plt.show()
 
 #------------------------------------------------------------------------------
 #START| MAIN
