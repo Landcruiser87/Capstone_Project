@@ -21,8 +21,8 @@ from keras.utils import to_categorical
 import itertools
 import random
 
-import os
-os.chdir("C:/githubrepo/CapstoneA/data/") #Zack and Andy's github data folder
+#import os
+#os.chdir("C:/githubrepo/CapstoneA/data/") #Zack and Andy's github data folder
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -153,9 +153,9 @@ class Load_Data:
     def har_load_dataset(self):
         #print("Fixed-width sliding windows of 2.56 sec and 50% overlap (128 readings/window)")
     	# load all train
-        trainX, trainy = self.har_load_dataset_group('train', 'HAR_Dataset/')
+        trainX, trainy = self.har_load_dataset_group('train', 'data/HAR_Dataset/')
     	# load all test
-        testX, testy = self.har_load_dataset_group('test', 'HAR_Dataset/')
+        testX, testy = self.har_load_dataset_group('test', 'data/HAR_Dataset/')
     	# zero-offset class values
         trainy = trainy - 1
         testy = testy - 1
@@ -167,7 +167,7 @@ class Load_Data:
 #------------------------------------------------------------------------------
 #START| LOADING PAMAP2 DATASET
     def load_dataset_pamap2_windows(self, t_window, t_overlap):
-        df = pd.read_csv("PAMAP2_Dataset/Protocol/ComboPlatter.csv")
+        df = pd.read_csv("data/PAMAP2_Dataset/Protocol/ComboPlatter.csv")
             	
         #Need to make activities go from 0-12 for the to_categorical function
         df.loc[df['activityID'] == 12, 'activityID'] = 8
@@ -244,7 +244,7 @@ class Load_Data:
         return (x_train, y_train, x_test, y_test)
     
     def load_dataset_pamap2_nowindows(self):
-        df = pd.read_csv("PAMAP2_Dataset/Protocol/ComboPlatter.csv")
+        df = pd.read_csv("data/PAMAP2_Dataset/Protocol/ComboPlatter.csv")
         df = df.drop(["timestamp_s", "subject_id"], axis = 1)
     	
         #Need to make activities go from 0-12 for the to_categorical function
@@ -271,7 +271,7 @@ class Load_Data:
 #------------------------------------------------------------------------------
 #START| LOADING FIREBUSTERS DATASET
     def load_dataset_fb_windows(self, t_window = 200, t_overlap = 0.25):
-        df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
+        df = pd.read_csv("data/Zenshin_Data/ComboPlatter.csv")
     
         #get all exercise ID's
         df_exid = df['exercise_id'].unique()
@@ -346,7 +346,7 @@ class Load_Data:
     
     # load the dataset, returns train and test X and y elements
     def load_dataset_fb_nowindows(self):
-    	df = pd.read_csv("Zenshin_Data/ComboPlatter.csv")
+    	df = pd.read_csv("data/Zenshin_Data/ComboPlatter.csv")
     	df = df.drop(["TimeStamp_s", "exercise_amt", "session_id", "subject_id"], axis = 1)
     	
     	x_train = df.sample(frac = self.train_percent, random_state = 0)
