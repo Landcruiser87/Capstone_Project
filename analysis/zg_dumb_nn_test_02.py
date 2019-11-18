@@ -24,8 +24,7 @@ warnings.filterwarnings("ignore")
 #START| MODEL STUFFS
 
 #Fit and evaluate a model - 33.3%
-def model_cnn_01(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 10, 8
+def model_cnn_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 8):
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 
 	model = Sequential()
@@ -47,8 +46,7 @@ def model_cnn_01(x_train, y_train, x_test, y_test):
 	return accuracy
 
 #Fit and evaluate a model - 100% accuracy 11.10.19
-def model_lstm_01(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 10, 4
+def model_lstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	model = Sequential()
 	model.add(LSTM(500, input_shape=(n_timesteps, n_features), return_sequences = False))
@@ -69,8 +67,7 @@ def model_lstm_01(x_train, y_train, x_test, y_test):
 
 #for PAMAP2 dataset - 94.99% accuracy 11.10.19
 #Fit and evaluate a model - 99.89% accuracy 11.10.19
-def model_nn_01(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 10, 100
+def model_nn_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 100):
 	
 	model = Sequential()
 	#model.add(Embedding(57, 32, input_length = 57))
@@ -98,11 +95,11 @@ def summarize_results(scores):
 	print('Accuracy: %.3f%% (+/-%.3f)' % (m, s))
 
 # run an experiment
-def run_experiment(x_train, y_train, x_test, y_test, model, repeats = 5):
+def run_experiment(x_train, y_train, x_test, y_test, model, model_params, repeats = 5):
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):
-		score = model(x_train, y_train, x_test, y_test)
+		score = model(x_train, y_train, x_test, y_test, **model_params)
 		#score = evaluate_model_lstm(x_train, y_train, x_test, y_test)
 		score = score * 100.0
 		print('>#%d: %.3f' % (r+1, score))
@@ -121,8 +118,11 @@ data_params = {'dataset' : 'firebusters',
                }
 dataset = Load_Data(**data_params)
 
+model_params = {'epochs' : 2,
+                'batch_size' : 100
+                }
 run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
-               model_nn_01, 3)
+               model_nn_01, model_params, 3)
 
 
 
