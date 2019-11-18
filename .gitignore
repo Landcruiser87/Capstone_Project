@@ -11,3 +11,4 @@
 
 #Ignore Data Folder
 data/
+analysis/__pycache__/
