@@ -12,11 +12,11 @@ from keras.layers import Dropout
 from keras.layers import LSTM
 #from keras.layers import ConvLSTM2D
 from keras.utils import to_categorical
-import analysis.zg_Load_Data
 
 import os
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
-#os.chdir("C:/SAM SAM SAM SAM/CapstoneA/data/") #Sam's github data folder
+from analysis.zg_Load_Data import Load_Data
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 #START| MODEL STUFFS
 
 #Fit and evaluate a model - 33.3%
-def evaluate_model_cnn(x_train, y_train, x_test, y_test):
+def model_cnn_01(x_train, y_train, x_test, y_test):
 	epochs, batch_size = 10, 8
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 
@@ -47,7 +47,7 @@ def evaluate_model_cnn(x_train, y_train, x_test, y_test):
 	return accuracy
 
 #Fit and evaluate a model - 100% accuracy 11.10.19
-def evaluate_model_lstm(x_train, y_train, x_test, y_test):
+def model_lstm_01(x_train, y_train, x_test, y_test):
 	epochs, batch_size = 10, 4
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	model = Sequential()
@@ -69,8 +69,8 @@ def evaluate_model_lstm(x_train, y_train, x_test, y_test):
 
 #for PAMAP2 dataset - 94.99% accuracy 11.10.19
 #Fit and evaluate a model - 99.89% accuracy 11.10.19
-def evaluate_model(x_train, y_train, x_test, y_test):
-	epochs, batch_size = 10, 4
+def model_nn_01(x_train, y_train, x_test, y_test):
+	epochs, batch_size = 10, 100
 	
 	model = Sequential()
 	#model.add(Embedding(57, 32, input_length = 57))
@@ -98,11 +98,11 @@ def summarize_results(scores):
 	print('Accuracy: %.3f%% (+/-%.3f)' % (m, s))
 
 # run an experiment
-def run_experiment(x_train, y_train, x_test, y_test, repeats = 5):
+def run_experiment(x_train, y_train, x_test, y_test, model, repeats = 5):
 	# repeat experiment
 	scores = list()
 	for r in range(repeats):
-		score = evaluate_model_cnn(x_train, y_train, x_test, y_test)
+		score = model(x_train, y_train, x_test, y_test)
 		#score = evaluate_model_lstm(x_train, y_train, x_test, y_test)
 		score = score * 100.0
 		print('>#%d: %.3f' % (r+1, score))
@@ -120,7 +120,9 @@ data_params = {'dataset' : 'firebusters',
                'o_percent' : 0.25
                }
 dataset = Load_Data(**data_params)
-run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test, 3)
+
+run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
+               model_nn_01, 3)
 
 
 
