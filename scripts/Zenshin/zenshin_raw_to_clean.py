@@ -14,7 +14,7 @@ def GetFilenames(p):
     for r, d, f in os.walk(p):
         for file in f:
             if '.csv' in file:
-                files.append(os.path.join(r, file))    
+                files.append(os.path.join(r, file))
     return files
 
 #Returns a list of all of the filenames in the 'raw' directory
@@ -57,17 +57,27 @@ def CleanFile(file):
     
     df.columns = new_col_names
     
-    # Delete multiple columns from the dataframe
-    df = df.drop(["FrameNumber", "Pressure_kPa", "Altitude_m",
-                  "Temperature_degC", "HeaveMotion_m"], axis=1)
+    df = df.sort_values(['Sensor_id', 'FrameNumber'], ascending=[True, True])
+    #df = df.sort_values(['Sensor_id', 'TimeStamp_s'], ascending=[True, True])
     
-    df = df.sort_values(['Sensor_id', 'TimeStamp_s'], ascending=[True, True])
+    first = df.loc[(df['FrameNumber'] == 0) & (df['Sensor_id'] == 1)]['TimeStamp_s'].values[0]
+    second = df.loc[(df['FrameNumber'] == 1) & (df['Sensor_id'] == 1)]['TimeStamp_s'].values[0]
+    timediff = second-first
+
+    # Delete multiple columns from the dataframe
+    df = df.drop(["TimeStamp_s", "Pressure_kPa", "Altitude_m",
+                  "Temperature_degC", "HeaveMotion_m"], axis=1)
+    #df = df.drop(["FrameNumber", "Pressure_kPa", "Altitude_m",
+    #              "Temperature_degC", "HeaveMotion_m"], axis=1)
+    
     
     #Resets the index, just in case this is used later
     df = df.reset_index(drop = True)
     
-    #TODO: COMBINE ALL OF THE TIME SLOT INTO ONE ROW
+    #COMBINE ALL OF THE TIME SLOTS INTO ONE ROW
     df = join_by_timeslot(df)
+    
+    df = Make_TimeStamp(df, timediff)
     
     #If the file already has these columns we skip the adding of these
     if 'exercise_id' in df.columns:
@@ -89,6 +99,11 @@ def CleanFile(file):
     
     return (df, new_filename)
 
+#Time stamps are sometimes not reset so we have to make the time stamp here
+def Make_TimeStamp(df, timediff):
+    df['TimeStamp_s'] = df['FrameNumber']*timediff
+    return df.drop(["FrameNumber"], axis=1)
+
 def join_by_timeslot(df):
     df_sens = []
     df_sens.append(df[df.Sensor_id == 1])
@@ -100,17 +115,25 @@ def join_by_timeslot(df):
         df_sens[i] = df_sens[i].drop("Sensor_id", axis=1)
         new_names = []
         for nm in df_sens[i].columns:
-            if nm == "TimeStamp_s":
+            if nm == "FrameNumber":
                 new_names.append(nm)
             else:
                 new_names.append("sID" + str(i+1) + "_" + nm)
         df_sens[i].columns = new_names
 
+    #print(df_sens[0].TimeStamp_s)
+    #print(df_sens[1].TimeStamp_s)
+    #print(df_sens[2].TimeStamp_s)
+
     #Inner join x2
     merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
-                            left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+                            left_on = 'FrameNumber', right_on = 'FrameNumber')
     merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
-                            left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+                            left_on = 'FrameNumber', right_on = 'FrameNumber')
+    #merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
+    #                        left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+    #merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
+    #                        left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
     return merged_inner1
 
 #Function to clean the text file
@@ -119,10 +142,10 @@ def CleanCSVFiles(path):
     files = GetRawFilenames(path)
     
     #print("###########################################################")
-    #print("\t" + str(len(files)) + " files to clean and save to csv.")
+    print(str(len(files)) + " files to clean and save to csv.")
     #print("\t", end = "")
     for file, num in zip(files, np.arange(len(files))):
-        #print(num, end = "...")
+        print(num, end = "...")
         df_file, name = CleanFile(file)
         df_file.to_csv(path + "cleaned/" + name, sep = ",", index = False)
         del df_file
