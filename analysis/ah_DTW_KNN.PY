@@ -9,6 +9,9 @@ df = pd.read_csv("ComboPlatter.csv")
 idx = np.r_[8:20, 27:39,46:58]
 df.drop(df.columns[idx], axis = 1, inplace=True) 
 
+#might need to normalize accelerations to one vector point here. 
+#sum of squares
+
 x_train = df.sample(frac = 0.8, random_state = 0)
 x_test = df.drop(x_train.index)
 y_train = x_train.pop('exercise_id')
