@@ -11,6 +11,8 @@ from keras.layers import Flatten
 from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.layers import ConvLSTM2D
+from keras.layers import Bidirectional
+from keras.layers import GRU
 from keras.utils import to_categorical
 
 import os
@@ -68,10 +70,50 @@ def model_cnn_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 8):
 	return accuracy
 
 #Fit and evaluate a model - 100% accuracy 11.10.19
+def model_gru_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
+	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
+	model = Sequential()
+	model.add(GRU(500, input_shape=(n_timesteps, n_features), return_sequences = False))
+	model.add(Dropout(0.25))
+	model.add(Dense(100, activation='relu'))
+	model.add(Dropout(0.25))
+	model.add(Dense(32, activation='relu'))
+	model.add(Dense(n_outputs, activation='softmax'))
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+	# fit network
+	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+
+	# evaluate model
+	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
+
+	return accuracy
+
+#Fit and evaluate a model - 100% accuracy 11.10.19
 def model_lstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	model = Sequential()
 	model.add(LSTM(500, input_shape=(n_timesteps, n_features), return_sequences = False))
+	model.add(Dropout(0.25))
+	model.add(Dense(100, activation='relu'))
+	model.add(Dropout(0.25))
+	model.add(Dense(32, activation='relu'))
+	model.add(Dense(n_outputs, activation='softmax'))
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+	# fit network
+	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+
+	# evaluate model
+	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
+
+	return accuracy
+
+#Fit and evaluate a model - 100% accuracy 11.10.19
+def model_bidirlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
+	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
+	model = Sequential()
+	model.add(Bidirectional(LSTM(500, input_shape=(n_timesteps, n_features), return_sequences = False)))
 	model.add(Dropout(0.25))
 	model.add(Dense(100, activation='relu'))
 	model.add(Dropout(0.25))
@@ -114,7 +156,8 @@ def model_convlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size 
 	# define model
 	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 	# reshape into subsequences (samples, time steps, rows, cols, channels)
-	n_steps, n_length = 4, 50
+	n_steps = 4
+	n_length = int(x_train.shape[1]/n_steps)
 	x_train = x_train.reshape((x_train.shape[0], n_steps, 1, n_length, n_features))
 	x_test = x_test.reshape((x_test.shape[0], n_steps, 1, n_length, n_features))
 
@@ -137,18 +180,18 @@ def model_convlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size 
 #START| MAIN
 
 #dataset, train_p = 0.8, w_size = 0, o_percent = 0.25):
-data_params = {'dataset' : 'firebusters',
+data_params = {'dataset' : 'pamap2',
                'train_p' : 0.8,
-               'w_size' : 200,
+               'w_size' : 100,
                'o_percent' : 0.25
                }
 dataset = Load_Data(**data_params)
 
 model_params = {'epochs' : 2,
-                'batch_size' : 8
+                'batch_size' : 32
                 }
 run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
-               model_convlstm_01, model_params, 3)
+                model_gru_01, model_params, 3)
 
 
 
