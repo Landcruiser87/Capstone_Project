@@ -17,7 +17,7 @@ from numpy import dstack
 import numpy as np
 import pandas as pd
 from pandas import read_csv
-from keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 import itertools
 import random
 

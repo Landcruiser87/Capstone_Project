@@ -17,8 +17,7 @@ from itertools import product
 import numpy as np
 
 import os
-os.chdir("C:/githubrepo/TMP/") #TEST
-#os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
+os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.zg_Load_Data import Load_Data
 
 import warnings
@@ -60,7 +59,6 @@ def Generate_Model_Strutures(layer_p, depth):
     for d in depth:
         all_models.extend( list(product(*list_o_layers[0:d])) )
     
-    #TODO: Delete all invalid layer orders
     return Delete_Invalid_Model_Structures(all_models)
 
 def Invalid_Dropout(model):
@@ -68,7 +66,7 @@ def Invalid_Dropout(model):
     dropout_indices = [i for i,d in enumerate(model) if d == 'Dropout']
 
     if len(dropout_indices) > 0:
-        #Makes sure the first layer isn't dropout
+        #First layer can't be dropout
         if dropout_indices[0] == 0:
             return True
         #Eliminates dropout two in a row
@@ -85,7 +83,7 @@ def Delete_Invalid_Model_Structures(all_models):
     
     #Loop through the index of each model (in reverse order)
     for index in np.arange(len(all_models))[::-1]:
-        #A ton of if statements that it checks
+        #A ton of if statements that are checked
         #If any of the statements are true we delete
         #the whole model from all_models
         

@@ -3,17 +3,17 @@ from numpy import std
 import numpy as np
 import pandas as pd
 from pandas import read_csv
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers.convolutional import Conv1D
-from keras.layers.convolutional import MaxPooling1D
-from keras.layers import Flatten
-from keras.layers import Dropout
-from keras.layers import LSTM
-from keras.layers import ConvLSTM2D
-from keras.layers import Bidirectional
-from keras.layers import GRU
-from keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Conv1D
+from tensorflow.keras.layers import MaxPooling1D
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import ConvLSTM2D
+from tensorflow.keras.layers import Bidirectional
+from tensorflow.keras.layers import GRU
+from tensorflow.keras.utils import to_categorical
 
 import os
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
@@ -62,12 +62,9 @@ def model_cnn_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 8):
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+	results = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs, batch_size = batch_size)
 
-	# evaluate model
-	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
-
-	return accuracy
+	return results.history["val_accuracy"][-1]
 
 #Fit and evaluate a model - 100% accuracy 11.10.19
 def model_gru_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
@@ -82,12 +79,9 @@ def model_gru_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+	results = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs, batch_size = batch_size)
 
-	# evaluate model
-	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
-
-	return accuracy
+	return results.history["val_accuracy"][-1]
 
 #Fit and evaluate a model - 100% accuracy 11.10.19
 def model_lstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
@@ -102,12 +96,9 @@ def model_lstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4)
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+	results = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs, batch_size = batch_size)
 
-	# evaluate model
-	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
-
-	return accuracy
+	return results.history["val_accuracy"][-1]
 
 #Fit and evaluate a model - 100% accuracy 11.10.19
 def model_bidirlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 4):
@@ -122,20 +113,14 @@ def model_bidirlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+	results = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs, batch_size = batch_size)
 
-	# evaluate model
-	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
-
-	return accuracy
+	return results.history["val_accuracy"][-1]
 
 #for PAMAP2 dataset - 94.99% accuracy 11.10.19
 #Fit and evaluate a model - 99.89% accuracy 11.10.19
 def model_nn_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 100):
-	
 	model = Sequential()
-	#model.add(Embedding(57, 32, input_length = 57))
-	#model.add(LSTM(32))
 	model.add(Dense(500, input_dim=x_train.shape[1], activation='relu'))
 	model.add(Dropout(0.2))
 	model.add(Dense(100, activation='relu'))
@@ -145,12 +130,9 @@ def model_nn_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 100)
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 	# fit network
-	model.fit(x_train, y_train, epochs = epochs, batch_size = batch_size)
+	results = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs, batch_size = batch_size)
 
-	# evaluate model
-	_, accuracy = model.evaluate(x_test, y_test, batch_size = batch_size)
-
-	return accuracy
+	return results.history["val_accuracy"][-1]
 
 def model_convlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size = 8):
 	# define model
@@ -170,19 +152,17 @@ def model_convlstm_01(x_train, y_train, x_test, y_test, epochs = 10, batch_size 
 	model.add(Dense(n_outputs, activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 	# fit network
-	model.fit(x_train, y_train, epochs=epochs, batch_size = batch_size)
+	results = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epochs, batch_size = batch_size)
 
-	# evaluate model
-	_, accuracy = model.evaluate(x_test, y_test, batch_size=batch_size, verbose=0)
-	return accuracy
+	return results.history["val_accuracy"][-1]
 
 #------------------------------------------------------------------------------
 #START| MAIN
 
 #dataset, train_p = 0.8, w_size = 0, o_percent = 0.25):
-data_params = {'dataset' : 'pamap2',
+data_params = {'dataset' : 'firebusters',
                'train_p' : 0.8,
-               'w_size' : 100,
+               'w_size' : 400,
                'o_percent' : 0.25
                }
 dataset = Load_Data(**data_params)
