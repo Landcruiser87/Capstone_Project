@@ -43,9 +43,9 @@ def Generate_Layer_Parameters():
     
     layer_parameters["Dense"] = {"units" : [10, 25, 50, 100, 250, 500],
                                  "activation" : ["relu", "tanh", "linear"]}
-    #layer_parameters["GRU"] = {"units" : [10, 25, 50, 100, 250, 500],
-    #                            "activation" : ["relu", "tanh", "linear"],
-    #                            "dropout" : [0, 0.25, 0.5]}
+    layer_parameters["GRU"] = {"units" : [10, 25, 50, 100, 250, 500],
+                                "activation" : ["relu", "tanh", "linear"],
+                                "dropout" : [0, 0.25, 0.5]}
     layer_parameters["Dropout"] = {"rate" : [0.2, 0.4, 0.5]}
     
     return layer_parameters
