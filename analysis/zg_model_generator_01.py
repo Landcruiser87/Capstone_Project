@@ -41,12 +41,40 @@ def Generate_Data_Parameters():
 def Generate_Layer_Parameters():
     layer_parameters = {}
     
-    layer_parameters["Dense"] = {"units" : [10, 25, 50, 100, 250, 500],
-                                 "activation" : ["relu", "tanh", "linear"]}
-    layer_parameters["GRU"] = {"units" : [10, 25, 50, 100, 250, 500],
-                                "activation" : ["relu", "tanh", "linear"],
-                                "dropout" : [0, 0.25, 0.5]}
-    layer_parameters["Dropout"] = {"rate" : [0.2, 0.4, 0.5]}
+    units = [10, 25, 50, 100, 250, 500]
+    activation = ["relu", "tanh", "linear", "LeakyReLU", "PReLU", "ELU", "ThresholdedReLU"]
+    dropout = [0, 0.25, 0.5]
+    
+    layer_parameters["GRU"] = {"units" : units,
+                                "activation" : activation,
+                                "bias_initializer" : ["Zeros", "RandomNormal"],
+                                "return_sequences" : [True, False],
+                                "dropout" : dropout}
+    layer_parameters["LSTM"] = {"units" : units,
+                                "activation" : activation,
+                                "bias_initializer" : ["Zeros", "RandomNormal"],
+                                "return_sequences" : [True, False],
+                                "dropout" : dropout}
+    layer_parameters["Dense"] = {"units" : units,
+                                "activation" : activation,
+                                "bias_initializer" : ["Zeros", "RandomNormal"]}
+    layer_parameters["BidirectionalLSTM"] = {"layer" : ["LSTM"]}
+    layer_parameters["BidirectionalGRU"] = {"layer" : ["GRU"]}
+
+    layer_parameters["Conv1D"] = {"filters" : [0.25, 0.5, 0.75],
+                                    "activation" : activation}#, "kernel_size" : filters*kernel_size = window_size?
+    print("TODO: Conv1D/ConvLSTM2D filters and kernel_size")
+    layer_parameters["ConvLSTM2D"] = {"filters" : [0.25, 0.5, 0.75],
+                                    "activation" : activation,
+                                    "dropout" : dropout}#, "kernel_size" : filters*kernel_size = window_size?
+    print("TODO: filters is currently a percentage of window size, has to be an int at the end")
+
+    #FAUX LAYERS
+    layer_parameters["Dropout"] = {"rate" : [0.2, 0.35, 0.5]}
+    layer_parameters["MaxPooling1D"] = {"pool_size" : [0.1, 0.2, 0.25]}
+    print("TODO: we want strides later... maybe")
+    print("TODO: MaxPooling1D - pool_size has to be an integer in the end (based on window size)")
+    layer_parameters["Flatten"] = {}
     
     return layer_parameters
 
@@ -82,6 +110,8 @@ def Generate_Model_Strutures(layer_p, depth):
     
     models_list = Delete_Invalid_Model_Structures(all_models)
     
+    print(models_list)
+    
     with open("data/Model_Structures.pkl", "wb") as fp:   #Pickling
         pickle.dump(models_list, fp)
 
@@ -102,6 +132,9 @@ def Delete_Invalid_Model_Structures(all_models):
             continue
                 
         #Deals with GRU--------------------------------------------------------
+        if Invalid_GRU(all_models[index]):
+            del all_models[index]
+            continue
         
         #Deals with Dense------------------------------------------------------
 
@@ -109,6 +142,13 @@ def Delete_Invalid_Model_Structures(all_models):
     
     print("Delete_Invalid_Model_Structures function incomplete")
     return all_models
+
+def Invalid_GRU(model):
+    
+    #Can't go after a dense layer
+    
+    
+    return False
 
 #If the way Dropout is set in the model is invalid, it markes it for removal
 def Invalid_Dropout(model):
@@ -204,6 +244,8 @@ def Tune_Models(dataset, data_parameters):
 
 #Generating the model structures can be done separately so its here
 Generate_Model_Strutures(Generate_Layer_Parameters(), Generate_Layer_Depth())
+
+#print(Load_Model_Structures())
 
 #data_parameters = Generate_Data_Parameters()
 data_params = {'dataset' : 'firebusters',
