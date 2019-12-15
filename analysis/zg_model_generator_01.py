@@ -68,14 +68,13 @@ def Generate_Layer_Parameters():
                                     "activation" : activation,
                                     "dropout" : dropout}#, "kernel_size" : filters*kernel_size = window_size?
     print("TODO: filters is currently a percentage of window size, has to be an int at the end")
-
     #FAUX LAYERS
     layer_parameters["Dropout"] = {"rate" : [0.2, 0.35, 0.5]}
     layer_parameters["MaxPooling1D"] = {"pool_size" : [0.1, 0.2, 0.25]}
     print("TODO: we want strides later... maybe")
     print("TODO: MaxPooling1D - pool_size has to be an integer in the end (based on window size)")
     layer_parameters["Flatten"] = {}
-    
+
     return layer_parameters
 
 def Generate_Layer_Depth():
@@ -108,9 +107,8 @@ def Generate_Model_Strutures(layer_p, depth):
     for d in depth:
         all_models.extend( list(product(*list_o_layers[0:d])) )
     
+    #models_list = all_models
     models_list = Delete_Invalid_Model_Structures(all_models)
-    
-    print(models_list)
     
     with open("data/Model_Structures.pkl", "wb") as fp:   #Pickling
         pickle.dump(models_list, fp)
@@ -119,35 +117,135 @@ def Generate_Model_Strutures(layer_p, depth):
 
 #Deletes all of the invalid layer structures
 def Delete_Invalid_Model_Structures(all_models):
-    
     #Loop through the index of each model (in reverse order)
     for index in np.arange(len(all_models))[::-1]:
         #A ton of if statements that are checked
         #If any of the statements are true we delete
         #the whole model from all_models
         
-        #Deals with Dropout----------------------------------------------------
-        if Invalid_Dropout(all_models[index]):
-            del all_models[index]
-            continue
-                
         #Deals with GRU--------------------------------------------------------
         if Invalid_GRU(all_models[index]):
             del all_models[index]
             continue
+        #print("1")
+        
+        #Deals with LSTM-------------------------------------------------------
+        if Invalid_LSTM(all_models[index]):
+            del all_models[index]
+            continue
+        #print("2")
         
         #Deals with Dense------------------------------------------------------
-
-        #Deals with etc...-----------------------------------------------------
+        if Invalid_Dense(all_models[index]):
+            del all_models[index]
+            continue
+        #print("3")
+        
+        #Deals with Bidirectional LSTM-----------------------------------------
+        if Invalid_BidirectionalLSTM(all_models[index]):
+            del all_models[index]
+            continue
+        #print("4")
+        
+        #Deals with Bidirectional GRU------------------------------------------
+        if Invalid_BidirectionalGRU(all_models[index]):
+            del all_models[index]
+            continue
+        #print("5")
+        
+        #Deals with Conv1D-----------------------------------------------------
+        if Invalid_Conv1D(all_models[index]):
+            del all_models[index]
+            continue
+        #print("6")
+                
+        #Deals with ConvLSTM2D-------------------------------------------------
+        if Invalid_ConvLSTM2D(all_models[index]):
+            del all_models[index]
+            continue
+        #print("7")
+                
+        #Deals with Dropout----------------------------------------------------
+        if Invalid_Dropout(all_models[index]):
+            del all_models[index]
+            continue
+        #print("8")
+                
+        #Deals with MaxPooling1D----------------------------------------------------
+        if Invalid_MaxPooling1D(all_models[index]):
+            del all_models[index]
+            continue
+        #print("9")
+                
+        #Flatten---------------------------------------------------------------
+        if Invalid_Flatten(all_models[index]):
+            del all_models[index]
+            continue
+        #print("10")
     
-    print("Delete_Invalid_Model_Structures function incomplete")
     return all_models
 
 def Invalid_GRU(model):
+    print("Invalid_GRU not completed")
+    gru_indices = [i for i,d in enumerate(model) if d == 'GRU']
     
-    #Can't go after a dense layer
+    if len(gru_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_LSTM(model):
+    print("Invalid_LSTM not completed")
+    lstm_indices = [i for i,d in enumerate(model) if d == 'LSTM']
     
+    if len(lstm_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_Dense(model):
+    print("Invalid_Dense not completed")
+    dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
     
+    if len(dense_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_BidirectionalLSTM(model):
+    print("Invalid_BidirectionalLSTM not completed")
+    blstm_indices = [i for i,d in enumerate(model) if d == 'BidirectionalLSTM']
+    
+    if len(blstm_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_BidirectionalGRU(model):
+    print("Invalid_BidirectionalGRU not completed")
+    bgru_indices = [i for i,d in enumerate(model) if d == 'BidirectionalGRU']
+    
+    if len(bgru_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_Conv1D(model):
+    print("Invalid_Conv1D not completed")
+    conv1d_indices = [i for i,d in enumerate(model) if d == 'Conv1D']
+    
+    if len(conv1d_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_ConvLSTM2D(model):
+    print("Invalid_ConvLSTM2D not completed")
+    clstm_indices = [i for i,d in enumerate(model) if d == 'ConvLSTM2D']
+    
+    if len(clstm_indices) > 0:
+        return True
+
     return False
 
 #If the way Dropout is set in the model is invalid, it markes it for removal
@@ -167,6 +265,87 @@ def Invalid_Dropout(model):
                     return True
     
     #This layer is fine
+    return False
+
+def Invalid_MaxPooling1D(model):
+    print("Invalid_MaxPooling1D not completed")
+    pool_indices = [i for i,d in enumerate(model) if d == 'MaxPooling1D']
+    
+    if len(pool_indices) > 0:
+        return True
+
+    return False
+
+def Invalid_Flatten(model):
+    #can't flatten anywhere
+    
+    #Gets the indicies of all the rows that contain dropout
+    flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+    
+    if len(flatten_indices) > 0:
+        #First layer can't be flatten------------------------------------------
+        if flatten_indices[0] == 0:
+            return True
+        #We only want 1 flatten per model structure----------------------------
+        if len(flatten_indices) > 1:
+            return True
+
+        gru_indices = [i for i,d in enumerate(model) if d == 'GRU']
+        lstm_indices = [i for i,d in enumerate(model) if d == 'LSTM']
+        conv1d_indices = [i for i,d in enumerate(model) if d == 'Conv1D']
+        blstm_indices = [i for i,d in enumerate(model) if d == 'BidirectionalLSTM']
+        bgru_indices = [i for i,d in enumerate(model) if d == 'BidirectionalGRU']
+        clstm_indices = [i for i,d in enumerate(model) if d == 'ConvLSTM2D']
+        
+        #Flatten can not be before CNN or RNN type-----------------------------
+        #This gets the indices of each CNN/RNN type layer and then checks to see
+        #if one of the indices are greater than the location of the flatten index
+        if len([i for i in gru_indices if i > flatten_indices[0]]) > 0:
+            return True
+        if len([i for i in lstm_indices if i > flatten_indices[0]]) > 0:
+            return True
+        if len([i for i in conv1d_indices if i > flatten_indices[0]]) > 0:
+            return True
+        if len([i for i in blstm_indices if i > flatten_indices[0]]) > 0:
+            return True
+        if len([i for i in bgru_indices if i > flatten_indices[0]]) > 0:
+            return True
+        if len([i for i in clstm_indices if i > flatten_indices[0]]) > 0:
+            return True
+        
+        #Flatten can only be immediately after CNN/ConvLSTM--------------------
+        #There can be dropout or max pooling before it also, but the CNN type
+        #has to then be before that
+        drop_indices = [i for i,d in enumerate(model) if d == 'Dropout']
+        pool_indices = [i for i,d in enumerate(model) if d == 'MaxPooling1D']
+        flag = True
+        #Prev layer is CNN type
+        if ((flatten_indices[0]-1) in conv1d_indices) or ((flatten_indices[0]-1) in clstm_indices):
+            flag = False
+        #2 layers back is CNN type
+        if ((flatten_indices[0]-2) in conv1d_indices) or ((flatten_indices[0]-2) in clstm_indices):
+            #AND 1 layer back is dropout or max pool
+            if ((flatten_indices[0]-1) in drop_indices) or ((flatten_indices[0]-1) in pool_indices):
+                flag = False
+        #3 layers back is CNN type
+        if ((flatten_indices[0]-3) in conv1d_indices) or ((flatten_indices[0]-3) in clstm_indices):
+            #AND 2 layers back is dropout or max pool
+            if ((flatten_indices[0]-2) in drop_indices) or ((flatten_indices[0]-2) in pool_indices):
+                flag = False
+                #AND 1 layer back is dropout or max pool
+                if ((flatten_indices[0]-1) in drop_indices) or ((flatten_indices[0]-1) in pool_indices):
+                    flag = False
+        #If none of these cases occur, then flatten is in an invalid location
+        if flag:
+            return True
+
+        #CNN, Flat               Dense
+        #CNN, Drop, Flat         Dense
+        #CNN, Flat, Drop         Dense 
+        #CNN, Pool, Flat         Dense
+        #CNN, Pool, Flat, Drop   Dense
+        #CNN, Pool, Drop, Flat   Dense
+        #CNN, Drop, Pool, Flat   Dense
     return False
 
 #==============================================================================
@@ -245,7 +424,7 @@ def Tune_Models(dataset, data_parameters):
 #Generating the model structures can be done separately so its here
 Generate_Model_Strutures(Generate_Layer_Parameters(), Generate_Layer_Depth())
 
-#print(Load_Model_Structures())
+print(Load_Model_Structures())
 
 #data_parameters = Generate_Data_Parameters()
 data_params = {'dataset' : 'firebusters',
