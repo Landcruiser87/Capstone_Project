@@ -75,11 +75,12 @@ def Generate_Layer_Parameters():
     print("TODO: we want strides later... maybe")
     print("TODO: MaxPooling1D - pool_size has to be an integer in the end (based on window size)")
     layer_parameters["Flatten"] = {}
-
+    
+    print("TODO: Had to remove print in the Invalid_LayerName area, earch the file for 'TODO'")
     return layer_parameters
 
 def Generate_Layer_Depth():
-     return [2, 3]#, 4]#, 5, 6, 7]
+     return [1, 2, 3, 4, 5, 6, 7]
 
 #If you have created the model structure already, this loads it in from a file
 def Load_Model_Structures():
@@ -106,10 +107,14 @@ def Generate_Model_Strutures(layer_p, depth):
     
     #Makes all the layer permutations for each desired depth
     for d in depth:
-        all_models.extend( list(product(*list_o_layers[0:d])) )
-    
+        if d == 1:
+            all_models.extend( list(map(lambda el:[el], list_o_layers[0])) )
+        else:
+            all_models.extend( list(product(*list_o_layers[0:d])) )
+
     #models_list = all_models
     models_list = Delete_Invalid_Model_Structures(all_models)
+    models_list = [list(ele) for ele in models_list] 
     
     with open("data/Model_Structures.pkl", "wb") as fp:   #Pickling
         pickle.dump(models_list, fp)
@@ -118,6 +123,7 @@ def Generate_Model_Strutures(layer_p, depth):
 
 #Deletes all of the invalid layer structures
 def Delete_Invalid_Model_Structures(all_models):
+    itr = 0
     #Loop through the index of each model (in reverse order)
     for index in np.arange(len(all_models))[::-1]:
         #A ton of if statements that are checked
@@ -183,40 +189,54 @@ def Delete_Invalid_Model_Structures(all_models):
             del all_models[index]
             continue
         #print("10")
+        
+        if itr%5000 == 0:
+            print(str(itr) + ", ", end="")
+        itr = itr + 1
     
     return all_models
 
 def Invalid_GRU(model):
-    print("Invalid_GRU not completed")
+    #print("TODO: Invalid_GRU, check if bidirectional before gru is valid")
     gru_indices = [i for i,d in enumerate(model) if d == 'GRU']
     
     if len(gru_indices) > 0:
+        #No dense before gru
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        if len([di for di in dense_indices if di < gru_indices[0]]) > 0:
+            return True
+        
+        #No flatten before GRU
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < gru_indices[0]]) > 0:
+            return True
 
-        #No dense before gru        TRUE
+        #Bidir GRU before GRU       Maybe?  TODO: LOOK AT LATER
         #CNN before gru             TRUE
         #ConvLSTM before gru?       TRUE
         #maxpooling1d before gru    TRUE
-        #No flatten before GRU      TRUE
-        #Bidir GRU before GRU       Maybe?  TODO: LOOK AT LATER
-        
-        return True
 
     return False
 
 def Invalid_LSTM(model):
-    print("Invalid_LSTM not completed")
+    #print("TODO: Invalid_LSTM, check if bidirectional before gru is valid")
     lstm_indices = [i for i,d in enumerate(model) if d == 'LSTM']
     
     if len(lstm_indices) > 0:
+        #No dense before lstm
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        if len([di for di in dense_indices if di < lstm_indices[0]]) > 0:
+            return True
+        
+        #No flatten before LSTM
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < lstm_indices[0]]) > 0:
+            return True
 
-        #No dense before lstm        TRUE
+        #Bidir GRU before lstm       Maybe?  TODO: LOOK AT LATER
         #CNN before lstm             TRUE
         #ConvLSTM before lstm?       TRUE
         #maxpooling1d before lstm    TRUE
-        #No flatten before lstm      TRUE
-        #Bidir GRU before lstm       Maybe?  TODO: LOOK AT LATER
-        
-        return True
 
     return False
 
@@ -224,65 +244,111 @@ def Invalid_Dense(model):
     return False
 
 def Invalid_BidirectionalLSTM(model):
-    print("Invalid_BidirectionalLSTM not completed")
     blstm_indices = [i for i,d in enumerate(model) if d == 'BidirectionalLSTM']
     
     if len(blstm_indices) > 0:
+        #No dense before blstm
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        if len([di for di in dense_indices if di < blstm_indices[0]]) > 0:
+            return True
+        
+        #No flatten before BLSTM
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < blstm_indices[0]]) > 0:
+            return True
 
-        #No dense before it        TRUE
         #CNN before it             TRUE
         #ConvLSTM before it?       TRUE
         #maxpooling1d before it    TRUE
-        #No flatten before it      TRUE
         #Bidir before it           TRUE
-        
-        return True
 
     return False
 
 def Invalid_BidirectionalGRU(model):
-    print("Invalid_BidirectionalGRU not completed")
     bgru_indices = [i for i,d in enumerate(model) if d == 'BidirectionalGRU']
     
     if len(bgru_indices) > 0:
+        #No dense before bgru
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        if len([di for di in dense_indices if di < bgru_indices[0]]) > 0:
+            return True
+        
+        #No flatten before BGRU
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < bgru_indices[0]]) > 0:
+            return True
 
-        #No dense before it        TRUE
         #CNN before it             TRUE
         #ConvLSTM before it?       TRUE
         #maxpooling1d before it    TRUE
-        #No flatten before it      TRUE
         #Bidir before it           TRUE
-        
-        return True
 
     return False
 
 def Invalid_Conv1D(model):
-    print("Invalid_Conv1D not completed")
     conv1d_indices = [i for i,d in enumerate(model) if d == 'Conv1D']
     
     if len(conv1d_indices) > 0:
-        
-        #No RNN style before it     TRUE
-        #No flatten before it       TRUE
-        #No dense before it         TRUE
-        
-        return True
+        #No RNN style before it
+        gru_indices = [i for i,d in enumerate(model) if d == 'GRU']
+        if len([fi for fi in gru_indices if fi < conv1d_indices[0]]) > 0:
+            return True
 
+        lstm_indices = [i for i,d in enumerate(model) if d == 'LSTM']
+        if len([fi for fi in lstm_indices if fi < conv1d_indices[0]]) > 0:
+            return True
+
+        blstm_indices = [i for i,d in enumerate(model) if d == 'BidirectionalLSTM']
+        if len([fi for fi in blstm_indices if fi < conv1d_indices[0]]) > 0:
+            return True
+
+        bgru_indices = [i for i,d in enumerate(model) if d == 'BidirectionalGRU']
+        if len([fi for fi in bgru_indices if fi < conv1d_indices[0]]) > 0:
+            return True
+
+        #No flatten before it
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < conv1d_indices[0]]) > 0:
+            return True
+
+        #No dense before it
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        if len([di for di in dense_indices if di < conv1d_indices[0]]) > 0:
+            return True
+        
     return False
 
 def Invalid_ConvLSTM2D(model):
-    print("Invalid_ConvLSTM2D not completed")
     clstm_indices = [i for i,d in enumerate(model) if d == 'ConvLSTM2D']
     
     if len(clstm_indices) > 0:
-        
-        #No RNN style before it     TRUE
-        #No flatten before it       TRUE
-        #No dense before it         TRUE
-        
-        return True
+        #No RNN style before it
+        gru_indices = [i for i,d in enumerate(model) if d == 'GRU']
+        if len([fi for fi in gru_indices if fi < clstm_indices[0]]) > 0:
+            return True
 
+        lstm_indices = [i for i,d in enumerate(model) if d == 'LSTM']
+        if len([fi for fi in lstm_indices if fi < clstm_indices[0]]) > 0:
+            return True
+
+        blstm_indices = [i for i,d in enumerate(model) if d == 'BidirectionalLSTM']
+        if len([fi for fi in blstm_indices if fi < clstm_indices[0]]) > 0:
+            return True
+
+        bgru_indices = [i for i,d in enumerate(model) if d == 'BidirectionalGRU']
+        if len([fi for fi in bgru_indices if fi < clstm_indices[0]]) > 0:
+            return True
+
+        #No flatten before it
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < clstm_indices[0]]) > 0:
+            return True
+
+        #No dense before it
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        if len([di for di in dense_indices if di < clstm_indices[0]]) > 0:
+            return True
+        
     return False
 
 #If the way Dropout is set in the model is invalid, it markes it for removal
@@ -294,34 +360,51 @@ def Invalid_Dropout(model):
         #First layer can't be dropout
         if dropout_indices[0] == 0:
             return True
+
         #Eliminates dropout two in a row
         for i in np.arange(len(dropout_indices)):
             if i > 0:
                 #if any of the indices are next to each other, delete
                 if dropout_indices[i] == (dropout_indices[i-1]+1):
                     return True
+
         #Dropout - faux layer - dropout is INVALID
-    
-    print("DROPOUT NOT DONE: if we have drop-pool-drop?")
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        pool_indices = [i for i,d in enumerate(model) if d == 'MaxPooling1D']
+        faux_indices = list(flatten_indices + pool_indices)#.sort()
+        faux_indices.sort()
+        if len(faux_indices) > 0:
+            for di in dropout_indices:
+                if (di-1) in faux_indices:
+                    if (di-2) in dropout_indices:
+                        return True
+                    if (di-2) in faux_indices:
+                        if (di-3) in dropout_indices:
+                            return True
+                
     #This layer is fine
     return False
 
 def Invalid_MaxPooling1D(model):
-    print("Invalid_MaxPooling1D not completed")
+    #print("TODO: Invalid_MaxPooling1D, check if it can be the first layer")
     pool_indices = [i for i,d in enumerate(model) if d == 'MaxPooling1D']
     
     if len(pool_indices) > 0:
+        #Two pool in a row is bad
+        for i in np.arange(len(pool_indices)):
+            if i > 0:
+                #if any of the indices are next to each other, delete
+                if pool_indices[i] == (pool_indices[i-1]+1):
+                    return True       
         
-        #no 2 in a row          TRUE
-        #not after flatten      TRUE
-        #only after CNN style   TRUE
+        #Can't be after flatten
+        flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+        if len([fi for fi in flatten_indices if fi < pool_indices[0]]) > 0:
+            return True
         
-        return True
-
     return False
 
 def Invalid_Flatten(model):
-    #can't flatten anywhere
     
     #Gets the indicies of all the rows that contain dropout
     flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
