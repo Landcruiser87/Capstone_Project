@@ -7,9 +7,9 @@ from threading import Lock
 import struct
 import sys
 from datetime import datetime, timedelta
-from scripts.Zenshin.lpsensorpy.lpmslib.LpmsConfig import *
-from scripts.Zenshin.lpsensorpy.lpmslib.lputils import *
-from scripts.Zenshin.lpsensorpy.lpmslib.LpmsConfigurationSettings import LpmsConfigurationSettings
+from lpmslib.LpmsConfig import *
+from lpmslib.lputils import *
+from lpmslib.LpmsConfigurationSettings import LpmsConfigurationSettings
 import collections 
 
 #TODO:

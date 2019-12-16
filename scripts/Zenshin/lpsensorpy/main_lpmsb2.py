@@ -3,9 +3,8 @@ from collections import OrderedDict
 import time
 import threading
 
-os.chdir("C:/githubrepo/CapstoneA/")
-from scripts.Zenshin.lpsensorpy.lpmslib import LpmsB2
-from scripts.Zenshin.lpsensorpy.lpmslib import lputils
+from lpmslib import LpmsB2
+from lpmslib import lputils
 
 
 TAG="MAIN"
@@ -196,7 +195,7 @@ stream_freq_menu = OrderedDict([
 
 ])
 
-port = 'COM64'
+port = 'COM10'
 baudrate = 115200 
 
 lpmsb = LpmsB2.LpmsB2(port, baudrate)
