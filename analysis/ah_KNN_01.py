@@ -43,6 +43,7 @@ print(accuracy_score(y_test,y_pred))
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
 
+#Seeing something
 # plt.figure(figsize=(11,7))
 # colors = ['#D62728','#2C9F2C','#FD7F23','#1F77B4','#9467BD',
 #           '#8C564A','#7F7F7F','#1FBECF','#E377C2','#BCBD27']
