@@ -42,22 +42,23 @@ def Generate_Layer_Parameters():
     layer_parameters = {}
     
     units = [10, 25, 50, 100, 250, 500]
-    activation = ["relu", "tanh", "linear", "LeakyReLU", "PReLU", "ELU", "ThresholdedReLU"]
+    activation = ["relu", "tanh", "LeakyReLU"]
+    bias_init = ["Zeros", "RandomNormal", "glorot_normal"]
     dropout = [0, 0.25, 0.5]
     
     layer_parameters["GRU"] = {"units" : units,
                                 "activation" : activation,
-                                "bias_initializer" : ["Zeros", "RandomNormal"],
+                                "bias_initializer" : bias_init,
                                 "return_sequences" : [True, False],
                                 "dropout" : dropout}
     layer_parameters["LSTM"] = {"units" : units,
                                 "activation" : activation,
-                                "bias_initializer" : ["Zeros", "RandomNormal"],
+                                "bias_initializer" : bias_init,
                                 "return_sequences" : [True, False],
                                 "dropout" : dropout}
     layer_parameters["Dense"] = {"units" : units,
                                 "activation" : activation,
-                                "bias_initializer" : ["Zeros", "RandomNormal"]}
+                                "bias_initializer" : bias_init}
     layer_parameters["BidirectionalLSTM"] = {"layer" : ["LSTM"]}
     layer_parameters["BidirectionalGRU"] = {"layer" : ["GRU"]}
 
@@ -190,6 +191,14 @@ def Invalid_GRU(model):
     gru_indices = [i for i,d in enumerate(model) if d == 'GRU']
     
     if len(gru_indices) > 0:
+
+        #No dense before gru        TRUE
+        #CNN before gru             TRUE
+        #ConvLSTM before gru?       TRUE
+        #maxpooling1d before gru    TRUE
+        #No flatten before GRU      TRUE
+        #Bidir GRU before GRU       Maybe?  TODO: LOOK AT LATER
+        
         return True
 
     return False
@@ -199,17 +208,19 @@ def Invalid_LSTM(model):
     lstm_indices = [i for i,d in enumerate(model) if d == 'LSTM']
     
     if len(lstm_indices) > 0:
+
+        #No dense before lstm        TRUE
+        #CNN before lstm             TRUE
+        #ConvLSTM before lstm?       TRUE
+        #maxpooling1d before lstm    TRUE
+        #No flatten before lstm      TRUE
+        #Bidir GRU before lstm       Maybe?  TODO: LOOK AT LATER
+        
         return True
 
     return False
 
 def Invalid_Dense(model):
-    print("Invalid_Dense not completed")
-    dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
-    
-    if len(dense_indices) > 0:
-        return True
-
     return False
 
 def Invalid_BidirectionalLSTM(model):
@@ -217,6 +228,14 @@ def Invalid_BidirectionalLSTM(model):
     blstm_indices = [i for i,d in enumerate(model) if d == 'BidirectionalLSTM']
     
     if len(blstm_indices) > 0:
+
+        #No dense before it        TRUE
+        #CNN before it             TRUE
+        #ConvLSTM before it?       TRUE
+        #maxpooling1d before it    TRUE
+        #No flatten before it      TRUE
+        #Bidir before it           TRUE
+        
         return True
 
     return False
@@ -226,6 +245,14 @@ def Invalid_BidirectionalGRU(model):
     bgru_indices = [i for i,d in enumerate(model) if d == 'BidirectionalGRU']
     
     if len(bgru_indices) > 0:
+
+        #No dense before it        TRUE
+        #CNN before it             TRUE
+        #ConvLSTM before it?       TRUE
+        #maxpooling1d before it    TRUE
+        #No flatten before it      TRUE
+        #Bidir before it           TRUE
+        
         return True
 
     return False
@@ -235,6 +262,11 @@ def Invalid_Conv1D(model):
     conv1d_indices = [i for i,d in enumerate(model) if d == 'Conv1D']
     
     if len(conv1d_indices) > 0:
+        
+        #No RNN style before it     TRUE
+        #No flatten before it       TRUE
+        #No dense before it         TRUE
+        
         return True
 
     return False
@@ -244,6 +276,11 @@ def Invalid_ConvLSTM2D(model):
     clstm_indices = [i for i,d in enumerate(model) if d == 'ConvLSTM2D']
     
     if len(clstm_indices) > 0:
+        
+        #No RNN style before it     TRUE
+        #No flatten before it       TRUE
+        #No dense before it         TRUE
+        
         return True
 
     return False
@@ -263,7 +300,9 @@ def Invalid_Dropout(model):
                 #if any of the indices are next to each other, delete
                 if dropout_indices[i] == (dropout_indices[i-1]+1):
                     return True
+        #Dropout - faux layer - dropout is INVALID
     
+    print("DROPOUT NOT DONE: if we have drop-pool-drop?")
     #This layer is fine
     return False
 
@@ -272,6 +311,11 @@ def Invalid_MaxPooling1D(model):
     pool_indices = [i for i,d in enumerate(model) if d == 'MaxPooling1D']
     
     if len(pool_indices) > 0:
+        
+        #no 2 in a row          TRUE
+        #not after flatten      TRUE
+        #only after CNN style   TRUE
+        
         return True
 
     return False
@@ -351,20 +395,6 @@ def Invalid_Flatten(model):
 #==============================================================================
 #START MODEL CONSTRUCTION AND TUNING
 
-#Adds the Dropout layer and hyperparameters by condition
-def Add_Dropout_Layer():
-    print("Add_Dropout_Layer not completed")
-    return Dropout(0.5)
-
-#Adds the Dense layer and hyperparameters by condition
-def Add_Dense_Layer(layer_index):
-    print("Add_Dense_Layer not completed")
-    
-    if layer_index == 0:
-        Dense(200, input_dim = 57, activation = 'relu')
-
-    return Dense(200, activation='relu')
-
 #This function returns the model. For the keras-tuner this is the function
 #that it runs
 def The_Model(layer_parameters, model_structures):
@@ -385,6 +415,108 @@ def The_Model(layer_parameters, model_structures):
     
     print("The_Model is not completed")
     return model
+
+def Add_GRU_Layer():
+    #all bias_initializer in the model should be the same
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+    
+    #layer after return_sequences has to be a RNN style layer
+
+    print("Add_GRU_Layer not complete and return actual hyperparameters")
+    return GRU(100)
+
+def Add_LSTM_Layer():
+    #all bias_initializer in the model should be the same
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+    
+    #layer after return_sequences has to be a RNN style layer
+
+    print("Add_LSTM_Layer not complete and return actual hyperparameters")
+    return LSTM(100)
+
+#Adds the Dense layer and hyperparameters by condition
+def Add_Dense_Layer(layer_index):
+    #all bias_initializer in the model should be the same
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+
+    print("Add_Dense_Layer not complete and return actual hyperparameters")
+    return Dense(200, activation='relu')
+
+def Add_BidirectionalLSTM_Layer():
+    #all bias_initializer in the model should be the same
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+    
+    #layer after return_sequences has to be a RNN style layer
+
+    print("Add_BidirectionalLSTM_Layer not complete and return actual hyperparameters")
+    return Bidirectional(LSTM(100))
+
+def Add_BidirectionalGRU_Layer():
+    #all bias_initializer in the model should be the same
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+    
+    #layer after return_sequences has to be a RNN style layer
+
+    print("Add_BidirectionalGRU_Layer not complete and return actual hyperparameters")
+    return Bidirectional(GRU(100))
+
+def Add_Conv1D_Layer():
+    #Convert filter percent to a int by multiplying it times the window_size
+    #kernel_size is window_size/filter (for our purposes)
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+    
+    print("Add_Conv1D_Layer not complete and return actual hyperparameters")
+    return Conv1D(100, 40)
+
+def Add_ConvLSTM2D_Layer():
+    #Convert filter percent to a int by multiplying it times the window_size
+    #kernel_size is window_size/filter (for our purposes)
+
+    #activation function can be different across layers
+    #when activation is relu, use RandomNormal or Zero
+    #when activation is leakyRelu, can use RandomNormal or Zero
+    #when activation is tanh, use glorot_normal (Xavier) or Zero
+    
+    print("Add_ConvLSTM2D_Layer not complete and return actual hyperparameters")
+    return Conv1D(100, 40)
+
+#Adds the Dropout layer and hyperparameters by condition
+def Add_Dropout_Layer():
+    print("Add_Dropout_Layer return actual hyperparameters")
+    return Dropout(0.5)
+
+def Add_MaxPooling1D_Layer():
+    #pool_size is currently a percent, multiply it by window_size to get an int
+    
+    print("Add_MaxPooling1D_Layer not complete and return actual hyperparameters")
+    return MaxPooling1D(0.5)
+
+def Add_Flatten_Layer():
+    return Flatten()
 
 #==============================================================================
 #START RUNNING THE MODELS
