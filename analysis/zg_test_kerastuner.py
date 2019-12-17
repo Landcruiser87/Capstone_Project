@@ -57,8 +57,8 @@ tuner = RandomSearch(
         objective = 'val_accuracy',
         max_trials = MAX_TRIALS,
         executions_per_trial = EXECUTIONS_PER_TRIAL,
-        directory = 'data/test_dir',
-        project_name = 'tune_optimizer',
+        directory = 'data\\test_dir\\',
+        project_name = 'tune_optimizer1\\',
         seed = 42
     )
 
