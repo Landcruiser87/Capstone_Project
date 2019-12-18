@@ -11,6 +11,7 @@ from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import ConvLSTM2D
 from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.layers import GRU
+from tensorflow.keras.layers import LeakyReLU
 from kerastuner.tuners import RandomSearch
 from itertools import permutations
 from itertools import product
@@ -30,7 +31,7 @@ warnings.filterwarnings("ignore")
 def Generate_Data_Parameters():
     data_parameters = {
                         "dataset" : ["har", "pamap2", "firebusters"],
-                        "o_percent" : [0, 0.25, 0.4, 0.5],
+                        "o_percent" : [0.0, 0.25, 0.4, 0.5],
                         "w_size" : [0, 10, 25, 50, 100, 200, 400],
                         "train_p" : 0.8
                       }
@@ -44,7 +45,7 @@ def Generate_Layer_Parameters():
     units = [10, 25, 50, 100, 250, 500]
     activation = ["relu", "tanh", "LeakyReLU"]
     bias_init = ["Zeros", "RandomNormal", "glorot_normal"]
-    dropout = [0, 0.25, 0.5]
+    dropout = [0.0, 0.25, 0.5]
     
     layer_parameters["GRU"] = {"units" : units,
                                 "activation" : activation,
@@ -480,39 +481,137 @@ def Invalid_Flatten(model):
 
 #This function returns the model. For the keras-tuner this is the function
 #that it runs
-def The_Model(layer_parameters, model_structures):
+def The_Model(hp): #layer_parameters, model_structures):
     model = Sequential()
 
+    bias_init = None
+    model_index = hp.Choice("model_structures_index", model_structures_index)
+    chosen_model = model_structures[model_index]
+
     #Goes through each layer
-    for layer_index in np.arange(len(model_structures)):
-        if model_structures[layer_index] == "Dense":
-            continue
-        elif model_structures[layer_index] == "GRU":
-            continue
-        elif model_structures[layer_index] == "Dropout":
-            return model.add(Add_Dropout_Layer(model_structures, layer_parameters, layer_index))
+    for layer_index in np.arange(len(chosen_model)):
+        if chosen_model[layer_index] == "GRU":
+            bias_init, layers = Add_GRU_Layer(hp, bias_init, chosen_model, layer_index)
+            for l in layers:
+                model.add(l)
+        elif chosen_model[layer_index] == "LSTM":
+            bias_init, layer = Add_LSTM_Layer(hp, bias_init)
+            model.add(layer)
+        elif chosen_model[layer_index] == "Dense":
+            bias_init, layer = Add_Dense_Layer(hp, bias_init)
+            model.add(layer)
+        elif chosen_model[layer_index] == "BidirectionalLSTM":
+            bias_init, layer = Add_BidirectionalLSTM_Layer(hp, bias_init)
+            model.add(layer)
+        elif chosen_model[layer_index] == "BidirectionalGRU":
+            bias_init, layer = Add_BidirectionalGRU_Layer(hp, bias_init)
+            model.add(layer)
+        elif chosen_model[layer_index] == "Conv1D":
+            model.add(Add_Conv1D_Layer(hp))
+        elif chosen_model[layer_index] == "ConvLSTM2D":
+            model.add(Add_ConvLSTM2D_Layer(hp))
+        elif chosen_model[layer_index] == "Dropout":
+            model.add(Add_Dropout_Layer(hp))
+        elif chosen_model[layer_index] == "MaxPooling1D":
+            model.add(Add_MaxPooling1D_Layer(hp))
+        elif chosen_model[layer_index] == "Flatten":
+            model.add(Add_Flatten_Layer(hp))
     
     #TODO: Add in final layer
     model.add(Dense(3, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     
+    #print(model.get_config())
+    #print(model.summary())
     print("The_Model is not completed")
     return model
 
-def Add_GRU_Layer():
-    #all bias_initializer in the model should be the same
+def Add_GRU_Layer(hp, bias_init, all_layers, layer_index):
+    #Because of leakyReLU, we technically return multiple layers
+    these_layers = []
+    
+    #The importance of this depends on how keras-tuner stores the parameters,
+    #im assuming that it stores them by like a dictionary.
+    name_prefix = "GRU_" + str(layer_index) + "_"
+    
+    #We do this here just because we can
+    layer_parameters = Generate_Layer_Parameters()["GRU"]
+    
+    #Random choice for these two parameters
+    units = hp.Choice(name_prefix + "units", layer_parameters["units"])
+    dropout = hp.Choice(name_prefix + "dropout", layer_parameters["dropout"])
 
-    #activation function can be different across layers
+    #all bias_initializer in the model should be the same
+    if bias_init == None:
+        print("Set the bias_initializer from the random thingy")
+        bias_initializer = hp.Choice(name_prefix + "bias_initializer", layer_parameters["bias_initializer"])
+    else:
+        bias_initializer = hp.Choice(name_prefix + "bias_initializer", [bias_init])
+    
     #when activation is relu, use RandomNormal or Zero
     #when activation is leakyRelu, can use RandomNormal or Zero
     #when activation is tanh, use glorot_normal (Xavier) or Zero
+    if bias_initializer == "Zeros":
+        activation = hp.Choice(name_prefix + "activation_zeros", layer_parameters["activation"])
+    elif bias_initializer == "glorot_normal":
+        activation = hp.Choice(name_prefix + "activation_glorot", ["tanh"])
+    elif bias_initializer == "RandomNormal":
+        activation = hp.Choice(name_prefix + "activation_randomnormal", ["relu", "LeakyRelu"])
+
+    #if a layer after this is a RNN type or a Dropout-RNN type then
+    #return_sequences can be either true or false, otherwise it is false
+    if len(all_layers) > (layer_index + 1):
+        rnn_types = ["GRU", "LSTM", "BidirectionalLSTM", "BidirectionalGRU"]
+        if all_layers[layer_index + 1] in rnn_types:    #GRU-RNN type
+            return_sequences = hp.Choice(name_prefix + "return_sequences", layer_parameters["return_sequences"])
+        else:
+            if all_layers[layer_index + 1] == "Dropout":
+                if len(all_layers) > (layer_index + 2):
+                    if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
+                        return_sequences = hp.Choice(name_prefix + "return_sequences", layer_parameters["return_sequences"])
+                    else:
+                        return_sequences = hp.Choice("return_sequences_f", [False])
+                else:
+                    return_sequences = hp.Choice("return_sequences_f", [False])
+            else:
+                return_sequences = hp.Choice("return_sequences_f", [False])
+    else:
+        return_sequences = hp.Choice("return_sequences_f", [False])# layer_parameters["return_sequences"])
     
-    #layer after return_sequences has to be a RNN style layer
+    #If this is the first layer in the model, this has to have the input shape
+    #fed into it
+    if layer_index == 0:
+        #leakyReLU is a pain because it acts like it is its own layer
+        if activation == "LeakyRelu":
+            layer = GRU(units = units, dropout = dropout,
+                        return_sequences = return_sequences,
+                        bias_initializer = bias_initializer,
+                        input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2]))
+            these_layers.append(layer)
+            these_layers.append(LeakyReLU())
+        else:
+            layer = GRU(units = units, activation = activation, dropout = dropout,
+                        return_sequences = return_sequences,
+                        bias_initializer = bias_initializer,
+                        input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2]))
+            these_layers.append(layer)
+    else: 
+        #leakyReLU is a pain because it acts like it is its own layer
+        if activation == "LeakyRelu":
+            layer = GRU(units = units, dropout = dropout,
+                        return_sequences = return_sequences,
+                        bias_initializer = bias_initializer)
+            these_layers.append(layer)
+            these_layers.append(LeakyReLU())
+        else:
+            layer = GRU(units = units, activation = activation, dropout = dropout,
+                        return_sequences = return_sequences,
+                        bias_initializer = bias_initializer)
+            these_layers.append(layer)
+            
+    return (bias_init, these_layers)
 
-    print("Add_GRU_Layer not complete and return actual hyperparameters")
-    return GRU(100)
-
-def Add_LSTM_Layer():
+def Add_LSTM_Layer(hp, bias_init):
     #all bias_initializer in the model should be the same
 
     #activation function can be different across layers
@@ -523,10 +622,10 @@ def Add_LSTM_Layer():
     #layer after return_sequences has to be a RNN style layer
 
     print("Add_LSTM_Layer not complete and return actual hyperparameters")
-    return LSTM(100)
+    return (bias_init, LSTM(100))
 
 #Adds the Dense layer and hyperparameters by condition
-def Add_Dense_Layer(layer_index):
+def Add_Dense_Layer(hp, bias_init):
     #all bias_initializer in the model should be the same
 
     #activation function can be different across layers
@@ -535,9 +634,9 @@ def Add_Dense_Layer(layer_index):
     #when activation is tanh, use glorot_normal (Xavier) or Zero
 
     print("Add_Dense_Layer not complete and return actual hyperparameters")
-    return Dense(200, activation='relu')
+    return (bias_init, Dense(200, activation='relu'))
 
-def Add_BidirectionalLSTM_Layer():
+def Add_BidirectionalLSTM_Layer(hp, bias_init):
     #all bias_initializer in the model should be the same
 
     #activation function can be different across layers
@@ -548,9 +647,9 @@ def Add_BidirectionalLSTM_Layer():
     #layer after return_sequences has to be a RNN style layer
 
     print("Add_BidirectionalLSTM_Layer not complete and return actual hyperparameters")
-    return Bidirectional(LSTM(100))
+    return (bias_init, Bidirectional(LSTM(100)))
 
-def Add_BidirectionalGRU_Layer():
+def Add_BidirectionalGRU_Layer(hp, bias_init):
     #all bias_initializer in the model should be the same
 
     #activation function can be different across layers
@@ -561,7 +660,7 @@ def Add_BidirectionalGRU_Layer():
     #layer after return_sequences has to be a RNN style layer
 
     print("Add_BidirectionalGRU_Layer not complete and return actual hyperparameters")
-    return Bidirectional(GRU(100))
+    return (bias_init, Bidirectional(GRU(100)))
 
 def Add_Conv1D_Layer():
     #Convert filter percent to a int by multiplying it times the window_size
@@ -604,8 +703,7 @@ def Add_Flatten_Layer():
 #==============================================================================
 #START RUNNING THE MODELS
 
-#Tunes the model with the given data parameters
-def Tune_Models(dataset, data_parameters):
+"""
     layer_parameters = Generate_Layer_Parameters()
     layer_depth = Generate_Layer_Depth()
     model_structures = Load_Model_Structures()
@@ -617,20 +715,33 @@ def Tune_Models(dataset, data_parameters):
     model.fit(dataset.x_train, dataset.y_train,
               validation_data=(dataset.x_test, dataset.y_test),
               epochs = 3, batch_size = 300)
-    
-    """
-    MAX_TRIALS = 20
+"""
+
+#Tunes the model with the given data parameters
+def Tune_Models(dataset):
+    MAX_TRIALS = 5
     EXECUTIONS_PER_TRIAL = 5
+    
     tuner = RandomSearch(
             The_Model,
             objective = 'val_accuracy',
             max_trials = MAX_TRIALS,
             executions_per_trial = EXECUTIONS_PER_TRIAL,
-            directory = 'data/test_dir',
-            project_name = 'tune_optimizer',
+            directory = 'data\\test_dir\\',
+            project_name = 'tune_optimizer\\',
             seed = 42
         )
-    """
+    
+    tuner.search(x = dataset.x_train,
+                 y = dataset.y_train,
+                 epochs = 3,
+                 validation_data = (dataset.x_test, dataset.y_test))
+    
+    models = tuner.get_best_models(num_models=2)
+    
+    #Model 0's setup
+    print(models[0].get_config())
+    
     return []
 
 #==============================================================================
@@ -639,17 +750,20 @@ def Tune_Models(dataset, data_parameters):
 #Generating the model structures can be done separately so its here
 Generate_Model_Strutures(Generate_Layer_Parameters(), Generate_Layer_Depth())
 
-print(Load_Model_Structures())
+#keras-tuner can not take in an array, it has to be string, int, float
+#so we have it select the index of the structure, instead of the actual model
+model_structures = [["GRU"], ["GRU", "GRU"]]# Load_Model_Structures()
+model_structures_index = [0, 1]# np.arange(len(model_structures))
 
 #data_parameters = Generate_Data_Parameters()
 data_params = {'dataset' : 'firebusters',
                'train_p' : 0.8,
-               'w_size' : 0,
+               'w_size' : 200,
                'o_percent' : 0.25
                }
 dataset = Load_Data(**data_params)
 
 #Does the hyperparameter tuning of the models on the given dataset
-Tune_Models(dataset, data_params)
+Tune_Models(dataset)
 
 
