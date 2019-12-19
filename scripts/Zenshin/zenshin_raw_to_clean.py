@@ -97,6 +97,12 @@ def CleanFile(file):
     df["session_id"] = np.asarray(session_id_col)
     df["subject_id"] = np.asarray(subject_id_col)
     
+    #Adds XYZ Position column by integration script 
+    from scripts.capstona_integration import Tryme
+    df['posX_m'] = Tryme(df['AccX_g'],df['TimeStamp_s'])
+    df['posY_m'] = Tryme(df['AccY_g'],df['TimeStamp_s'])
+    df['posZ_m'] = Tryme(df['AccZ_g'],df['TimeStamp_s'])
+
     return (df, new_filename)
 
 #Time stamps are sometimes not reset so we have to make the time stamp here

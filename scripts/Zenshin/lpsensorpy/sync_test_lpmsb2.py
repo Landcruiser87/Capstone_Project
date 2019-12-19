@@ -2,7 +2,8 @@ import sys, os
 from collections import OrderedDict
 import time
 import threading
-from lpmslib import LpmsME
+
+from lpmslib import LpmsB2
 from lpmslib import lputils
 
 TAG="MAIN"
@@ -44,88 +45,109 @@ def exit():
 
 # Sensor related commands
 def connect_sensor():
-    lputils.logd(TAG, "Connecting sensor")
-    if lpmsSensor.connect():
+    lputils.logd(TAG, "Connecting sensor 1 ")
+    if lpmsb1.connect():
+        lputils.logd(TAG, "Connected")
+        get_config_register()
+
+    lputils.logd(TAG, "Connecting sensor 2 ")
+    if lpmsb2.connect():
         lputils.logd(TAG, "Connected")
         get_config_register()
 
 def disconnect_sensor():
-    lputils.logd(TAG, "Disconnecting sensor")
-    lpmsSensor.disconnect()
+    lputils.logd(TAG, "Disconnecting sensor 1")
+    lpmsb1.disconnect()
+    lputils.logd(TAG, "Disconnected")
+
+    lputils.logd(TAG, "Disconnecting sensor 2")
+    lpmsb2.disconnect()
     lputils.logd(TAG, "Disconnected")
 
 def get_config_register():
-    config_reg = lpmsSensor.get_config_register()
-    print config_reg
+    lputils.logd(TAG, "Sensor 1 Config")
+    config_reg = lpmsb1.get_config_register()
+    print(config_reg)
+
+    lputils.logd(TAG, "Sensor 2 Config")
+    config_reg = lpmsb2.get_config_register()
+    print(config_reg)
 
 def stream_freq_menu():
     print_menu(stream_freq_menu)
-    choice = raw_input(" >>  ")
+    choice = input(" >>  ")
     exec_menu(stream_freq_menu, choice)
     get_config_register()
     
 def set_stream_freq_5Hz():
-    lpmsSensor.set_stream_frequency_5Hz()
+    lpmsb1.set_stream_frequency_5Hz()
+    lpmsb2.set_stream_frequency_5Hz()
 
 def set_stream_freq_10Hz():
-    lpmsSensor.set_stream_frequency_10Hz()
+    lpmsb1.set_stream_frequency_10Hz()
+    lpmsb2.set_stream_frequency_10Hz()
 
 def set_stream_freq_25Hz():
-    lpmsSensor.set_stream_frequency_25Hz()
+    lpmsb1.set_stream_frequency_25Hz()
+    lpmsb2.set_stream_frequency_25Hz()
 
 def set_stream_freq_50Hz():
-    lpmsSensor.set_stream_frequency_50Hz()
+    lpmsb1.set_stream_frequency_50Hz()
+    lpmsb2.set_stream_frequency_50Hz()
 
 def set_stream_freq_100Hz():
-    lpmsSensor.set_stream_frequency_100Hz()
+    lpmsb1.set_stream_frequency_100Hz()
+    lpmsb2.set_stream_frequency_100Hz()
 
 def set_stream_freq_200Hz():
-    lpmsSensor.set_stream_frequency_200Hz()
+    lpmsb1.set_stream_frequency_200Hz()
+    lpmsb2.set_stream_frequency_200Hz()
 
 def set_stream_freq_400Hz():
-    lpmsSensor.set_stream_frequency_400Hz()
+    lpmsb1.set_stream_frequency_400Hz()
+    lpmsb2.set_stream_frequency_400Hz()
 
 def save_parameters():
-    lpmsSensor.save_parameters()
+    lpmsb1.save_parameters()
+    lpmsb2.save_parameters()
 
 def set_command_mode():
-    lpmsSensor.set_command_mode()
+    lpmsb1.set_command_mode()
+    lpmsb2.set_command_mode()
 
 def set_streaming_mode():
-    lpmsSensor.set_streaming_mode()
+    lpmsb1.set_streaming_mode()
+    lpmsb2.set_streaming_mode()
 
-def set_16bit_mode():
-    lpmsSensor.set_16bit_mode()
+def reset_heading():
+    lpmsb1.reset_heading()
+    lpmsb2.reset_heading()
     get_config_register()
 
-def set_32bit_mode():
-    lpmsSensor.set_32bit_mode()
-    get_config_register()
+def sync_sensors():
+    lpmsb1.start_sync()
+    lpmsb2.start_sync()
+    time.sleep(1)
+    lpmsb1.stop_sync()
+    lpmsb2.stop_sync()
 
-def get_stream_data():
-    sensor_data = lpmsSensor.get_stream_data()
-    pretty_print_sensor_data(sensor_data)
 
-def get_sensor_data():
-    sensor_data = lpmsSensor.get_sensor_data()
-    pretty_print_sensor_data(sensor_data)
-
-def calibration_magnetometer():
-    lpmsSensor.start_mag_calibration()
 
 def pretty_print_sensor_data(sensor_data):
     j = 25
     d = '.'
-    print "IMU ID:".ljust(j, d), sensor_data[0]
-    print "TimeStamp:".ljust(j, d), sensor_data[1]
-    print "Frame Counter:".ljust(j, d), sensor_data[2]
-    print "Temperature:".ljust(j, d), sensor_data[3]
-    print "Acc:".ljust(j, d), ['%+.3f' % f for f in sensor_data[4]]
-    print "Gyr:".ljust(j, d), ['%+.3f' % f for f in sensor_data[5]]
-    print "Mag:".ljust(j, d), ['%+.3f' % f for f in sensor_data[6]]
-    print "Quat:".ljust(j, d), ['%+.3f' % f for f in sensor_data[7]]
-    print "Euler:".ljust(j, d), ['%+.3f' % f for f in sensor_data[8]]
-    print "LinAcc:".ljust(j, d), ['%+.3f' % f for f in sensor_data[9]]
+    print("IMU ID:".ljust(j, d), sensor_data[0])
+    print("TimeStamp:".ljust(j, d), sensor_data[1])
+    print("Frame Counter:".ljust(j, d), sensor_data[2])
+    print("Battery Level:".ljust(j, d), sensor_data[3])
+    print("Battery Voltage:".ljust(j, d), sensor_data[4])
+    print("Temperature:".ljust(j, d), sensor_data[5])
+    print("Acc:".ljust(j, d), ['%+.3f' % f for f in sensor_data[6]])
+    print("Gyr:".ljust(j, d), ['%+.3f' % f for f in sensor_data[7]])
+    print("Mag:".ljust(j, d), ['%+.3f' % f for f in sensor_data[8]])
+    print("Quat:".ljust(j, d), ['%+.3f' % f for f in sensor_data[9]])
+    print("Euler:".ljust(j, d), ['%+.3f' % f for f in sensor_data[10]])
+    print("LinAcc:".ljust(j, d), ['%+.3f' % f for f in sensor_data[11]])
 
 
 printer_running = False
@@ -151,7 +173,10 @@ def printer():
     printer_running = True
     while not stop_printing:
         os.system('cls')
-        get_stream_data()
+        sensor_data1 = lpmsb1.get_latest_sensor_data()
+        pretty_print_sensor_data(sensor_data1)
+        sensor_data2 = lpmsb2.get_latest_sensor_data()
+        pretty_print_sensor_data(sensor_data2)
         time.sleep(.05)
     printer_running = False
     #lputils.logd(TAG, "Printer terminated")
@@ -169,12 +194,9 @@ main_menu = OrderedDict([
     ('s', save_parameters),
     ('1', set_command_mode),
     ('2', set_streaming_mode),
-    ('16', set_16bit_mode),
-    ('32', set_32bit_mode),
-    ('3', get_stream_data),
-    ('4', get_sensor_data),
-    ('m', calibration_magnetometer),
     ('p', print_data),
+    ('h', reset_heading),
+    ('s', sync_sensors),
     ('q', exit),
 ])
 
@@ -189,17 +211,18 @@ stream_freq_menu = OrderedDict([
 
 ])
 
-port = 'COM10'
-baudrate = 115200
 
-lpmsSensor = LpmsME.LpmsME(port, baudrate)
+baudrate = 921600
+
+lpmsb1 = LpmsB2.LpmsB2('COM24', baudrate)
+lpmsb2 = LpmsB2.LpmsB2('COM64', baudrate)
 quit = False
 
 def main():
     global quit
     while not quit:
         print_main_menu()
-        choice = raw_input(" >>  ")
+        choice = input(" >>  ")
         exec_menu(main_menu, choice)
 
     disconnect_sensor()
