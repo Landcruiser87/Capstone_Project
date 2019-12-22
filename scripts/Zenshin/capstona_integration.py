@@ -4,7 +4,7 @@ import random
 import matplotlib.pyplot as plt
 from scipy import integrate
 #import pandas as pd
-random.seed(4)
+
 
 #------------------------------------------------------------------------------
 #START OF FUNCTIONS	
@@ -59,6 +59,9 @@ class Tryme:
 
 #------------------------------------------------------------------------------
 #START MAIN
+# velocity = calculate_all_velocity(acceleration, time, 10)
+# position = calculate_all_position(velocity, time)
+
 
 # #Creating the fake time and acceleration data
 # acceleration = [0]
@@ -70,8 +73,6 @@ class Tryme:
 
 	
 #------------------------------------------------------------------------------
-velocity = calculate_all_velocity(acceleration, time, 10)
-position = calculate_all_position(velocity, time)
 
 # plt.plot(acceleration)
 # plt.show()

@@ -98,10 +98,11 @@ def CleanFile(file):
     df["subject_id"] = np.asarray(subject_id_col)
     
     #Adds XYZ Position column by integration script 
-    from scripts.capstona_integration import Tryme
-    df['posX_m'] = Tryme(df['AccX_g'],df['TimeStamp_s'])
-    df['posY_m'] = Tryme(df['AccY_g'],df['TimeStamp_s'])
-    df['posZ_m'] = Tryme(df['AccZ_g'],df['TimeStamp_s'])
+    from capstona_integration import Tryme
+
+    df['sID1posX_m'] = Tryme.calculate_all_position(df['sID1AccX_g'],df['TimeStamp_s'], 10)
+    df['sID1posY_m'] = Tryme.calculate_all_position(df['sID1AccY_g'],df['TimeStamp_s'], 10)
+    df['sID1posZ_m'] = Tryme.calculate_all_position(df['sID1AccZ_g'],df['TimeStamp_s'], 10)
 
     return (df, new_filename)
 
