@@ -97,12 +97,14 @@ def CleanFile(file):
     df["session_id"] = np.asarray(session_id_col)
     df["subject_id"] = np.asarray(subject_id_col)
     
-    #Adds XYZ Position column by integration script 
-    from capstona_integration import Tryme
+    # #Adds XYZ Position column by integration script 
+    # from capstona_integration import Tryme
+	# # How do i pass a column in as a variable
+	# # How can i fucking make this work
 
-    df['sID1posX_m'] = Tryme.calculate_all_position(df['sID1AccX_g'],df['TimeStamp_s'], 10)
-    df['sID1posY_m'] = Tryme.calculate_all_position(df['sID1AccY_g'],df['TimeStamp_s'], 10)
-    df['sID1posZ_m'] = Tryme.calculate_all_position(df['sID1AccZ_g'],df['TimeStamp_s'], 10)
+    # df['sID1posX_m'] = Tryme.calculate_all_position(df['sID1AccX_g'],df['TimeStamp_s'])
+    # df['sID1posY_m'] = Tryme.calculate_all_position(df['sID1AccY_g'],df['TimeStamp_s'])
+    # df['sID1posZ_m'] = Tryme.calculate_all_position(df['sID1AccZ_g'],df['TimeStamp_s'])
 
     return (df, new_filename)
 
