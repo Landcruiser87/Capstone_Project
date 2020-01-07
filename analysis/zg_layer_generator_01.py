@@ -15,8 +15,18 @@ warnings.filterwarnings("ignore")
 #START SETTING UP THE PARAMETERS/LAYERS FOR THE MODELS
 
 class Layer_Generator:
+    
+    def __init__(self, m_tuning = "all"):
+        self.model_tuning = m_tuning
+        return
+    
     #Generates the possible layer parameters
     def Generate_Layer_Parameters(self):
+        
+        #This gets called in the case of layer tuning, not hyperparmeter tuning
+        if self.model_tuning == "all":
+            return self.Generate_Simple_Layer_Parameters()
+        
         layer_parameters = {}
         
         units = [10, 25, 50, 100, 250, 500]
