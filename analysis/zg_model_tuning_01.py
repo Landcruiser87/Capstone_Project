@@ -682,7 +682,7 @@ class Model_Tuning:
     """
     
     #Tunes the model with the given data parameters
-    def Tune_Models(self):
+    def Tune_Models(self, epochs = 3, batch_size = 300):
         MAX_TRIALS = 5
         EXECUTIONS_PER_TRIAL = 5
         

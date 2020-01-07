@@ -26,6 +26,7 @@ import os
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.zg_Load_Data import Load_Data
 from analysis.zg_layer_generator_01 import Layer_Generator
+from analysis.zg_model_tuning_01 import Model_Tuning
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -71,6 +72,8 @@ def Find_Layer_Accuracy(layer_type):
 #Find_Layers_Accuracy()
 
 
+gen = Layer_Generator()
+GRU_model_structures = gen.Load_Model_Structures("GRU_Model_Structures")
 
 data_params = {'dataset' : 'firebusters',
                'train_p' : 0.8,
@@ -79,11 +82,16 @@ data_params = {'dataset' : 'firebusters',
                }
 dataset = Load_Data(**data_params)
 
-mt = Model_Tuning()
-mt.Tune_Models(dataset)
+mt = Model_Tuning(GRU_model_structures, dataset, m_tuning = "GRU_Model_Structures")
+mt.Tune_Models(epochs = 1, batch_size = 300)
 
 
+print(mt.model_structures_index)
+print(type(mt.model_structures_index))
+print(len(mt.model_structures))
 
+print(len(mt.model_structures_index))
+print(type(mt.model_structures_index))
 
 
 
