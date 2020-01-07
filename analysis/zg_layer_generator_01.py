@@ -692,21 +692,21 @@ class Layer_Generator:
         return
 
 #Makes an instance of the class.. not sure it necessary
-gen = Layer_Generator()
+#gen = Layer_Generator()
 
 #Generates and saves to disk the huge list of all model layer setups
-gen.Generate_Model_Strutures(gen.Generate_Layer_Parameters(), gen.Generate_Layer_Depth())
+#gen.Generate_Model_Strutures(gen.Generate_Layer_Parameters(), gen.Generate_Layer_Depth())
 
 #Saves and splits up that huge list of all saved layer setups into categories
-gen.Split_Save_Models_Into_Categories()
+#gen.Split_Save_Models_Into_Categories()
 
 #Examples of loading in a layer structure
-models = gen.Load_Model_Structures("Conv1D_Model_Structures")
-models = gen.Load_Model_Structures("All_Model_Structures")
-models = gen.Load_Model_Structures("Other_Model_Structures")
+#models = gen.Load_Model_Structures("Conv1D_Model_Structures")
+#models = gen.Load_Model_Structures("All_Model_Structures")
+#models = gen.Load_Model_Structures("Other_Model_Structures")
 
-print(models)
-print(len(models))
+#print(models)
+#print(len(models))
 
 
 
