@@ -682,7 +682,7 @@ class Model_Tuning:
     """
     
     #Tunes the model with the given data parameters
-    def Tune_Models(self, epochs = 3, batch_size = 300):
+    def Tune_Models(self, epochs = 3, batch_size = 300, folder_suffix = ""):
         MAX_TRIALS = 5
         EXECUTIONS_PER_TRIAL = 5
         
@@ -692,7 +692,7 @@ class Model_Tuning:
                 max_trials = MAX_TRIALS,
                 executions_per_trial = EXECUTIONS_PER_TRIAL,
                 directory = 'data\\test_dir\\',
-                project_name = self.model_tuning + '\\',
+                project_name = self.model_tuning + folder_suffix + '\\',
                 seed = 42
             )
         
@@ -700,8 +700,8 @@ class Model_Tuning:
         
         tuner.search(x = self.dataset.x_train,
                      y = self.dataset.y_train,
-                     epochs = 3,
-                     batch_size = 300,
+                     epochs = epochs,
+                     batch_size = batch_size,
                      validation_data = (self.dataset.x_test, self.dataset.y_test))
         
         #models = tuner.get_best_models(num_models=2)

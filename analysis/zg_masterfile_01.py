@@ -34,18 +34,20 @@ warnings.filterwarnings("ignore")
 #==============================================================================
 # 1. Split models into categories
 
-#Makes an instance of the class.. not sure it necessary
+#Makes an instance of the class
 lay_gen = Layer_Generator()
 
 #Generates and saves to disk the huge list of all model layer setups
 lay_gen.Generate_Model_Strutures(lay_gen.Generate_Layer_Parameters(), lay_gen.Generate_Layer_Depth())
 
 #Saves and splits up that huge list of all saved layer setups into categories
+#saves into the data folder
 lay_gen.Split_Save_Models_Into_Categories()
 
 #==============================================================================
 #2. Figure out what the parameters for each category
 
+#NOT REALLY A STEP TO RUN, JUST HERE FOR LOOKING AT... OOO, AHHHH
 params = lay_gen.Generate_Simple_Layer_Parameters()
 
 #==============================================================================
@@ -53,7 +55,7 @@ params = lay_gen.Generate_Simple_Layer_Parameters()
 
 #To find what the best layer setups are
 def Find_Layers_Accuracy():
-    suffix = "_Model_structures"
+    suffix = "_Model_Structures"
     names = ["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D",
              "Dense", "GRU", "LSTM", "Other"]
     
@@ -71,7 +73,8 @@ def Find_Layer_Accuracy(layer_type):
 #Run it!
 #Find_Layers_Accuracy()
 
-
+#THIS IS THE INITIAL TEST TO MAKE SURE THAT THE CLASS-IFYING OF THE MODEL TUNER
+#SCRIPT WAS WORKING AS EXPECTED
 gen = Layer_Generator()
 GRU_model_structures = gen.Load_Model_Structures("GRU_Model_Structures")
 
@@ -82,17 +85,11 @@ data_params = {'dataset' : 'firebusters',
                }
 dataset = Load_Data(**data_params)
 
-mt = Model_Tuning(GRU_model_structures, dataset, m_tuning = "GRU_Model_Structures")
+mt = Model_Tuning(GRU_model_structures,
+                  dataset,
+                  m_tuning = "GRU_Model_Structures",
+                  folder_suffix = '1')
 mt.Tune_Models(epochs = 1, batch_size = 300)
-
-
-print(mt.model_structures_index)
-print(type(mt.model_structures_index))
-print(len(mt.model_structures))
-
-print(len(mt.model_structures_index))
-print(type(mt.model_structures_index))
-
 
 
 #==============================================================================
