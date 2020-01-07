@@ -57,6 +57,47 @@ class Layer_Generator:
         #print("TODO: Had to remove print in the Invalid_LayerName area, earch the file for 'TODO'")
         return layer_parameters
     
+    #These are for figuring out what layer ordering is the best, not
+    #for hyperparameter tuning
+    def Generate_Simple_Layer_Parameters(self):
+        layer_parameters = {}
+        
+        units = [10]
+        activation = ["relu"]
+        bias_init = ["Zeros"]
+        dropout = [0.25]
+        
+        layer_parameters["GRU"] = {"units" : units,
+                                    "activation" : activation,
+                                    "bias_initializer" : bias_init,
+                                    "return_sequences" : [True, False],
+                                    "dropout" : dropout}
+        layer_parameters["LSTM"] = {"units" : units,
+                                    "activation" : activation,
+                                    "bias_initializer" : bias_init,
+                                    "return_sequences" : [True, False],
+                                    "dropout" : dropout}
+        layer_parameters["Dense"] = {"units" : units,
+                                    "activation" : activation,
+                                    "bias_initializer" : bias_init}
+        layer_parameters["BidirectionalLSTM"] = {"layer" : ["LSTM"]}
+        layer_parameters["BidirectionalGRU"] = {"layer" : ["GRU"]}
+    
+        layer_parameters["Conv1D"] = {"filters" : [0.75],
+                                        "activation" : activation}
+        layer_parameters["ConvLSTM2D"] = {"filters" : [0.75],
+                                        "activation" : activation,
+                                        "dropout" : dropout}
+        #FAUX LAYERS
+        layer_parameters["Dropout"] = {"rate" : [0.2]}
+        layer_parameters["MaxPooling1D"] = {"pool_size" : [0.25]}
+        #print("TODO: we want strides later... maybe")
+        #print("TODO: MaxPooling1D - pool_size has to be an integer in the end (based on window size)")
+        layer_parameters["Flatten"] = {}
+        
+        #print("TODO: Had to remove print in the Invalid_LayerName area, earch the file for 'TODO'")
+        return layer_parameters
+    
     def Generate_Layer_Depth(self):
          return [1, 2, 3, 4, 5, 6, 7]
     
