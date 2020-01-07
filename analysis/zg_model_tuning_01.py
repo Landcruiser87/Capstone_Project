@@ -25,11 +25,14 @@ warnings.filterwarnings("ignore")
 
 class Model_Tuning:
     
-    def __init__(self, model_str, m_tuning = "all"):
+    def __init__(self, model_str, data, m_tuning = "all"):
         self.model_tuning = m_tuning
         self.model_structures = model_str
-        self.model_structures_index = np.arange(len(model_str))
-        
+        msi = list(np.arange(len(model_str)))
+        self.model_structures_index = []
+        self.dataset = data
+        for i in msi:
+            self.model_structures_index.append(int(i))
         return
     
     #This function returns the model. For the keras-tuner this is the function
@@ -155,14 +158,14 @@ class Model_Tuning:
                 layer = GRU(units = units, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2]))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]))
                 these_layers.append(layer)
                 these_layers.append(LeakyReLU())
             else:
                 layer = GRU(units = units, activation = activation, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2]))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]))
                 these_layers.append(layer)
         else: 
             #leakyReLU is a pain because it acts like it is its own layer
@@ -240,14 +243,14 @@ class Model_Tuning:
                 layer = LSTM(units = units, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2]))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]))
                 these_layers.append(layer)
                 these_layers.append(LeakyReLU())
             else:
                 layer = LSTM(units = units, activation = activation, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2]))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]))
                 these_layers.append(layer)
         else: 
             #leakyReLU is a pain because it acts like it is its own layer
@@ -305,13 +308,13 @@ class Model_Tuning:
             if activation == "LeakyReLU":
                 layer = Dense(units = units,
                             bias_initializer = bias_initializer,
-                            input_dim = dataset.x_train.shape[1])
+                            input_dim = self.dataset.x_train.shape[1])
                 these_layers.append(layer)
                 these_layers.append(LeakyReLU())
             else:
                 layer = Dense(units = units, activation = activation,
                             bias_initializer = bias_initializer,
-                            input_dim = dataset.x_train.shape[1])
+                            input_dim = self.dataset.x_train.shape[1])
                 these_layers.append(layer)
         else: 
             #leakyReLU is a pain because it acts like it is its own layer
@@ -387,14 +390,14 @@ class Model_Tuning:
                 layer = Bidirectional(LSTM(units = units, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2])))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2])))
                 these_layers.append(layer)
                 these_layers.append(LeakyReLU())
             else:
                 layer = Bidirectional(LSTM(units = units, activation = activation, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2])))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2])))
                 these_layers.append(layer)
         else: 
             #leakyReLU is a pain because it acts like it is its own layer
@@ -472,14 +475,14 @@ class Model_Tuning:
                 layer = Bidirectional(GRU(units = units, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2])))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2])))
                 these_layers.append(layer)
                 these_layers.append(LeakyReLU())
             else:
                 layer = Bidirectional(GRU(units = units, activation = activation, dropout = dropout,
                             return_sequences = return_sequences,
                             bias_initializer = bias_initializer,
-                            input_shape = (dataset.x_train.shape[1], dataset.x_train.shape[2])))
+                            input_shape = (self.dataset.x_train.shape[1], self.dataset.x_train.shape[2])))
                 these_layers.append(layer)
         else: 
             #leakyReLU is a pain because it acts like it is its own layer
@@ -533,7 +536,7 @@ class Model_Tuning:
                 print("Add_Conv1D_Layer, bias_init SOMETHING WENT WRONG")
             
         #Convert filter percent to a int by multiplying it times the window_size
-        filters = int(dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
+        filters = int(self.dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
         
         #TODO: kernel_size is window_size/filter (for our purposes)
         #kernel_size = filters
@@ -542,7 +545,7 @@ class Model_Tuning:
         #If this is the first layer so stuffs
         if activation != "LeakyReLU":
             if layer_index == 0:
-                n_timesteps, n_features = dataset.x_train.shape[1], dataset.x_train.shape[2]
+                n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = Conv1D(filters=filters, kernel_size=kernel_size,
                                         activation=activation,
                                         input_shape=(n_timesteps, n_features))
@@ -553,7 +556,7 @@ class Model_Tuning:
                 these_layers.append(layer)
         else:
             if layer_index == 0:
-                n_timesteps, n_features = dataset.x_train.shape[1], dataset.x_train.shape[2]
+                n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = Conv1D(filters=filters, kernel_size=kernel_size,
                                         input_shape=(n_timesteps, n_features))
                 these_layers.append(layer)
@@ -601,7 +604,7 @@ class Model_Tuning:
                 print("Add_ConvLSTM2D_Layer, bias_init SOMETHING WENT WRONG")
         
         #Convert filter percent to a int by multiplying it times the window_size
-        filters = int(dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
+        filters = int(self.dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
         
         #TODO: kernel_size is window_size/filter (for our purposes)
         #kernel_size = filters
@@ -621,7 +624,7 @@ class Model_Tuning:
         #If this is the first layer so stuffs
         if activation != "LeakyReLU":
             if layer_index == 0:
-                n_timesteps, n_features = dataset.x_train.shape[1], dataset.x_train.shape[2]
+                n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = ConvLSTM2D(filters=filters, kernel_size=(1, kernel_size),
                                         activation=activation,
                                         input_shape=(n_timesteps, n_features))
@@ -632,7 +635,7 @@ class Model_Tuning:
                 these_layers.append(layer)
         else:
             if layer_index == 0:
-                n_timesteps, n_features = dataset.x_train.shape[1], dataset.x_train.shape[2]
+                n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size,
                                         input_shape=(n_timesteps, n_features))
                 these_layers.append(layer)
@@ -655,7 +658,7 @@ class Model_Tuning:
         #pool_size is currently a percent, multiply it by window_size to get an int
         name_prefix = "MaxPooling1D_" + str(layer_index) + "_"
         layer_parameters = all_layer_params["MaxPooling1D"]
-        pool_size = int(dataset.window_size*hp.Choice(name_prefix + "pool_size", layer_parameters["pool_size"]))
+        pool_size = int(self.dataset.window_size*hp.Choice(name_prefix + "pool_size", layer_parameters["pool_size"]))
         return MaxPooling1D(pool_size = pool_size)
     
     def Add_Flatten_Layer(self):
@@ -679,7 +682,7 @@ class Model_Tuning:
     """
     
     #Tunes the model with the given data parameters
-    def Tune_Models(self, dataset):
+    def Tune_Models(self):
         MAX_TRIALS = 5
         EXECUTIONS_PER_TRIAL = 5
         
@@ -695,16 +698,16 @@ class Model_Tuning:
         
         #tuner.reload()
         
-        tuner.search(x = dataset.x_train,
-                     y = dataset.y_train,
+        tuner.search(x = self.dataset.x_train,
+                     y = self.dataset.y_train,
                      epochs = 3,
                      batch_size = 300,
-                     validation_data = (dataset.x_test, dataset.y_test))
+                     validation_data = (self.dataset.x_test, self.dataset.y_test))
         
-        models = tuner.get_best_models(num_models=2)
+        #models = tuner.get_best_models(num_models=2)
         
         #Model 0's setup
-        print(models[0].get_config())
+        #print(models[0].get_config())
         
         return []
 
