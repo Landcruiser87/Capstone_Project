@@ -725,14 +725,14 @@ class Model_Tuning:
 #model_structures_index = [0]
 
 #data_parameters = Generate_Data_Parameters()
-data_params = {'dataset' : 'firebusters',
-               'train_p' : 0.8,
-               'w_size' : 200,
-               'o_percent' : 0 #0.25
-               }
-dataset = Load_Data(**data_params)
+#data_params = {'dataset' : 'firebusters',
+#               'train_p' : 0.8,
+#               'w_size' : 200,
+#               'o_percent' : 0 #0.25
+#               }
+#dataset = Load_Data(**data_params)
 
-mt = Model_Tuning()
+#mt = Model_Tuning()
 #gpu_devices = tf.config.experimental.list_physical_devices('GPU')
 #for device in gpu_devices:
 #    tf.config.experimental.set_memory_growth(device, True)
@@ -740,6 +740,6 @@ mt = Model_Tuning()
 #config.gpu_options.allow_growth = True
 
 #Does the hyperparameter tuning of the models on the given dataset
-mt.Tune_Models(dataset)
+#mt.Tune_Models(dataset)
 
 
