@@ -613,17 +613,38 @@ class Model_Tuning:
         #kernel_size = filters
         kernel_size = int(filters*0.25)
     
-    #	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
-      	# reshape into subsequences (samples, time steps, rows, cols, channels)
-    #	n_steps = 4
-    #	n_length = int(x_train.shape[1]/n_steps)
-    #	x_train = x_train.reshape((x_train.shape[0], n_steps, 1, n_length, n_features))
-    #	x_test = x_test.reshape((x_test.shape[0], n_steps, 1, n_length, n_features))
-    #	ConvLSTM2D(filters=64,
-    #            kernel_size=(1,3),
-    #            activation='relu',
-    #            input_shape=(n_steps, 1, n_length, n_features)))
-    
+        #	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
+          	# reshape into subsequences (samples, time steps, rows, cols, channels)
+        #	n_steps = 4
+        #	n_length = int(x_train.shape[1]/n_steps)
+        #	x_train = x_train.reshape((x_train.shape[0], n_steps, 1, n_length, n_features))
+        #	x_test = x_test.reshape((x_test.shape[0], n_steps, 1, n_length, n_features))
+        #	ConvLSTM2D(filters=64,
+        #            kernel_size=(1,3),
+        #            activation='relu',
+        #            input_shape=(n_steps, 1, n_length, n_features)))
+        
+        #if a layer after this is a RNN type or a Dropout-RNN type then
+        #return_sequences can be either true or false, otherwise it is false
+        if len(all_layers) > (layer_index + 1):
+            rnn_types = ["ConvLSTM2D"]
+            if all_layers[layer_index + 1] in rnn_types:    #GRU-RNN type
+                return_sequences = True
+            else:
+                if all_layers[layer_index + 1] == "Dropout":
+                    if len(all_layers) > (layer_index + 2):
+                        if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
+                            return_sequences = True
+                        else:
+                            return_sequences = False
+                    else:
+                        return_sequences = False
+                else:
+                    return_sequences = False
+        else:
+            return_sequences = False
+   
+        
         #If this is the first layer so stuffs
         if activation != "LeakyReLU":
             if layer_index == 0:
