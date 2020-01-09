@@ -31,7 +31,7 @@ class Load_Data:
     #dataset: a string indicating which of the three datasets to load
     #w_size: indicates the window size, no windows if it equals 0
     #o_percent: overlap percentage for the windows
-    def __init__(self, dataset, train_p = 0.8, w_size = 0, o_percent = 0.25, clstm_params = {}):
+    def __init__(self, dataset, train_p = 0.8, LOSO = False, w_size = 0, o_percent = 0.25, clstm_params = {}):
         self.dataset = dataset
         self.train_percent = train_p
         self.bwindows = False
@@ -40,6 +40,7 @@ class Load_Data:
         self.window_size = w_size
         self.overlap_percent = o_percent
         self.clstm_params = clstm_params
+        self.loso = LOSO
         self.x_train, self.y_train, self.x_test, self.y_test = self.load_dataset()
         
         #In the case of this being a ConvLSTM2D
@@ -300,8 +301,14 @@ class Load_Data:
             if ((df['exercise_id'] == combo[0]) & (df['subject_id'] == combo[1]) & (df['session_id'] == combo[2])).any():
                 #This combination exists, get all rows that match this
                df_all.append( df.loc[(df['exercise_id'] == combo[0]) & (df['subject_id'] == combo[1]) & (df['session_id'] == combo[2])] )
+
+        #df_subid
+        rand_subject = -1
+        if self.loso == True:
+            rand_subject = random.choice(df_subid, seed = 42)
     
         #Makes the windows
+        loso_windows = []
         windows = []
         for a_df in df_all:
             #Number of rows in the dataframe
@@ -314,13 +321,22 @@ class Load_Data:
             #locations windows to start at
             rows_used = int(t_window + (num_windows-2)*offset)
             
-            #This puts the first window dataframe into the list
-            if rows_used >= t_window:
-                windows.append(a_df[0:t_window].to_numpy())
-            
-            #Puts the remaining windows into the list
-            for i in range(offset, rows_used, offset):
-                windows.append( a_df[i:i+t_window].to_numpy() )
+            if (self.loso == True) and (a_df["subject_id"] == rand_subject):
+                #This puts the first window dataframe into the list
+                if rows_used >= t_window:
+                    loso_windows.append(a_df[0:t_window].to_numpy())
+                
+                #Puts the remaining windows into the list
+                for i in range(offset, rows_used, offset):
+                    loso_windows.append(a_df[i:i+t_window].to_numpy() )
+            else:
+                #This puts the first window dataframe into the list
+                if rows_used >= t_window:
+                    windows.append(a_df[0:t_window].to_numpy())
+                
+                #Puts the remaining windows into the list
+                for i in range(offset, rows_used, offset):
+                    windows.append( a_df[i:i+t_window].to_numpy() )
         
         windows = np.array(windows)
         
@@ -333,24 +349,34 @@ class Load_Data:
         cols_to_delete.append(df.columns.get_loc("session_id"))
         cols_to_delete.append(df.columns.get_loc("subject_id"))
         cols_to_delete.append(y_axis)
-        
+
         y = windows[:, 0, y_axis] - 1
         y = to_categorical(y)
         
         x = np.copy(windows)
         x = np.delete(x, cols_to_delete, axis = 2)
         
-        #Train size
-        frac = self.train_percent
-        train_size = int(x.shape[0]*frac)
-        train_indices = list(random.sample(range(0, x.shape[0]), train_size))
-        all_values = np.arange(0, windows.shape[0])
-        test_indices = [ti for ti in all_values if ti not in train_indices]
-        
-        x_train = np.array([x[i,:,:] for i in train_indices])
-        y_train = np.array([y[i,:] for i in train_indices])
-        x_test = np.array([x[i,:,:] for i in test_indices])
-        y_test = np.array([y[i,:] for i in test_indices])
+        if self.loso == True:
+            y_train = y
+            x_train = x
+
+            y_test = loso_windows[:, 0, y_axis] - 1
+            y_test = to_categorical(y_test)
+            
+            x_test = np.copy(loso_windows)
+            x_test = np.delete(x_test, cols_to_delete, axis = 2)
+        else:
+            #Train size
+            frac = self.train_percent
+            train_size = int(x.shape[0]*frac)
+            train_indices = list(random.sample(range(0, x.shape[0]), train_size))
+            all_values = np.arange(0, windows.shape[0])
+            test_indices = [ti for ti in all_values if ti not in train_indices]
+            
+            x_train = np.array([x[i,:,:] for i in train_indices])
+            y_train = np.array([y[i,:] for i in train_indices])
+            x_test = np.array([x[i,:,:] for i in test_indices])
+            y_test = np.array([y[i,:] for i in test_indices])
         
         #print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
         return (x_train, y_train, x_test, y_test)
