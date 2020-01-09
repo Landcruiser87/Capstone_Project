@@ -98,6 +98,7 @@ class Layer_Generator:
                                         "activation" : activation}
         layer_parameters["ConvLSTM2D"] = {"filters" : [0.75],
                                         "activation" : activation,
+                                        "n_steps" : [4],
                                         "dropout" : dropout}
         #FAUX LAYERS
         layer_parameters["Dropout"] = {"rate" : [0.2]}
