@@ -625,10 +625,13 @@ class Model_Tuning:
         #If this is the first layer so stuffs
         if activation != "LeakyReLU":
             if layer_index == 0:
-                n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
+                #n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = ConvLSTM2D(filters=filters, kernel_size=(1, kernel_size),
-                                        activation=activation,
-                                        input_shape=(n_timesteps, n_features))
+                                    activation=activation,
+                                    input_shape=(self.dataset.x_train.shape[1],
+                                                 self.dataset.x_train.shape[2],
+                                                 self.dataset.x_train.shape[3],
+                                                 self.dataset.x_train.shape[4]))
                 these_layers.append(layer)
             else:
                 layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size,
@@ -636,9 +639,12 @@ class Model_Tuning:
                 these_layers.append(layer)
         else:
             if layer_index == 0:
-                n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
+                #n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size,
-                                        input_shape=(n_timesteps, n_features))
+                                    input_shape=(self.dataset.x_train.shape[1],
+                                                 self.dataset.x_train.shape[2],
+                                                 self.dataset.x_train.shape[3],
+                                                 self.dataset.x_train.shape[4]))
                 these_layers.append(layer)
             else:
                 layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size)
