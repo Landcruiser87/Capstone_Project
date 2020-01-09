@@ -74,7 +74,9 @@ class Model_Tuning:
                 for l in layers:
                     model.add(l)
             elif chosen_model[layer_index] == "ConvLSTM2D":
-                model.add(self.Add_ConvLSTM2D_Layer(hp, bias_init, chosen_model, layer_index, all_layer_params))
+                bias_init, layers = self.Add_ConvLSTM2D_Layer(hp, bias_init, chosen_model, layer_index, all_layer_params)
+                for l in layers:
+                    model.add(l)
             elif chosen_model[layer_index] == "Dropout":
                 model.add(self.Add_Dropout_Layer(hp, layer_index, all_layer_params))
             elif chosen_model[layer_index] == "MaxPooling1D":
