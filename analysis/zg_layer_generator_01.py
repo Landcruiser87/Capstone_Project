@@ -55,6 +55,7 @@ class Layer_Generator:
         #print("TODO: Conv1D/ConvLSTM2D filters and kernel_size")
         layer_parameters["ConvLSTM2D"] = {"filters" : [0.25, 0.5, 0.75],
                                         "activation" : activation,
+                                        "n_steps" : [4],
                                         "dropout" : dropout}#, "kernel_size" : filters*kernel_size = window_size?
         #print("TODO: filters is currently a percentage of window size, has to be an int at the end")
         #FAUX LAYERS

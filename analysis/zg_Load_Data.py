@@ -31,7 +31,7 @@ class Load_Data:
     #dataset: a string indicating which of the three datasets to load
     #w_size: indicates the window size, no windows if it equals 0
     #o_percent: overlap percentage for the windows
-    def __init__(self, dataset, train_p = 0.8, w_size = 0, o_percent = 0.25):
+    def __init__(self, dataset, train_p = 0.8, w_size = 0, o_percent = 0.25, clstm_params = {}):
         self.dataset = dataset
         self.train_percent = train_p
         self.bwindows = False
@@ -39,7 +39,18 @@ class Load_Data:
             self.bwindows = True
         self.window_size = w_size
         self.overlap_percent = o_percent
+        self.clstm_params = clstm_params
         self.x_train, self.y_train, self.x_test, self.y_test = self.load_dataset()
+        
+        #In the case of this being a ConvLSTM2D
+        if clstm_params != {}:
+            n_features = self.x_train.shape[2]
+            # reshape into subsequences (samples, time steps, rows, cols, channels)
+            n_steps = clstm_params["n_steps"][0]
+            n_length = int(self.x_train.shape[1]/n_steps)
+            self.x_train = self.x_train.reshape((self.x_train.shape[0], n_steps, 1, n_length, n_features))
+            self.x_test = self.x_test.reshape((self.x_test.shape[0], n_steps, 1, n_length, n_features))
+        
         print(self.x_train.shape, self.y_train.shape, self.x_test.shape, self.y_test.shape)
 
     def load_dataset(self):
