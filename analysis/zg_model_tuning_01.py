@@ -25,9 +25,10 @@ warnings.filterwarnings("ignore")
 
 class Model_Tuning:
     
-    def __init__(self, model_str, data, m_tuning = "all"):
+    def __init__(self, model_str, data, m_tuning = "all", fldr_sffx = ""):
         self.model_tuning = m_tuning
         self.model_structures = model_str
+        self.folder_suffix = fldr_sffx
         msi = list(np.arange(len(model_str)))
         self.model_structures_index = []
         self.dataset = data
@@ -682,7 +683,7 @@ class Model_Tuning:
     """
     
     #Tunes the model with the given data parameters
-    def Tune_Models(self, epochs = 3, batch_size = 300, folder_suffix = ""):
+    def Tune_Models(self, epochs = 3, batch_size = 300):
         MAX_TRIALS = 5
         EXECUTIONS_PER_TRIAL = 5
         
@@ -692,7 +693,7 @@ class Model_Tuning:
                 max_trials = MAX_TRIALS,
                 executions_per_trial = EXECUTIONS_PER_TRIAL,
                 directory = 'data\\test_dir\\',
-                project_name = self.model_tuning + folder_suffix + '\\',
+                project_name = self.model_tuning + self.folder_suffix + '\\',
                 seed = 42
             )
         

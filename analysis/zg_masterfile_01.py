@@ -55,9 +55,9 @@ params = lay_gen.Generate_Simple_Layer_Parameters()
 
 #To find what the best layer setups are
 def Find_Layers_Accuracy():
-    suffix = "_Model_Structures"
-    names = ["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D",
-             "Dense", "GRU", "LSTM", "Other"]
+#    names = ["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D",
+#             "Dense", "GRU", "LSTM", "Other"]
+    names = ["GRU", "LSTM"]
     
     for layer_type in names:
         Find_Layer_Accuracy(layer_type)
@@ -65,14 +65,34 @@ def Find_Layers_Accuracy():
     return
 
 def Find_Layer_Accuracy(layer_type):
+    layer_type = layer_type + "_Model_Structures"
     
     #Run tuning on this with the given name
+    gen = Layer_Generator()
+    model_structures = gen.Load_Model_Structures(layer_type)
+    
+    data_params = {'dataset' : 'firebusters',
+                   'train_p' : 0.8,
+                   'w_size' : 400,
+                   'o_percent' : 0 #0.25
+                   }
+    dataset = Load_Data(**data_params)
+    
+    mt = Model_Tuning(model_structures,
+                      dataset,
+                      m_tuning = layer_type,
+                      fldr_sffx = '1')
+    mt.Tune_Models(epochs = 1, batch_size = 300)
     
     return
 
 #Run it!
-#Find_Layers_Accuracy()
+Find_Layers_Accuracy()
 
+
+
+
+#==============================================================================
 #THIS IS THE INITIAL TEST TO MAKE SURE THAT THE CLASS-IFYING OF THE MODEL TUNER
 #SCRIPT WAS WORKING AS EXPECTED
 gen = Layer_Generator()
