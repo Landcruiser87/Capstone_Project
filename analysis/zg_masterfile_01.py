@@ -54,7 +54,7 @@ params = lay_gen.Generate_Simple_Layer_Parameters()
 #3. Run each category with specific hyperparameters
 
 #To find what the best layer setups are
-def Find_Layers_Accuracy():
+def Find_All_Layers_Accuracy():
 #    names = ["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D",
 #             "Dense", "GRU", "LSTM", "Other"]
     names = ["GRU", "LSTM"]
@@ -87,31 +87,21 @@ def Find_Layer_Accuracy(layer_type):
     return
 
 #Run it!
-Find_Layers_Accuracy()
-
-
-
+Find_All_Layers_Accuracy()
 
 #==============================================================================
-#THIS IS THE INITIAL TEST TO MAKE SURE THAT THE CLASS-IFYING OF THE MODEL TUNER
-#SCRIPT WAS WORKING AS EXPECTED
-gen = Layer_Generator()
-GRU_model_structures = gen.Load_Model_Structures("GRU_Model_Structures")
-
-data_params = {'dataset' : 'firebusters',
-               'train_p' : 0.8,
-               'w_size' : 200,
-               'o_percent' : 0 #0.25
-               }
-dataset = Load_Data(**data_params)
-
-mt = Model_Tuning(GRU_model_structures,
-                  dataset,
-                  m_tuning = "GRU_Model_Structures",
-                  folder_suffix = '1')
-mt.Tune_Models(epochs = 1, batch_size = 300)
+#4. Take BEST 15 for each category (15LSTM, 15GRU...)
+#5. Run hyperparameter tuning for BEST of each category
 
 
-#==============================================================================
+#6. Pull out TOP 10 for each tuned
+#7. Visualize/Graph
+
+
+
+
+
+
+
 
 
