@@ -68,13 +68,18 @@ def Find_Layer_Accuracy(layer_type):
     layer_type = layer_type + "_Model_Structures"
     
     #Run tuning on this with the given name
-    gen = Layer_Generator()
-    model_structures = gen.Load_Model_Structures(layer_type)
+    lay_gen = Layer_Generator()
+    model_structures = lay_gen.Load_Model_Structures(layer_type)
+    
+    clstm_params = []
+    if layer_type == "ConvLSTM2D_Model_Structures":
+        clstm_params = lay_gen.Generate_Simple_Layer_Parameters()["ConvLSTM2D"]
     
     data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
                    'w_size' : 400,
-                   'o_percent' : 0 #0.25
+                   'o_percent' : 0, #0.25,
+                   'clstm_params' : clstm_params
                    }
     dataset = Load_Data(**data_params)
     
@@ -98,10 +103,26 @@ Find_All_Layers_Accuracy()
 #7. Visualize/Graph
 
 
+#TESTING OUT ConvLSTM2D - This one isn't working for some reason
+lay_gen = Layer_Generator()
+model_structures = [["ConvLSTM2D", "ConvLSTM2D", "Flatten"]]
+clstm_params = lay_gen.Generate_Simple_Layer_Parameters()["ConvLSTM2D"]
 
+data_params = {'dataset' : 'firebusters',
+               'train_p' : 0.8,
+               'w_size' : 200,
+               'o_percent' : 0, #0.25,
+               'clstm_params' : clstm_params
+               }
+dataset = Load_Data(**data_params)
 
-
-
-
-
-
+mt = Model_Tuning(model_structures,
+                  dataset,
+                  m_tuning = "ConvLSTM2D_Model_Structures",
+                  fldr_sffx = '2')
+mt.Tune_Models(epochs = 1, batch_size = 3)
+    
+ 
+print(lstm_parmas)   
+    
+    

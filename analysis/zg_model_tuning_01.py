@@ -651,6 +651,7 @@ class Model_Tuning:
                 #n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = ConvLSTM2D(filters=filters, kernel_size=(1, kernel_size),
                                     activation=activation,
+                                    return_sequences = return_sequences,
                                     input_shape=(self.dataset.x_train.shape[1],
                                                  self.dataset.x_train.shape[2],
                                                  self.dataset.x_train.shape[3],
@@ -658,19 +659,22 @@ class Model_Tuning:
                 these_layers.append(layer)
             else:
                 layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size,
+                                        return_sequences = return_sequences,
                                         activation=activation)
                 these_layers.append(layer)
         else:
             if layer_index == 0:
                 #n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
                 layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size,
+                                    return_sequences = return_sequences,
                                     input_shape=(self.dataset.x_train.shape[1],
                                                  self.dataset.x_train.shape[2],
                                                  self.dataset.x_train.shape[3],
                                                  self.dataset.x_train.shape[4]))
                 these_layers.append(layer)
             else:
-                layer = ConvLSTM2D(filters=filters, kernel_size=kernel_size)
+                layer = ConvLSTM2D(filters=filters, return_sequences = return_sequences,
+                                    kernel_size=kernel_size)
                 these_layers.append(layer)
             these_layers.append(LeakyReLU())
     
