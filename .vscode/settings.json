@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\andyh\\Anaconda3\\envs\\capstone_env\\python.exe"
+    "python.pythonPath": "C:\\Users\\andyh\\Anaconda3\\envs\\capstone_env\\python.exe",
+    "git.ignoreLimitWarning": true
 }
