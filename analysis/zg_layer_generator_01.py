@@ -296,6 +296,24 @@ class Layer_Generator:
         return False
     
     def Invalid_Dense(self, model):
+        dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
+        
+        if len(dense_indices) > 0:
+            #If Conv1D or ConvLSTM2D are before it, must have flatten
+            conv1d_indices = [i for i,d in enumerate(model) if d == 'Conv1D']
+            convlstm_indices = [i for i,d in enumerate(model) if d == 'ConvLSTM2D']
+            cnn_indices = (conv1d_indices + convlstm_indices).sort()
+            
+            #Has to be at least one cnn type for this case to matter
+            if len(cnn_indices > 0):
+                flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
+    
+                first_dense = dense_indices[0]
+                last_cnn = cnn_indices[-1]
+                #If there is not flatten between cnn and dense this is invalid
+                if len([fi for fi in flatten_indices if fi < first_dense and fi > last_cnn]) == 0:
+                    return True
+        
         return False
     
     def Invalid_BidirectionalLSTM(self, model):
@@ -394,7 +412,11 @@ class Layer_Generator:
             for ci in conv1d_indices:
                 if len([fi for fi in flatten_indices if fi < ci]) > 0:
                     return True
-    
+            
+            #Must have at least one flatten
+            if len(flatten_indices) == 0:
+                return True
+            
             #No dense before it
             dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
             for ci in conv1d_indices:
@@ -435,6 +457,10 @@ class Layer_Generator:
             for cli in clstm_indices:
                 if len([fi for fi in flatten_indices if fi < cli]) > 0:
                     return True
+
+            #Must have at least one flatten
+            if len(flatten_indices) == 0:
+                return True
     
             #No dense before it
             dense_indices = [i for i,d in enumerate(model) if d == 'Dense']
