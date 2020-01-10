@@ -305,7 +305,7 @@ class Load_Data:
         #df_subid
         rand_subject = -1
         if self.loso == True:
-            rand_subject = random.choice(df_subid, seed = 42)
+            rand_subject = int(random.choice(df_subid))
     
         #Makes the windows
         loso_windows = []
@@ -321,7 +321,16 @@ class Load_Data:
             #locations windows to start at
             rows_used = int(t_window + (num_windows-2)*offset)
             
-            if (self.loso == True) and (a_df["subject_id"] == rand_subject):
+            sid = int(a_df["subject_id"].iloc[0])
+            if (self.loso == False) or (sid != rand_subject):
+                #This puts the first window dataframe into the list
+                if rows_used >= t_window:
+                    windows.append( a_df[0:t_window].to_numpy() )
+                
+                #Puts the remaining windows into the list
+                for i in range(offset, rows_used, offset):
+                    windows.append( a_df[i:i+t_window].to_numpy() )
+            else:
                 #This puts the first window dataframe into the list
                 if rows_used >= t_window:
                     loso_windows.append(a_df[0:t_window].to_numpy())
@@ -329,14 +338,6 @@ class Load_Data:
                 #Puts the remaining windows into the list
                 for i in range(offset, rows_used, offset):
                     loso_windows.append(a_df[i:i+t_window].to_numpy() )
-            else:
-                #This puts the first window dataframe into the list
-                if rows_used >= t_window:
-                    windows.append(a_df[0:t_window].to_numpy())
-                
-                #Puts the remaining windows into the list
-                for i in range(offset, rows_used, offset):
-                    windows.append( a_df[i:i+t_window].to_numpy() )
         
         windows = np.array(windows)
         
@@ -354,18 +355,22 @@ class Load_Data:
         y = to_categorical(y)
         
         x = np.copy(windows)
-        x = np.delete(x, cols_to_delete, axis = 2)
         
         if self.loso == True:
-            y_train = y
-            x_train = x
+            loso_windows = np.array(loso_windows)
 
             y_test = loso_windows[:, 0, y_axis] - 1
             y_test = to_categorical(y_test)
             
             x_test = np.copy(loso_windows)
             x_test = np.delete(x_test, cols_to_delete, axis = 2)
+
+            y_train = y
+            x_train = x
+            x_train = np.delete(x_train, cols_to_delete, axis = 2)
         else:
+            x = np.delete(x, cols_to_delete, axis = 2)
+
             #Train size
             frac = self.train_percent
             train_size = int(x.shape[0]*frac)
@@ -383,26 +388,39 @@ class Load_Data:
     
     # load the dataset, returns train and test X and y elements
     def load_dataset_fb_nowindows(self):
-    	df = pd.read_csv("data/Zenshin_Data/ComboPlatter.csv")
-    	df = df.drop(["TimeStamp_s", "exercise_amt", "session_id", "subject_id"], axis = 1)
-    	
-    	x_train = df.sample(frac = self.train_percent, random_state = 0)
-    	x_test = df.drop(x_train.index)
-    	y_train = x_train.pop('exercise_id')
-    	y_test = x_test.pop('exercise_id')
-    	
-    	#Labels start at 1, so we will subtract 1 from the y's so they start at 0
-    	y_train = y_train-1
-    	y_test = y_test-1
-    	
-    	#Makes them categorical, (one hot encoded over 3 columns)
-    	y_train = to_categorical(y_train)
-    	y_test = to_categorical(y_test)
+        df = pd.read_csv("data/Zenshin_Data/ComboPlatter.csv")
+        
+        if self.loso == False:
+            df = df.drop(["TimeStamp_s", "exercise_amt", "session_id", "subject_id"], axis = 1)
+        	
+            x_train = df.sample(frac = self.train_percent, random_state = 0)
+            x_test = df.drop(x_train.index)
+        else:
+            #get all subject ID's
+            df_subid = df['subject_id'].unique()
+            rand_subject = int(random.choice(df_subid))
+                
+            train = df.loc[df['subject_id'] != rand_subject]
+            test = df.loc[df['subject_id'] == rand_subject]
+
+            x_train = train.drop(["TimeStamp_s", "exercise_amt", "session_id", "subject_id"], axis = 1)
+            x_test = test.drop(["TimeStamp_s", "exercise_amt", "session_id", "subject_id"], axis = 1)
+
+       	y_train = x_train.pop('exercise_id')
+       	y_test = x_test.pop('exercise_id')
     
-    	#print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
+       	#Labels start at 1, so we will subtract 1 from the y's so they start at 0
+       	y_train = y_train-1
+       	y_test = y_test-1
+       	
+       	#Makes them categorical, (one hot encoded over 3 columns)
+       	y_train = to_categorical(y_train)
+       	y_test = to_categorical(y_test)
+ 
+      	#print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
     
     	#return x_train, y_train, x_test, y_test
-    	return x_train.to_numpy(), y_train, x_test.to_numpy(), y_test
+       	return x_train.to_numpy(), y_train, x_test.to_numpy(), y_test
 
 
 #ld = Load_Data('firebusters', w_size = 200)
