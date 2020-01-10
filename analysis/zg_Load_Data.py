@@ -114,6 +114,7 @@ class Load_Data:
         #Need to first find out which subjects are tied to which row
         
         print("HAR with custom Windows not implemented")
+        print("HAR with LOSO not implemented")
         return self.har_load_dataset()
 
     def load_dataset_har_nowindows(self, M):
@@ -203,6 +204,11 @@ class Load_Data:
                 #This combination exists, get all rows that match this
                df_all.append( df.loc[(df['activityID'] == combo[0]) & (df['subject_id'] == combo[1])] )
 
+        rand_subject = -1
+        if self.loso == True:
+            rand_subject = int(random.choice(df_subid))
+
+        loso_windows = []
         windows = []
         for a_df in df_all:
             #Number of rows in the dataframe
@@ -215,13 +221,23 @@ class Load_Data:
             #locations windows to start at
             rows_used = int(t_window + (num_windows-2)*offset)
             
-            #This puts the first window dataframe into the list
-            if rows_used >= t_window:
-                windows.append(a_df[0:t_window].to_numpy())
-            
-            #Puts the remaining windows into the list
-            for i in range(offset, rows_used, offset):
-                windows.append( a_df[i:i+t_window].to_numpy() )        
+            sid = int(a_df["subject_id"].iloc[0])
+            if (self.loso == False) or (sid != rand_subject):            
+                #This puts the first window dataframe into the list
+                if rows_used >= t_window:
+                    windows.append(a_df[0:t_window].to_numpy())
+                
+                #Puts the remaining windows into the list
+                for i in range(offset, rows_used, offset):
+                    windows.append( a_df[i:i+t_window].to_numpy() )    
+            else:
+                #This puts the first window dataframe into the list
+                if rows_used >= t_window:
+                    loso_windows.append(a_df[0:t_window].to_numpy())
+                
+                #Puts the remaining windows into the list
+                for i in range(offset, rows_used, offset):
+                    loso_windows.append( a_df[i:i+t_window].to_numpy() )    
         
         windows = np.array(windows)
         
@@ -238,27 +254,40 @@ class Load_Data:
         
         num_windows0 = windows.shape[0]
         x = windows
-        x = np.delete(x, cols_to_delete, axis = 2)
         
-        #Train size
-        frac = self.train_percent
-        train_size = int(x.shape[0]*frac)
-        train_indices = list(random.sample(range(0, x.shape[0]), train_size))
-        all_values = np.arange(0, num_windows0)
-        test_indices = [ti for ti in all_values if ti not in train_indices]
-        
-        x_train = np.array([x[i,:,:] for i in train_indices])
-        y_train = np.array([y[i,:] for i in train_indices])
-        x_test = np.array([x[i,:,:] for i in test_indices])
-        y_test = np.array([y[i,:] for i in test_indices])
-        
+        if self.loso == False:
+            x = np.delete(x, cols_to_delete, axis = 2)
+            
+            #Train size
+            frac = self.train_percent
+            train_size = int(x.shape[0]*frac)
+            train_indices = list(random.sample(range(0, x.shape[0]), train_size))
+            all_values = np.arange(0, num_windows0)
+            test_indices = [ti for ti in all_values if ti not in train_indices]
+            
+            x_train = np.array([x[i,:,:] for i in train_indices])
+            y_train = np.array([y[i,:] for i in train_indices])
+            x_test = np.array([x[i,:,:] for i in test_indices])
+            y_test = np.array([y[i,:] for i in test_indices])
+        else:
+            loso_windows = np.array(loso_windows)
+
+            y_test = loso_windows[:, 0, y_axis]
+            y_test = to_categorical(y_test)
+            
+            x_test = np.copy(loso_windows)
+            x_test = np.delete(x_test, cols_to_delete, axis = 2)
+
+            y_train = y
+            x_train = x
+            x_train = np.delete(x_train, cols_to_delete, axis = 2)
+            
         #print("Loading PAMAP2 with Windows not implemented yet")
         return (x_train, y_train, x_test, y_test)
     
     def load_dataset_pamap2_nowindows(self):
         df = pd.read_csv("data/PAMAP2_Dataset/Protocol/ComboPlatter.csv")
-        df = df.drop(["timestamp_s", "subject_id"], axis = 1)
-    	
+        	
         #Need to make activities go from 0-12 for the to_categorical function
         df.loc[df['activityID'] == 12, 'activityID'] = 8
         df.loc[df['activityID'] == 13, 'activityID'] = 9
@@ -266,8 +295,19 @@ class Load_Data:
         df.loc[df['activityID'] == 17, 'activityID'] = 11
         df.loc[df['activityID'] == 24, 'activityID'] = 12
         
-        x_train = df.sample(frac = self.train_percent, random_state = 0)
-        x_test = df.drop(x_train.index)
+        if self.loso == False:
+            df = df.drop(["timestamp_s", "subject_id"], axis = 1)
+            
+            x_train = df.sample(frac = self.train_percent, random_state = 42)
+            x_test = df.drop(x_train.index)
+        else:
+            #get all subject ID's
+            df_subid = df['subject_id'].unique()
+            rand_subject = int(random.choice(df_subid))
+                
+            x_train = df.loc[df['subject_id'] != rand_subject]
+            x_test = df.loc[df['subject_id'] == rand_subject]
+            
         y_train = x_train.pop('activityID')
         y_test = x_test.pop('activityID')
         
