@@ -23,16 +23,20 @@ def PullAccuracies(path):
     files = GetRawFilenames(path)
     
     #print("###########################################################")
-    print(str(len(files)) + " files to clean and save to csv.")
+    print(str(len(files)) + " models to pull accuracies from.")
     #print("\t", end = "")
+	AccDF = []
     for file, num in zip(files, np.arange(len(files))):
         print(num, end = "...")
-        df_file, name = CleanFile(file)
+        df_file, name = MakeAccuracyDF(file, AccDF)
         df_file.to_csv(path + "cleaned/" + name, sep = ",", index = False)
         del df_file
     
     #print("\n\tCleaning and saving complete.")
     #print("###########################################################")
+
+def MakeAccuracyDF(file):
+
 
 
 # read in the json file
