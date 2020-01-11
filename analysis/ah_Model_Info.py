@@ -3,22 +3,22 @@ import os
 import numpy as np
 import json
 
-#Returns a list of all of the .txt filenames in a directory
-def GetFilenames(p):
+#Returns a list of all of the .json filenames in a directory
+def GetFilenames(path):
     files = []
     # r=root, d=directories, f = files
-    for r, d, f in os.walk(p):
+    for r, d, f in os.walk(path):
         for file in f:
-            if '.json' in file:
+            if 'trial.json' in file:
                 files.append(os.path.join(r, file))
     return files
 
 #Returns a list of all of the filenames in the 'raw' directory
-def GetRawFilenames(p):
-    return GetFilenames(p + "raw/")
+def GetRawFilenames(path):
+    return GetFilenames(path)
 
 #Function to clean the text file
-def CleanCSVFiles(path):
+def PullAccuracies(path):
     #Gets all of the path + filenames + extension
     files = GetRawFilenames(path)
     
@@ -36,16 +36,22 @@ def CleanCSVFiles(path):
 
 
 # read in the json file
-with open("C:/githubrepo/CapstoneA/data/test_dir/trial.json","r") as f:
-	data = f.read()
 
-# Input JSON to dictionary
-d = json.loads(data)
+path = "C:/githubrepo/CapstoneA/data/test_dir"
+PullAccuracies(path)
 
-#Input JSON as dataframe
-# df = pd.read_json(r"C:/githubrepo/CapstoneA/data/test_dir/trial.json")
 
-print("winner")
+
+# with open(path & "trial.json","r") as f:
+# 	data = f.read()
+
+# # Input JSON to dictionary
+# d = json.loads(data)
+
+# #Input JSON as dataframe
+# # df = pd.read_json(r"C:/githubrepo/CapstoneA/data/test_dir/trial.json")
+
+# print("winner")
 
 # C:/githubrepo/CapstoneA/data/test_dir
 # Loop through test_dir and pull accuracy and model structure. 
