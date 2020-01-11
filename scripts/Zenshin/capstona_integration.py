@@ -1,20 +1,19 @@
-
 import numpy as np
-import random
-import matplotlib.pyplot as plt
+#import random
+#import matplotlib.pyplot as plt
 from scipy import integrate
 #import pandas as pd
 
-
 #------------------------------------------------------------------------------
 #START OF FUNCTIONS	
-class Tryme:
-	def __init__(self, acceleration, time):
-		self.acceleration = acceleration
-		self.time = time
+class Integration_Acceleration:
+	def __init__(self):#, acceleration, time):
+		print("We made it!")
+		#self.acceleration = acceleration
+		#self.time = time
 
 	#val is the value to integrate, t is a 2 value list of time points p and q
-	def calculate_integral(cal, t):
+	def calculate_integral(self, cal, t):
 		return integrate.quad(lambda x:cal, a = t[0], b = t[1])[0]
 
 	#Calculates the integration of a value over time
@@ -22,7 +21,7 @@ class Tryme:
 	#t is time
 	#initial_vinteg_val is the starting value for the integrated term
 	#(like if this was integrating acceleration, it would be the starting velocity)
-	def calculate_integration_over_time_with_initial(value, t, initial_integ_val = 0):
+	def calculate_integration_over_time_with_initial(self, value, t, initial_integ_val = 0):
 		#Creates the start/end time with the value to integrate on
 		val_a = []
 		pairs_t = []
@@ -38,7 +37,7 @@ class Tryme:
 			prev = initial_integ_val
 			if i != 0:
 				prev = vel[-1]
-			vel.append(calculate_integral(val_a[i], pairs_t[i]) + prev)
+			vel.append(self.calculate_integral(val_a[i], pairs_t[i]) + prev)
 		
 		return vel
 
@@ -46,15 +45,15 @@ class Tryme:
 	#ac is the acceleration to be integrated on
 	#t is time
 	#initial_vel is the initial velocity
-	def calculate_all_velocity(ac, t, initial_vel = 0):
-		return calculate_integration_over_time_with_initial(ac, t, initial_vel)
+	def calculate_all_velocity(self, ac, t, initial_vel = 0):
+		return self.calculate_integration_over_time_with_initial(ac, t, initial_vel)
 
 	#Calculates the position from velocity
 	#vel is the velocity to be integrated on
 	#t is time
 	#initial_pos is the initial velocity    
-	def calculate_all_position(vel, t, initial_pos = 0):
-		return calculate_all_velocity(vel, t, initial_pos)
+	def calculate_all_position(self, vel, t, initial_pos = 0):
+		return self.calculate_all_velocity(vel, t, initial_pos)
 	
 
 #------------------------------------------------------------------------------
