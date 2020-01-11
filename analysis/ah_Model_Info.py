@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import numpy as np
 import json
-from analysis.zg_layer_generator_01 import Layer_Generator
+from zg_layer_generator_01 import Layer_Generator
 
 #Returns a list of all of the .json filenames in a directory
 def GetFilenames(path):
@@ -41,9 +41,11 @@ def MakeAccuracyDict(file):
 	with open(file,"r") as f:
 		data = f.read()
 	d = json.loads(data)
-	Model_Index = d.
-	#Load_Model_Structures(name = "GRU_Model_Structures")
+	#Model_Index = d.Metrics.accuracy['']
+	#Parse model type from json
 	#String split the folder name in test dir to get structure used
+	#Open the appropriate model structure file
+	#Load_Model_Structures(name = "GRU_Model_Structures")
 	#load pikle file grab index of model structure
 	#Append those values to a new dataframe.
 	#Sort the dataframe by the highest accuracy, or subset the first 10 
