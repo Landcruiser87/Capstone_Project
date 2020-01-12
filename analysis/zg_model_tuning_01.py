@@ -138,20 +138,20 @@ class Model_Tuning:
         if len(all_layers) > (layer_index + 1):
             rnn_types = ["GRU", "LSTM", "BidirectionalLSTM", "BidirectionalGRU"]
             if all_layers[layer_index + 1] in rnn_types:    #GRU-RNN type
-                return_sequences = hp.Choice(name_prefix + "return_sequences_t", [True]) # layer_parameters["return_sequences"])
+                return_sequences = True #hp.Choice(name_prefix + "return_sequences_t", [True]) # layer_parameters["return_sequences"])
             else:
                 if all_layers[layer_index + 1] == "Dropout":
                     if len(all_layers) > (layer_index + 2):
                         if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
-                            return_sequences = hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
+                            return_sequences = True #hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
                         else:
-                            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                     else:
-                        return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                        return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                 else:
-                    return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                    return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
         else:
-            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
+            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
     
         #If this is the first layer in the model, this has to have the input shape
         #fed into it
@@ -223,20 +223,20 @@ class Model_Tuning:
         if len(all_layers) > (layer_index + 1):
             rnn_types = ["GRU", "LSTM", "BidirectionalLSTM", "BidirectionalGRU"]
             if all_layers[layer_index + 1] in rnn_types:    #GRU-RNN type
-                return_sequences = hp.Choice(name_prefix + "return_sequences_t", [True])# layer_parameters["return_sequences"])
+                return_sequences = True #hp.Choice(name_prefix + "return_sequences_t", [True])# layer_parameters["return_sequences"])
             else:
                 if all_layers[layer_index + 1] == "Dropout":
                     if len(all_layers) > (layer_index + 2):
                         if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
-                            return_sequences = hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
+                            return_sequences = True #hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
                         else:
-                            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                     else:
-                        return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                        return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                 else:
-                    return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                    return_sequences = False # hp.Choice(name_prefix + "return_sequences_f", [False])
         else:
-            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
+            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
         
         #If this is the first layer in the model, this has to have the input shape
         #fed into it
@@ -370,20 +370,20 @@ class Model_Tuning:
         if len(all_layers) > (layer_index + 1):
             rnn_types = ["GRU", "LSTM", "BidirectionalLSTM", "BidirectionalGRU"]
             if all_layers[layer_index + 1] in rnn_types:    #GRU-RNN type
-                return_sequences = hp.Choice(name_prefix + "return_sequences_t", [True])# layer_parameters["return_sequences"])
+                return_sequences = True #hp.Choice(name_prefix + "return_sequences_t", [True])# layer_parameters["return_sequences"])
             else:
                 if all_layers[layer_index + 1] == "Dropout":
                     if len(all_layers) > (layer_index + 2):
                         if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
-                            return_sequences = hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
+                            return_sequences = True #hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
                         else:
-                            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                     else:
-                        return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                        return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                 else:
-                    return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                    return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
         else:
-            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
+            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
         
         #If this is the first layer in the model, this has to have the input shape
         #fed into it
@@ -455,20 +455,20 @@ class Model_Tuning:
         if len(all_layers) > (layer_index + 1):
             rnn_types = ["GRU", "LSTM", "BidirectionalLSTM", "BidirectionalGRU"]
             if all_layers[layer_index + 1] in rnn_types:    #GRU-RNN type
-                return_sequences = hp.Choice(name_prefix + "return_sequences_t", [True])# layer_parameters["return_sequences"])
+                return_sequences = True #hp.Choice(name_prefix + "return_sequences_t", [True])# layer_parameters["return_sequences"])
             else:
                 if all_layers[layer_index + 1] == "Dropout":
                     if len(all_layers) > (layer_index + 2):
                         if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
-                            return_sequences = hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
+                            return_sequences = True #hp.Choice(name_prefix + "return_sequences", [True])#layer_parameters["return_sequences"])
                         else:
-                            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                     else:
-                        return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                        return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
                 else:
-                    return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])
+                    return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])
         else:
-            return_sequences = hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
+            return_sequences = False #hp.Choice(name_prefix + "return_sequences_f", [False])# layer_parameters["return_sequences"])
         
         #If this is the first layer in the model, this has to have the input shape
         #fed into it

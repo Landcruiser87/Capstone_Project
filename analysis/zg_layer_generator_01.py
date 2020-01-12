@@ -36,13 +36,11 @@ class Layer_Generator:
         
         layer_parameters["GRU"] = {"units" : units,
                                     "activation" : activation,
-                                    "bias_initializer" : bias_init,
-                                    "return_sequences" : [True, False],
+                                    "bias_initializer" : bias_init, #"return_sequences" : [True, False],
                                     "dropout" : dropout}
         layer_parameters["LSTM"] = {"units" : units,
                                     "activation" : activation,
-                                    "bias_initializer" : bias_init,
-                                    "return_sequences" : [True, False],
+                                    "bias_initializer" : bias_init, #"return_sequences" : [True, False],
                                     "dropout" : dropout}
         layer_parameters["Dense"] = {"units" : units,
                                     "activation" : activation,
@@ -80,13 +78,11 @@ class Layer_Generator:
         
         layer_parameters["GRU"] = {"units" : units,
                                     "activation" : activation,
-                                    "bias_initializer" : bias_init,
-                                    "return_sequences" : [True, False],
+                                    "bias_initializer" : bias_init, #"return_sequences" : [True, False],
                                     "dropout" : dropout}
         layer_parameters["LSTM"] = {"units" : units,
                                     "activation" : activation,
-                                    "bias_initializer" : bias_init,
-                                    "return_sequences" : [True, False],
+                                    "bias_initializer" : bias_init, #"return_sequences" : [True, False],
                                     "dropout" : dropout}
         layer_parameters["Dense"] = {"units" : units,
                                     "activation" : activation,
