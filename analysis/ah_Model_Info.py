@@ -38,21 +38,6 @@ def PullAccuracies(path):
 	print("\nModel Structures have been uploaded")
 	#print("###########################################################")
 
-#Example Json extraction.
-#Probably won't use  but neat code that i'll save for later for parsing a JSON into a dictionary/list
-# def dict_get(x,key,here=None):
-#     x = x.copy()
-#     if here is None: here = []
-#     if x.get(key):  
-#         here.append(x.get(key))
-#         x.pop(key)
-#     else:
-#         for i,j in x.items():
-#           if  isinstance(x[i],list): dict_get(x[i][0],key,here)
-#           if  isinstance(x[i],dict): dict_get(x[i],key,here)
-#     return here
-
-
 def MakeAccuracyDict(file):
 	#Opens and reads JSON
 	with open(file,"r") as f:
@@ -96,3 +81,23 @@ def MakeAccuracyDict(file):
 #Set path and run JSON/pickle extraction
 path = "C:/githubrepo/CapstoneA/data/test_dir"
 PullAccuracies(path)
+
+
+
+
+
+#Example Json extraction.
+#Probably won't use  but neat code that i'll save for later for parsing a JSON into a dictionary/list
+# def dict_get(x,key,here=None):
+#     x = x.copy()
+#     if here is None: here = []
+#     if x.get(key):  
+#         here.append(x.get(key))
+#         x.pop(key)
+#     else:
+#         for i,j in x.items():
+#           if  isinstance(x[i],list): dict_get(x[i][0],key,here)
+#           if  isinstance(x[i],dict): dict_get(x[i],key,here)
+#     return here
+
+
