@@ -53,7 +53,8 @@ def MakeAccuracyDict(file):
 		data = f.read()
 	d = json.loads(data)
 	Model_Index = d['hyperparameters']['values']['model_structures_index']
-
+	Model_Type = list(d['hyperparameters']['values'].items())[1]
+	Model_Type = Model_Type.rsplit('_',1)[0]
 	#Model_Index = d['hyperparameters']['space'][0]['config']['name']['default']
 	# names = extract_values(d, 'name')
 	# print(names)
