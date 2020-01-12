@@ -39,23 +39,18 @@ def PullAccuracies(path):
 	#print("###########################################################")
 #Example Json extraction.
 #Probably won't use  but neat code that i'll save for later for parsing a JSON into a dictionary/list
-# def dict_get(x,key,here=None):
-#     x = x.copy()
-#     if here is None: here = []
-#     if x.get(key):  
-#         here.append(x.get(key))
-#         x.pop(key)
-#     else:
-#         for i,j in x.items():
-#           if  isinstance(x[i],list): dict_get(x[i][0],key,here)
-#           if  isinstance(x[i],dict): dict_get(x[i],key,here)
-#     return here
-	
-def before(value, a):
-    # Find first part and return slice before it.
-    pos_a = value.find(a)
-    if pos_a == -1: return ""
-    return value[0:pos_a]
+def dict_get(x,key,here=None):
+    x = x.copy()
+    if here is None: here = []
+    if x.get(key):  
+        here.append(x.get(key))
+        x.pop(key)
+    else:
+        for i,j in x.items():
+          if  isinstance(x[i],list): dict_get(x[i][0],key,here)
+          if  isinstance(x[i],dict): dict_get(x[i],key,here)
+    return here
+
 
 def MakeAccuracyDict(file):
 	#Opens and reads JSON
@@ -63,24 +58,34 @@ def MakeAccuracyDict(file):
 		data = f.read()
 	d = json.loads(data)
 	#Extracts Models Info
-	Model_Index = d['hyperparameters']['values']['model_structures_index']
-	Model_Type = list(d['hyperparameters']['values'].items())[1][0]
-	Model_Type = Model_Type.split('_')[0]
-
+	model_index = d['hyperparameters']['values']['model_structures_index']
+	model_acc = d['metrics']['metrics']['accuracy']['observations'][0]['value']
+	model_loss = d['metrics']['metrics']['loss']['observations'][0]['value']
+	model_val_loss = d['metrics']['metrics']['val_loss']['observations'][0]['value']
+	model_val_acc = d['metrics']['metrics']['val_accuracy']['observations'][0]['value']
+	model_type = list(d['hyperparameters']['values'].items())[1][0]
+	model_type = model_type.split('_')[0]
+	
 
 	#Finds the pickle file in that directory and extracts the model structure
 	path_pkl = "C:/githubrepo/CapstoneA/data"
-	for i in os.listdir(path_pkl)
-		if os.path_pkl.isfile(os.path.join(path_pkl)) and Model_Type in i:
-			file_pkl = open(path_pkl & "/" & i)
-			Model_Struct = file_pkl[Model_Index]
-			file_pkl.close()
+	#Loop through data directory
+	#if it finds the pickle file that begins with GRU, LSTM, etc
+	#Extracts and loads it into a dict
 
+	for i in os.listdir(path_pkl):
+		if os.path.isfile(os.path.join(path_pkl, i)) and i.startswith(model_type, 0, len(model_type)):
+			with open(os.path.join(path_pkl, i), "rb") as fp:
+				model_struct = pickle.load(fp)
+				model_struct = model_struct[model_index]
+				fp.close()
+				break
+	#tempDict = dict("model_index")
 	#Open the appropriate model structure file
 	#Load_Model_Structures(name = "GRU_Model_Structures")
 	#load pikle file grab index of model structure
-	#Append those values to a new dataframe.
-	#Sort the dataframe by the highest accuracy, or subset the first 10 
+	#Append those values to a new dictionary.
+	#Sort the dictionary by the highest accuracy, or subset the first 10 
 	#Model Structure
 	#Hyperparameters
 	#Metrics = accuracy val loss etc.  just grab all of it. 
