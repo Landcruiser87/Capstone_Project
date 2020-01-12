@@ -34,14 +34,30 @@ def PullAccuracies(path):
 		tempDict = MakeAccuracyDict(file)
 		AccDict.append(tempDict)
 
-	print("\n\tModel Structures have been uploaded")
+	print("\nModel Structures have been uploaded")
 	#print("###########################################################")
-
+#Example Json extraction.  Only gets the names.  Which... will be useful i guess?
+def dict_get(x,key,here=None):
+    x = x.copy()
+    if here is None: here = []
+    if x.get(key):  
+        here.append(x.get(key))
+        x.pop(key)
+    else:
+        for i,j in x.items():
+          if  isinstance(x[i],list): dict_get(x[i][0],key,here)
+          if  isinstance(x[i],dict): dict_get(x[i],key,here)
+    return here
 def MakeAccuracyDict(file):
 	with open(file,"r") as f:
 		data = f.read()
 	d = json.loads(data)
-	#Model_Index = d.Metrics.accuracy['']
+	Model_Index = d['hyperparameters']['values']['model_structures_index']
+
+	#Model_Index = d['hyperparameters']['space'][0]['config']['name']['default']
+	# names = extract_values(d, 'name')
+	# print(names)
+	#Model_Index = d.Hyperparameters.values['model_structure_index']
 	#Parse model type from json
 	#String split the folder name in test dir to get structure used
 	#Open the appropriate model structure file
