@@ -37,19 +37,20 @@ def PullAccuracies(path):
 
 	print("\nModel Structures have been uploaded")
 	#print("###########################################################")
+
 #Example Json extraction.
 #Probably won't use  but neat code that i'll save for later for parsing a JSON into a dictionary/list
-def dict_get(x,key,here=None):
-    x = x.copy()
-    if here is None: here = []
-    if x.get(key):  
-        here.append(x.get(key))
-        x.pop(key)
-    else:
-        for i,j in x.items():
-          if  isinstance(x[i],list): dict_get(x[i][0],key,here)
-          if  isinstance(x[i],dict): dict_get(x[i],key,here)
-    return here
+# def dict_get(x,key,here=None):
+#     x = x.copy()
+#     if here is None: here = []
+#     if x.get(key):  
+#         here.append(x.get(key))
+#         x.pop(key)
+#     else:
+#         for i,j in x.items():
+#           if  isinstance(x[i],list): dict_get(x[i][0],key,here)
+#           if  isinstance(x[i],dict): dict_get(x[i],key,here)
+#     return here
 
 
 def MakeAccuracyDict(file):
@@ -57,7 +58,7 @@ def MakeAccuracyDict(file):
 	with open(file,"r") as f:
 		data = f.read()
 	d = json.loads(data)
-	#Extracts Models Info
+	#Extracts Model Info
 	model_index = d['hyperparameters']['values']['model_structures_index']
 	model_acc = d['metrics']['metrics']['accuracy']['observations'][0]['value']
 	model_loss = d['metrics']['metrics']['loss']['observations'][0]['value']
@@ -72,7 +73,6 @@ def MakeAccuracyDict(file):
 	#Loop through data directory
 	#if it finds the pickle file that begins with GRU, LSTM, etc
 	#Extracts and loads it into a dict
-
 	for i in os.listdir(path_pkl):
 		if os.path.isfile(os.path.join(path_pkl, i)) and i.startswith(model_type, 0, len(model_type)):
 			with open(os.path.join(path_pkl, i), "rb") as fp:
@@ -93,26 +93,6 @@ def MakeAccuracyDict(file):
 
 
 
-#Set path and run pull
+#Set path and run JSON/pickle extraction
 path = "C:/githubrepo/CapstoneA/data/test_dir"
 PullAccuracies(path)
-
-
-
-# with open(path & "trial.json","r") as f:
-# 	data = f.read()
-
-# # Input JSON to dictionary
-# d = json.loads(data)
-
-# #Input JSON as dataframe
-# # df = pd.read_json(r"C:/githubrepo/CapstoneA/data/test_dir/trial.json")
-
-# print("winner")
-
-# # C:/githubrepo/CapstoneA/data/test_dir
-# # Loop through test_dir and pull accuracy and model structure. 
-
-
-
-
