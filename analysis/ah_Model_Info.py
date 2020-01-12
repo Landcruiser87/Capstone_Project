@@ -80,16 +80,16 @@ def MakeAccuracyDict(file):
 				model_struct = model_struct[model_index]
 				fp.close()
 				break
-	#tempDict = dict("model_index")
-	#Open the appropriate model structure file
-	#Load_Model_Structures(name = "GRU_Model_Structures")
-	#load pikle file grab index of model structure
-	#Append those values to a new dictionary.
-	#Sort the dictionary by the highest accuracy, or subset the first 10 
-	#Model Structure
-	#Hyperparameters
-	#Metrics = accuracy val loss etc.  just grab all of it. 
-	return d
+	tempDict = {
+		"model_index" : model_index,
+		"model_type" : model_type,
+		"model_struct" : model_struct,
+		"acc" : model_acc,
+		"loss" : model_loss,
+		"val_acc" : model_val_acc,
+		"val_loss" : model_val_loss,
+		}
+	return tempDict
 
 
 
