@@ -76,8 +76,6 @@ def MakeAccuracyDict(file):
 		}
 	return tempDict
 
-
-
 #Set path and run JSON/pickle extraction
 path = "C:/githubrepo/CapstoneA/data/test_dir"
 PullAccuracies(path)
@@ -99,5 +97,5 @@ PullAccuracies(path)
 #           if  isinstance(x[i],list): dict_get(x[i][0],key,here)
 #           if  isinstance(x[i],dict): dict_get(x[i],key,here)
 #     return here
-
+# https://stackoverflow.com/questions/51788550/parsing-json-nested-dictionary-using-python
 

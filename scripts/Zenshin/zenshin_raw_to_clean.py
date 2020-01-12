@@ -9,158 +9,158 @@ import numpy as np
 
 #Returns a list of all of the .txt filenames in a directory
 def GetFilenames(p):
-    files = []
-    # r=root, d=directories, f = files
-    for r, d, f in os.walk(p):
-        for file in f:
-            if '.csv' in file:
-                files.append(os.path.join(r, file))
-    return files
+	files = []
+	# r=root, d=directories, f = files
+	for r, d, f in os.walk(p):
+		for file in f:
+			if '.csv' in file:
+				files.append(os.path.join(r, file))
+	return files
 
 #Returns a list of all of the filenames in the 'raw' directory
 def GetRawFilenames(p):
-    return GetFilenames(p + "raw/")
+	return GetFilenames(p + "raw/")
 
 #Creates the new name for the file
 def NewFilename_info(file):
-    #exerciseid_amtofexercise_sessionid_subjectid
-    return file.split("/")[-1]
+	#exerciseid_amtofexercise_sessionid_subjectid
+	return file.split("/")[-1]
 
 def File_Info(file):
-    #exerciseid_amtofexercise_sessionid_subjectid
-    n = file.split("/")[-1].split(".")[0].split("_")
+	#exerciseid_amtofexercise_sessionid_subjectid
+	n = file.split("/")[-1].split(".")[0].split("_")
 
-    exercise_id = n[0]
-    exercise_amt = n[1]
-    session_id = n[2]
-    subject_id = n[3]    
-    
-    return (exercise_id, exercise_amt, session_id, subject_id)
+	exercise_id = n[0]
+	exercise_amt = n[1]
+	session_id = n[2]
+	subject_id = n[3]    
+	
+	return (exercise_id, exercise_amt, session_id, subject_id)
 
 #Cleans the file from Zenshin
 def CleanFile(file):
-    #Creates the new filename for saving
-    new_filename = NewFilename_info(file)
-    
-    exercise_id, exercise_amt, session_id, subject_id = File_Info(file)
-    
-    #Read in the file
-    df = pd.read_csv(file, sep = ",")
-    
-    new_col_names = ["Sensor_id", "TimeStamp_s", "FrameNumber", "AccX_g",
-                     "AccY_g", "AccZ_g", "GyroX_deg/s", "GyroY_deg/s",
-                     "GyroZ_deg/s", "MagX_uT", "MagY_uT", "MagZ_uT",
-                     "EulerX_deg", "EulerY_deg", "EulerZ_deg", "QuatW",
-                     "QuatX", "QuatY", "QuatZ", "LinAccX_g", "LinAccY_g",
-                     "LinAccZ_g", "Pressure_kPa", "Altitude_m",
-                     "Temperature_degC", "HeaveMotion_m"]
-    
-    df.columns = new_col_names
-    
-    df = df.sort_values(['Sensor_id', 'FrameNumber'], ascending=[True, True])
-    #df = df.sort_values(['Sensor_id', 'TimeStamp_s'], ascending=[True, True])
-    
-    first = df.loc[(df['FrameNumber'] == 0) & (df['Sensor_id'] == 1)]['TimeStamp_s'].values[0]
-    second = df.loc[(df['FrameNumber'] == 1) & (df['Sensor_id'] == 1)]['TimeStamp_s'].values[0]
-    timediff = second-first
+	#Creates the new filename for saving
+	new_filename = NewFilename_info(file)
+	
+	exercise_id, exercise_amt, session_id, subject_id = File_Info(file)
+	
+	#Read in the file
+	df = pd.read_csv(file, sep = ",")
+	
+	new_col_names = ["Sensor_id", "TimeStamp_s", "FrameNumber", "AccX_g",
+					 "AccY_g", "AccZ_g", "GyroX_deg/s", "GyroY_deg/s",
+					 "GyroZ_deg/s", "MagX_uT", "MagY_uT", "MagZ_uT",
+					 "EulerX_deg", "EulerY_deg", "EulerZ_deg", "QuatW",
+					 "QuatX", "QuatY", "QuatZ", "LinAccX_g", "LinAccY_g",
+					 "LinAccZ_g", "Pressure_kPa", "Altitude_m",
+					 "Temperature_degC", "HeaveMotion_m"]
+	
+	df.columns = new_col_names
+	
+	df = df.sort_values(['Sensor_id', 'FrameNumber'], ascending=[True, True])
+	#df = df.sort_values(['Sensor_id', 'TimeStamp_s'], ascending=[True, True])
+	
+	first = df.loc[(df['FrameNumber'] == 0) & (df['Sensor_id'] == 1)]['TimeStamp_s'].values[0]
+	second = df.loc[(df['FrameNumber'] == 1) & (df['Sensor_id'] == 1)]['TimeStamp_s'].values[0]
+	timediff = second-first
 
-    # Delete multiple columns from the dataframe
-    df = df.drop(["TimeStamp_s", "Pressure_kPa", "Altitude_m",
-                  "Temperature_degC", "HeaveMotion_m"], axis=1)
-    #df = df.drop(["FrameNumber", "Pressure_kPa", "Altitude_m",
-    #              "Temperature_degC", "HeaveMotion_m"], axis=1)
-    
-    
-    #Resets the index, just in case this is used later
-    df = df.reset_index(drop = True)
-    
-    #COMBINE ALL OF THE TIME SLOTS INTO ONE ROW
-    df = join_by_timeslot(df)
-    
-    df = Make_TimeStamp(df, timediff)
-    
-    #If the file already has these columns we skip the adding of these
-    if 'exercise_id' in df.columns:
-        return (df, new_filename)
-    
-    #Saves the number of rows in the dataframe
-    num_rows = len(df.index)
-    #Creates a list with the desired value duplicated 'num_rows' times
-    exercise_id_col = [exercise_id]*num_rows
-    exercise_amt_col = [exercise_amt]*num_rows
-    session_id_col = [session_id]*num_rows
-    subject_id_col = [subject_id]*num_rows
+	# Delete multiple columns from the dataframe
+	df = df.drop(["TimeStamp_s", "Pressure_kPa", "Altitude_m",
+				  "Temperature_degC", "HeaveMotion_m"], axis=1)
+	#df = df.drop(["FrameNumber", "Pressure_kPa", "Altitude_m",
+	#              "Temperature_degC", "HeaveMotion_m"], axis=1)
+	
+	
+	#Resets the index, just in case this is used later
+	df = df.reset_index(drop = True)
+	
+	#COMBINE ALL OF THE TIME SLOTS INTO ONE ROW
+	df = join_by_timeslot(df)
+	
+	df = Make_TimeStamp(df, timediff)
+	
+	#If the file already has these columns we skip the adding of these
+	if 'exercise_id' in df.columns:
+		return (df, new_filename)
+	
+	#Saves the number of rows in the dataframe
+	num_rows = len(df.index)
+	#Creates a list with the desired value duplicated 'num_rows' times
+	exercise_id_col = [exercise_id]*num_rows
+	exercise_amt_col = [exercise_amt]*num_rows
+	session_id_col = [session_id]*num_rows
+	subject_id_col = [subject_id]*num_rows
 
-    #Adds the new data lists as a column to the dataframe    
-    df["exercise_id"] = np.asarray(exercise_id_col)
-    df["exercise_amt"] = np.asarray(exercise_amt_col)
-    df["session_id"] = np.asarray(session_id_col)
-    df["subject_id"] = np.asarray(subject_id_col)
-    
-    # #Adds XYZ Position column by integration script 
-    # from capstona_integration import Tryme
+	#Adds the new data lists as a column to the dataframe    
+	df["exercise_id"] = np.asarray(exercise_id_col)
+	df["exercise_amt"] = np.asarray(exercise_amt_col)
+	df["session_id"] = np.asarray(session_id_col)
+	df["subject_id"] = np.asarray(subject_id_col)
+	
+	# #Adds XYZ Position column by integration script 
+	# from capstona_integration import Tryme
 	# # How do i pass a column in as a variable
 	# # How can i fucking make this work
 
-    # df['sID1posX_m'] = Tryme.calculate_all_position(df['sID1AccX_g'],df['TimeStamp_s'])
-    # df['sID1posY_m'] = Tryme.calculate_all_position(df['sID1AccY_g'],df['TimeStamp_s'])
-    # df['sID1posZ_m'] = Tryme.calculate_all_position(df['sID1AccZ_g'],df['TimeStamp_s'])
+	# df['sID1posX_m'] = Tryme.calculate_all_position(df['sID1AccX_g'],df['TimeStamp_s'])
+	# df['sID1posY_m'] = Tryme.calculate_all_position(df['sID1AccY_g'],df['TimeStamp_s'])
+	# df['sID1posZ_m'] = Tryme.calculate_all_position(df['sID1AccZ_g'],df['TimeStamp_s'])
 
-    return (df, new_filename)
+	return (df, new_filename)
 
 #Time stamps are sometimes not reset so we have to make the time stamp here
 def Make_TimeStamp(df, timediff):
-    df['TimeStamp_s'] = df['FrameNumber']*timediff
-    return df.drop(["FrameNumber"], axis=1)
+	df['TimeStamp_s'] = df['FrameNumber']*timediff
+	return df.drop(["FrameNumber"], axis=1)
 
 def join_by_timeslot(df):
-    df_sens = []
-    df_sens.append(df[df.Sensor_id == 1])
-    df_sens.append(df[df.Sensor_id == 2])
-    df_sens.append(df[df.Sensor_id == 3])
-    
-    #RENAME THE COLUMNS FOR JOINING
-    for i in np.arange(len(df_sens)):
-        df_sens[i] = df_sens[i].drop("Sensor_id", axis=1)
-        new_names = []
-        for nm in df_sens[i].columns:
-            if nm == "FrameNumber":
-                new_names.append(nm)
-            else:
-                new_names.append("sID" + str(i+1) + "_" + nm)
-        df_sens[i].columns = new_names
+	df_sens = []
+	df_sens.append(df[df.Sensor_id == 1])
+	df_sens.append(df[df.Sensor_id == 2])
+	df_sens.append(df[df.Sensor_id == 3])
+	
+	#RENAME THE COLUMNS FOR JOINING
+	for i in np.arange(len(df_sens)):
+		df_sens[i] = df_sens[i].drop("Sensor_id", axis=1)
+		new_names = []
+		for nm in df_sens[i].columns:
+			if nm == "FrameNumber":
+				new_names.append(nm)
+			else:
+				new_names.append("sID" + str(i+1) + "_" + nm)
+		df_sens[i].columns = new_names
 
-    #print(df_sens[0].TimeStamp_s)
-    #print(df_sens[1].TimeStamp_s)
-    #print(df_sens[2].TimeStamp_s)
+	#print(df_sens[0].TimeStamp_s)
+	#print(df_sens[1].TimeStamp_s)
+	#print(df_sens[2].TimeStamp_s)
 
-    #Inner join x2
-    merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
-                            left_on = 'FrameNumber', right_on = 'FrameNumber')
-    merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
-                            left_on = 'FrameNumber', right_on = 'FrameNumber')
-    #merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
-    #                        left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
-    #merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
-    #                        left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
-    return merged_inner1
+	#Inner join x2
+	merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
+							left_on = 'FrameNumber', right_on = 'FrameNumber')
+	merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
+							left_on = 'FrameNumber', right_on = 'FrameNumber')
+	#merged_inner = pd.merge(left = df_sens[0], right = df_sens[1],
+	#                        left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+	#merged_inner1 = pd.merge(left = merged_inner, right = df_sens[2],
+	#                        left_on = 'TimeStamp_s', right_on = 'TimeStamp_s')
+	return merged_inner1
 
 #Function to clean the text file
 def CleanCSVFiles(path):
-    #Gets all of the path + filenames + extension
-    files = GetRawFilenames(path)
-    
-    #print("###########################################################")
-    print(str(len(files)) + " files to clean and save to csv.")
-    #print("\t", end = "")
-    for file, num in zip(files, np.arange(len(files))):
-        print(num, end = "...")
-        df_file, name = CleanFile(file)
-        df_file.to_csv(path + "cleaned/" + name, sep = ",", index = False)
-        del df_file
-    
-    #print("\n\tCleaning and saving complete.")
-    #print("###########################################################")
+	#Gets all of the path + filenames + extension
+	files = GetRawFilenames(path)
+	
+	#print("###########################################################")
+	print(str(len(files)) + " files to clean and save to csv.")
+	#print("\t", end = "")
+	for file, num in zip(files, np.arange(len(files))):
+		print(num, end = "...")
+		df_file, name = CleanFile(file)
+		df_file.to_csv(path + "cleaned/" + name, sep = ",", index = False)
+		del df_file
+	
+	#print("\n\tCleaning and saving complete.")
+	#print("###########################################################")
 
 #------------------------------------------------------------------------------
 #START MAIN PROGRAM
