@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 class Model_Info:
 
 	#Returns a list of all of the .json filenames in a directory
-	def GetFilenames(path):
+	def GetFilenames(self, path):
 		files = []
 		# r=root, d=directories, f = files
 		for r, d, f in os.walk(path):
@@ -64,7 +64,7 @@ class Model_Info:
 
 		return AccDict
 	
-	def MakeAccuracyDict(file):
+	def MakeAccuracyDict(self, file):
 		#Opens and reads JSON
 		with open(file,"r") as f:
 			data = f.read()
