@@ -88,6 +88,8 @@ def Find_Layer_Accuracy(layer_type):
     mt = Model_Tuning(model_structures,
                       dataset,
                       m_tuning = layer_type,
+					  fldr_name = layer_type,
+					  parent_fldr = "step3"
                       fldr_sffx = '1')
     mt.Tune_Models(epochs = 1, batch_size = 300)
     
@@ -100,10 +102,37 @@ Find_All_Layers_Accuracy()
 #4. Take BEST 15 for each category (15LSTM, 15GRU...)
 #5. Run hyperparameter tuning for BEST of each category
 
-mi = Model_Info()
-msbt = mi.Get_Best_Layer_Structure_Types()
+def Run_Hyper_On_Best_By_Category():
+	mi = Model_Info()
+	best_by_type = mi.Get_Best_Layer_Structure_Types(best_x = 15)
+	
+	for key in msbt:
+		Run_Hyperparameter_Tuning(key, best_by_type[key])
 
-print(msbt)
+def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
+	print(model_structures_type)
+
+    layer_type = model_structures_type + "_Models"
+    
+    data_params = {'dataset' : 'firebusters',
+                   'train_p' : 0.8,
+                   'w_size' : 400,
+                   'o_percent' : 0,
+                   'clstm_params' : []
+                   }
+    dataset = Load_Data(**data_params)
+    
+    mt = Model_Tuning(model_structures,
+                      dataset,
+                      m_tuning = "all",	 	  #Whether to use simple or all hyperparamters
+					  parent_fldr = "step5"   #'Project' folder name
+					  fldr_name = layer_type, #This tuning's folder name
+                      fldr_sffx = '1')        #Suffix for the folder just in case
+    mt.Tune_Models(epochs = 1, batch_size = 300)
+    
+    return
+
+Run_Hyper_On_Best_By_Category()
 
 #==============================================================================
 #6. Pull out TOP 10 for each tuned

@@ -25,10 +25,12 @@ warnings.filterwarnings("ignore")
 
 class Model_Tuning:
     
-    def __init__(self, model_str, data, m_tuning = "all", fldr_sffx = ""):
+    def __init__(self, model_str, data, m_tuning = "all", parent_fldr = "test_dir", fldr_name = "TYPE_", fldr_sffx = ""):
         self.model_tuning = m_tuning
         self.model_structures = model_str
         self.folder_suffix = fldr_sffx
+		self.parent_folder = parent_fldr
+		self.folder_name = fldr_name
         msi = list(np.arange(len(model_str)))
         self.model_structures_index = []
         self.dataset = data
@@ -41,7 +43,7 @@ class Model_Tuning:
     def The_Model(self, hp): #layer_parameters, model_structures):
         model = Sequential()
     
-        lay_gen = Layer_Generator("all")
+        lay_gen = Layer_Generator(self.model_tuning)
         all_layer_params = lay_gen.Generate_Layer_Parameters()
         bias_init = None
         model_index = hp.Choice("model_structures_index", self.model_structures_index)
@@ -725,8 +727,8 @@ class Model_Tuning:
                 objective = 'val_accuracy',
                 max_trials = MAX_TRIALS,
                 executions_per_trial = EXECUTIONS_PER_TRIAL,
-                directory = 'data\\test_dir\\',
-                project_name = self.model_tuning + self.folder_suffix + '\\',
+                directory = 'data\\' + self.parent_folder + '\\'
+                project_name = self.folder_name + self.folder_suffix + '\\',
                 seed = 42
             )
         

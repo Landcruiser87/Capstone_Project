@@ -24,7 +24,7 @@ class Layer_Generator:
     def Generate_Layer_Parameters(self):
         
         #This gets called in the case of layer tuning, not hyperparmeter tuning
-        if self.model_tuning == "all":
+        if self.model_tuning != "all":
             return self.Generate_Simple_Layer_Parameters()
         
         layer_parameters = {}
