@@ -70,7 +70,7 @@ def Find_Layer_Accuracy(layer_type):
     layer_type = layer_type + "_Model_Structures"
     
     #Run tuning on this with the given name
-    lay_gen = Layer_Generator()
+    lay_gen = Layer_Generator(m_tuning = "simple")
     model_structures = lay_gen.Load_Model_Structures(layer_type)
     
     clstm_params = {}
@@ -115,11 +115,16 @@ def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
 
 	layer_type = model_structures_type + "_Models"
     
+	lay_gen = Layer_Generator()
+	clstm_params = {}
+	if model_structures_type == "ConvLSTM2D":
+		clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
+    
 	data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
                    'w_size' : 400,
                    'o_percent' : 0,
-                   'clstm_params' : {}
+                   'clstm_params' : clstm_params
                    }
 	dataset = Load_Data(**data_params)
     
