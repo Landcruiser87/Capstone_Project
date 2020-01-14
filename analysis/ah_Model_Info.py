@@ -28,7 +28,7 @@ class Model_Info:
 		return self.GetFilenames(path)
 	
 	#Function to clean the pull revelevant model infos
-	def PullAccuracies(self, path = "data/test_dir/"):
+	def PullAccuracies(self, nested = True, path = "data/test_dir/"):
 		#Gets all of the path + filenames + extension
 		files = self.GetRawFilenames(path)
 		
@@ -46,21 +46,23 @@ class Model_Info:
 		print("\nModel Structures have been uploaded")
 		#print("###########################################################")
 	    
-	    #Makes a list of all the unique model types
-		unique_model_types = []
-		the_list = {}
-		for item in AccDict:
-			for key, value in item.items():
-				if key == "model_type":
-					if value not in unique_model_types:
-						unique_model_types.append(value)
-						the_list[value] = []
-					del item["model_type"]
-					the_list[value] = the_list[value] + [item]
-					break
-	    
-		#print(the_list)
-		return the_list#AccDict
+	    #Makes the list be nested (if desired) if not it is a list
+		#of dictionaries
+		if nested == True:
+			unique_model_types = []
+			the_list = {}
+			for item in AccDict:
+				for key, value in item.items():
+					if key == "model_type":
+						if value not in unique_model_types:
+							unique_model_types.append(value)
+							the_list[value] = []
+						del item["model_type"]
+						the_list[value] = the_list[value] + [item]
+						break
+			AccDict = the_list
+
+		return AccDict
 	
 	def MakeAccuracyDict(file):
 		#Opens and reads JSON
