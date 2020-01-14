@@ -727,7 +727,7 @@ class Model_Tuning:
                 objective = 'val_accuracy',
                 max_trials = MAX_TRIALS,
                 executions_per_trial = EXECUTIONS_PER_TRIAL,
-                directory = 'data\\' + self.parent_folder + '\\'
+                directory = 'data\\' + self.parent_folder + '\\',
                 project_name = self.folder_name + str(self.folder_suffix) + '\\',
                 seed = 42
             )
