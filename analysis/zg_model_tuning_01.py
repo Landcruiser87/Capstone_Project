@@ -29,8 +29,8 @@ class Model_Tuning:
         self.model_tuning = m_tuning
         self.model_structures = model_str
         self.folder_suffix = fldr_sffx
-		self.parent_folder = parent_fldr
-		self.folder_name = fldr_name
+        self.parent_folder = parent_fldr
+        self.folder_name = fldr_name
         msi = list(np.arange(len(model_str)))
         self.model_structures_index = []
         self.dataset = data
