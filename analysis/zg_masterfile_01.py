@@ -107,7 +107,7 @@ def Run_Hyper_On_Best_By_Category():
 	parent_folder = "step3"
 	best_by_type = mi.Get_Best_Layer_Structure_Types(best_x = 15, parent_folder = parent_folder)
 	
-	for key in msbt:
+	for key in best_by_type:
 		Run_Hyperparameter_Tuning(key, best_by_type[key])
 
 def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
@@ -115,23 +115,23 @@ def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
 
 	layer_type = model_structures_type + "_Models"
     
-    data_params = {'dataset' : 'firebusters',
+	data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
                    'w_size' : 400,
                    'o_percent' : 0,
                    'clstm_params' : {}
                    }
-    dataset = Load_Data(**data_params)
+	dataset = Load_Data(**data_params)
     
-    mt = Model_Tuning(model_structures,
+	mt = Model_Tuning(model_structures,
                       dataset,
                       m_tuning = "all",	 	  #Whether to use simple or all hyperparamters
-					  parent_fldr = "step5"   #'Project' folder name
+					  parent_fldr = "step5",   #'Project' folder name
 					  fldr_name = layer_type, #This tuning's folder name
                       fldr_sffx = '1')        #Suffix for the folder just in case
-    mt.Tune_Models(epochs = 1, batch_size = 300)
+	mt.Tune_Models(epochs = 1, batch_size = 300)
     
-    return
+	return
 
 Run_Hyper_On_Best_By_Category()
 
@@ -139,8 +139,25 @@ Run_Hyper_On_Best_By_Category()
 #6. Pull out TOP 10 for each tuned
 #7. Visualize/Graph
 
+def Get_Da_Best(best_x = 15):
+	mi = Model_Info()
+	dict_acc = mi.PullAccuracies(nested = True, path = "data/step5/")
+
+	#Prints out the model info (just the accuracy)
+	for key, value in dict_acc.items():
+		print(key)
+		dict_acc[key] = sorted(value, key = lambda i: i['val_acc'], reverse = True) 
+		for i in dict_acc[key]:
+			print("\t", i["val_acc"], i["model_struct"])
+	
+	return
+
+Get_Da_Best()
+
+#==============================================================================
 
 #TESTING OUT ConvLSTM2D - This one isn't working for some reason
+"""
 lay_gen = Layer_Generator()
 model_structures = [["ConvLSTM2D", "ConvLSTM2D", "Flatten"]]
 clstm_params = lay_gen.Generate_Simple_Layer_Parameters()["ConvLSTM2D"]
@@ -172,7 +189,7 @@ data_params = {'dataset' : 'pamap2',
                'clstm_params' : {}
                }
 dataset = Load_Data(**data_params)
-
+"""
 
 
 
