@@ -73,7 +73,7 @@ def Find_Layer_Accuracy(layer_type):
     lay_gen = Layer_Generator()
     model_structures = lay_gen.Load_Model_Structures(layer_type)
     
-    clstm_params = []
+    clstm_params = {}
     if layer_type == "ConvLSTM2D_Model_Structures":
         clstm_params = lay_gen.Generate_Simple_Layer_Parameters()["ConvLSTM2D"]
     
@@ -89,7 +89,7 @@ def Find_Layer_Accuracy(layer_type):
                       dataset,
                       m_tuning = layer_type,
 					  fldr_name = layer_type,
-					  parent_fldr = "step3"
+					  parent_fldr = "step3",
                       fldr_sffx = '1')
     mt.Tune_Models(epochs = 1, batch_size = 300)
     
@@ -118,7 +118,7 @@ def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
                    'train_p' : 0.8,
                    'w_size' : 400,
                    'o_percent' : 0,
-                   'clstm_params' : []
+                   'clstm_params' : {}
                    }
     dataset = Load_Data(**data_params)
     
