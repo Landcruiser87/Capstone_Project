@@ -104,8 +104,8 @@ class Model_Info:
 		return tempDict
 
 	#Returns the best layer structures by layer setup type (GRU, LSTM, etc)
-	def Get_Best_Layer_Structure_Types(self, best_x = 15):
-		dict_acc = self.PullAccuracies()
+	def Get_Best_Layer_Structure_Types(self, best_x = 15, parent_folder = "test_dir"):
+		dict_acc = self.PullAccuracies(nested = True, path = "data/" + parent_folder + "/")
 	
 		#Iterate through each type
 		model_structures_by_type = {}
@@ -113,7 +113,7 @@ class Model_Info:
 			#If the model styp is not in the dictionary, add it
 			if key not in model_structures_by_type.keys():
 				model_structures_by_type[key] = []
-			model_structures = self.Get_Best_By_Type(dict_acc[key], best_x)
+			model_structures = self.Get_Best_By_Type(dict_acc[key], best_x, parent_folder)
 	
 			#Appends the new struture to the list in the dictionary
 			model_structures_by_type[key] = model_structures_by_type[key] + model_structures
@@ -122,7 +122,7 @@ class Model_Info:
 	
 	#Looks at all of the models by each individual type, sorts them, and returns
 	#the best X number of them
-	def Get_Best_By_Type(self, models, best_x):
+	def Get_Best_By_Type(self, models, best_x, parent_folder):
 		#Sort them by accuracy
 		models = sorted(models, key = lambda i: i['val_acc'], reverse = True) 
 		

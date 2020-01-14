@@ -104,7 +104,8 @@ Find_All_Layers_Accuracy()
 
 def Run_Hyper_On_Best_By_Category():
 	mi = Model_Info()
-	best_by_type = mi.Get_Best_Layer_Structure_Types(best_x = 15)
+	parent_folder = "step3"
+	best_by_type = mi.Get_Best_Layer_Structure_Types(best_x = 15, parent_folder = parent_folder)
 	
 	for key in msbt:
 		Run_Hyperparameter_Tuning(key, best_by_type[key])
@@ -112,7 +113,7 @@ def Run_Hyper_On_Best_By_Category():
 def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
 	print(model_structures_type)
 
-    layer_type = model_structures_type + "_Models"
+	layer_type = model_structures_type + "_Models"
     
     data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
