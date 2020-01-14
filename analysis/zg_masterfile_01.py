@@ -21,12 +21,14 @@
         6. Pull out TOP 10 for each tuned
         7. Visualize/Graph
 """
-
+import numpy as np
+import pandas as pd
 import os
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.zg_Load_Data import Load_Data
 from analysis.zg_layer_generator_01 import Layer_Generator
 from analysis.zg_model_tuning_01 import Model_Tuning
+from analysis.ah_Model_Info import Model_Info
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -98,7 +100,12 @@ Find_All_Layers_Accuracy()
 #4. Take BEST 15 for each category (15LSTM, 15GRU...)
 #5. Run hyperparameter tuning for BEST of each category
 
+mi = Model_Info()
+msbt = mi.Get_Best_Layer_Structure_Types()
 
+print(msbt)
+
+#==============================================================================
 #6. Pull out TOP 10 for each tuned
 #7. Visualize/Graph
 
@@ -123,6 +130,21 @@ mt = Model_Tuning(model_structures,
 mt.Tune_Models(epochs = 1, batch_size = 3)
     
  
-print(lstm_parmas)   
-    
-    
+
+#TESTING OUT THE LOSO CODE
+from analysis.zg_Load_Data import Load_Data
+
+data_params = {'dataset' : 'pamap2',
+               'train_p' : 0.8,
+               'LOSO' : True,
+               'w_size' : 400,
+               'o_percent' : 0, #0.25,
+               'clstm_params' : {}
+               }
+dataset = Load_Data(**data_params)
+
+
+
+
+
+
