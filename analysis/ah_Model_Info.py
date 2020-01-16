@@ -77,7 +77,7 @@ class Model_Info:
 		model_val_acc = d['metrics']['metrics']['val_accuracy']['observations'][0]['value']
 		model_type = list(d['hyperparameters']['values'].items())[1][0]
 		model_type = model_type.split('_')[0]
-		
+		model_hyp = d['hyperparameters']['values']
 	
 		#Finds the pickle file in that directory and extracts the model structure
 		path_pkl = "data/"
@@ -95,6 +95,7 @@ class Model_Info:
 	        		"model_index" : model_index,
 	        		"model_type" : model_type,
 	        		"model_struct" : model_struct,
+					"model_hyp" : model_hyp,
 	        		"acc" : model_acc,
 	        		"loss" : model_loss,
 	        		"val_acc" : model_val_acc,
@@ -139,6 +140,8 @@ class Model_Info:
 		
 		return models_bestx
 
+mi = Model_Info()
+mi.PullAccuracies()
 #------------------------------------------------------------------------------
 #An example of how to pull the info out of the returned dictionary
 #Run JSON/pickle extraction
