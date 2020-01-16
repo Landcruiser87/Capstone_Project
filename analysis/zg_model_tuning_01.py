@@ -10,6 +10,7 @@ from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.layers import GRU
 from tensorflow.keras.layers import LeakyReLU
 from kerastuner.tuners import RandomSearch
+from kerastuner.tuners import BayesianOptimization
 import numpy as np
 
 import os
@@ -719,10 +720,11 @@ class Model_Tuning:
     
     #Tunes the model with the given data parameters
     def Tune_Models(self, epochs = 3, batch_size = 300):
-        MAX_TRIALS = 5
-        EXECUTIONS_PER_TRIAL = 5
+        MAX_TRIALS = 1000
+        EXECUTIONS_PER_TRIAL = 3
         
-        tuner = RandomSearch(
+		#CODE FOR DOING THE BAYESIAN OPTIMIZATION
+        tuner = BayesianOptimization(
                 self.The_Model,
                 objective = 'val_accuracy',
                 max_trials = MAX_TRIALS,
@@ -731,6 +733,17 @@ class Model_Tuning:
                 project_name = self.folder_name + str(self.folder_suffix) + '\\',
                 seed = 42
             )
+        
+		#CODE FOR DOING THE RANDOM SEARCH
+        #tuner = RandomSearch(
+        #        self.The_Model,
+        #        objective = 'val_accuracy',
+        #        max_trials = MAX_TRIALS,
+        #        executions_per_trial = EXECUTIONS_PER_TRIAL,
+        #        directory = 'data\\' + self.parent_folder + '\\',
+        #        project_name = self.folder_name + str(self.folder_suffix) + '\\',
+        #        seed = 42
+        #    )
         
         #tuner.reload()
         
