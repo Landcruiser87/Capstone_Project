@@ -140,8 +140,6 @@ class Model_Info:
 		
 		return models_bestx
 
-mi = Model_Info()
-mi.PullAccuracies()
 #------------------------------------------------------------------------------
 #An example of how to pull the info out of the returned dictionary
 #Run JSON/pickle extraction
