@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import numpy as np
 
-#os.chdir("C:/githubrepo/CapstoneA/data/Zenshin_Data/")
+os.chdir("C:/githubrepo/CapstoneA/data/Zenshin_Data/")
 
 #------------------------------------------------------------------------------
 #START FUNCTIONS
@@ -98,13 +98,13 @@ def CleanFile(file):
 	df["subject_id"] = np.asarray(subject_id_col)
 	
 	# #Adds XYZ Position column by integration script 
-	# from capstona_integration import Tryme
-	# # How do i pass a column in as a variable
-	# # How can i fucking make this work
+	# from capstona_integration import Integration_Acceleration
+	# #Write a for loop to pull for the positional ID numbers
 
-	# df['sID1posX_m'] = Tryme.calculate_all_position(df['sID1AccX_g'],df['TimeStamp_s'])
-	# df['sID1posY_m'] = Tryme.calculate_all_position(df['sID1AccY_g'],df['TimeStamp_s'])
-	# df['sID1posZ_m'] = Tryme.calculate_all_position(df['sID1AccZ_g'],df['TimeStamp_s'])
+
+	# df['sID1_posX_m'] = Integration_Acceleration.calculate_all_position(df['sID1_AccX_g'],df['TimeStamp_s'])
+	# df['sID1_posY_m'] = Integration_Acceleration.calculate_all_position(df['sID1_AccY_g'],df['TimeStamp_s'])
+	# df['sID1_posZ_m'] = Integration_Acceleration.calculate_all_position(df['sID1_AccZ_g'],df['TimeStamp_s'])
 
 	return (df, new_filename)
 
