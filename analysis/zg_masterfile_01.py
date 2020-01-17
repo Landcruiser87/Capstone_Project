@@ -81,6 +81,7 @@ def Find_Layer_Accuracy(layer_type):
                    'train_p' : 0.8,
                    'w_size' : 400,
                    'o_percent' : 0, #0.25,
+				   'LOSO' : True,
                    'clstm_params' : clstm_params
                    }
     dataset = Load_Data(**data_params)
@@ -91,7 +92,7 @@ def Find_Layer_Accuracy(layer_type):
 					  fldr_name = layer_type,
 					  parent_fldr = "step3",
                       fldr_sffx = '1')
-    mt.Tune_Models(epochs = 1, batch_size = 300)
+    mt.Tune_Models(epochs = 3, batch_size = 300)
     
     return
 
@@ -124,6 +125,7 @@ def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
                    'train_p' : 0.8,
                    'w_size' : 400,
                    'o_percent' : 0,
+				   'LOSO' : True,
                    'clstm_params' : clstm_params
                    }
 	dataset = Load_Data(**data_params)
