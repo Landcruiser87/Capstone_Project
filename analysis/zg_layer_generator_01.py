@@ -349,7 +349,8 @@ class Layer_Generator:
 			#If Conv1D or ConvLSTM2D are before it, must have flatten
 			conv1d_indices = [i for i,d in enumerate(model) if d == 'Conv1D']
 			convlstm_indices = [i for i,d in enumerate(model) if d == 'ConvLSTM2D']
-			cnn_indices = (conv1d_indices + convlstm_indices).sort()
+			cnn_indices = (conv1d_indices + convlstm_indices)
+			cnn_indices.sort()
 			
 			#Has to be at least one cnn type for this case to matter
 			if len(cnn_indices) > 0:
@@ -792,6 +793,5 @@ class Layer_Generator:
 
 #print(models)
 #print(len(models))
-
 
 
