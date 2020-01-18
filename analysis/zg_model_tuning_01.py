@@ -748,7 +748,7 @@ class Model_Tuning:
         
         #tuner.reload()
 		#callbacks = [tf.keras.callbacks.EarlyStopping('val_loss', patience=3)]
-        callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', min_delta=1, restore_best_weights=True)]
+        callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', min_delta=1, patience = 100, restore_best_weights=True)]
         
         tuner.search(x = self.dataset.x_train,
                      y = self.dataset.y_train,

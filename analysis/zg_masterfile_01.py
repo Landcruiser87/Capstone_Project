@@ -19,7 +19,9 @@
         4. Take BEST 15 for each category (15LSTM, 15GRU...)
         5. Run hyperparameter tuning for BEST of each category
         6. Pull out TOP 10 for each tuned
-        7. Visualize/Graph
+		6a. Run the TOP 10 with data hyperparameters
+        7. Pull out TOP 10 for each tuned
+        8. Visualize/Graph
 """
 import numpy as np
 import pandas as pd
@@ -144,8 +146,80 @@ Run_Hyper_On_Best_By_Category()
 
 #==============================================================================
 #6. Pull out TOP 10 for each tuned
-#7. Visualize/Graph
+#6a. Run the TOP 10 with data hyperparameters
 
+def Get_Best_Tuned():
+	mi = Model_Info()
+	parent_folder = "step3"   	#TODO: Change to step5 when done testing
+	best_by_type = mi.Get_Best_Layer_Structure_Types(best_x = 10, parent_folder = parent_folder)
+	
+	for key in best_by_type:
+		Run_Data_Hyperparameter_Tuning(key, best_by_type[key])
+	
+	return
+
+def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
+	
+	#Pull out the relevant best hyperparameters by structure type
+	#Save them to a file?
+	#Load them in from the Layer_Generator() class when m_tuning == "custom"
+	
+
+	#THE LIST OF WHAT TO DO TO MAKE THIS STUFF WORK
+	#
+	#Make list of all possible combo's of data parameters (+batch size?)
+	#LOOP OVER DATA PARAMETERS
+	#	Load data with given parameters
+	#	Increment the folder suffix
+	#	Run the models
+	#		HYPERPARAMETERS: load them on a by-layer setup basis
+	#	Save the used data parameters into the folder
+	#Copy all the info from the folders into stage6a folder 
+	
+	batch_size = [200]
+	window_size = [400, 200, 50, 10]
+	overlap_percent = [50, 25, 0]
+	
+	all_data_parameters = [ [400, 50], [400, 25] ]
+	
+	loop_num = 0
+	for params in all_data_parameters:
+		layer_type = model_structures_type + "_Models"
+	    
+		lay_gen = Layer_Generator()
+		clstm_params = {}
+		if model_structures_type == "ConvLSTM2D":
+			clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
+	    
+		data_params = {'dataset' : 'firebusters',
+	                   'train_p' : 0.8,
+	                   'w_size' : params[0],
+	                   'o_percent' : params[1],
+					   'LOSO' : True,
+	                   'clstm_params' : clstm_params
+	                   }
+		dataset = Load_Data(**data_params)
+	    
+		mt = Model_Tuning(model_structures,
+	                      dataset,
+	                      m_tuning = "all",	 	  #Whether to use simple or all hyperparamters
+						  parent_fldr = "step5",   #'Project' folder name
+						  fldr_name = layer_type, #This tuning's folder name
+	                      fldr_sffx = '1')        #Suffix for the folder just in case
+		mt.Tune_Models(epochs = 1, batch_size = 300)
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	return
+
+#==============================================================================
+#7. Pull out TOP 10 for each tuned
 def Get_Da_Best(best_x = 15):
 	mi = Model_Info()
 	dict_acc = mi.PullAccuracies(nested = True, path = "data/step5/")
@@ -162,6 +236,7 @@ def Get_Da_Best(best_x = 15):
 Get_Da_Best()
 
 #==============================================================================
+#8. Visualize/Graph
 
 #TESTING OUT ConvLSTM2D - This one isn't working for some reason
 """
@@ -198,7 +273,6 @@ data_params = {'dataset' : 'pamap2',
 dataset = Load_Data(**data_params)
 """
 
-
-
+	    
 
 
