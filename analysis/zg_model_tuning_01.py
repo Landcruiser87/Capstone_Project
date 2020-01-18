@@ -11,6 +11,7 @@ from tensorflow.keras.layers import GRU
 from tensorflow.keras.layers import LeakyReLU
 from kerastuner.tuners import RandomSearch
 from kerastuner.tuners import BayesianOptimization
+from tensorflow.keras.callbacks import EarlyStopping
 import numpy as np
 
 import os
@@ -724,7 +725,7 @@ class Model_Tuning:
         EXECUTIONS_PER_TRIAL = 3
         
 		#CODE FOR DOING THE BAYESIAN OPTIMIZATION
-        tuner = BayesianOptimization(
+        tuner = RandomSearch(
                 self.The_Model,
                 objective = 'val_accuracy',
                 max_trials = MAX_TRIALS,
@@ -746,11 +747,14 @@ class Model_Tuning:
         #    )
         
         #tuner.reload()
+		#callbacks = [tf.keras.callbacks.EarlyStopping('val_loss', patience=3)]
+        callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', min_delta=1, restore_best_weights=True)]
         
         tuner.search(x = self.dataset.x_train,
                      y = self.dataset.y_train,
                      epochs = epochs,
                      batch_size = batch_size,
+					 callbacks = callbacks,
                      validation_data = (self.dataset.x_test, self.dataset.y_test))
         
         #models = tuner.get_best_models(num_models=2)
