@@ -23,6 +23,7 @@
         7. Pull out TOP 10 for each tuned
         8. Visualize/Graph
 """
+import itertools
 import numpy as np
 import pandas as pd
 import os
@@ -52,7 +53,7 @@ lay_gen.Split_Save_Models_Into_Categories()
 #2. Figure out what the parameters for each category
 
 #NOT REALLY A STEP TO RUN, JUST HERE FOR LOOKING AT... OOO, AHHHH
-params = lay_gen.Generate_Simple_Layer_Parameters()
+#params = lay_gen.Generate_Simple_Layer_Parameters()
 
 #==============================================================================
 #3. Run each category with specific hyperparameters
@@ -61,7 +62,7 @@ params = lay_gen.Generate_Simple_Layer_Parameters()
 def Find_All_Layers_Accuracy():
 #    names = ["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D",
 #             "Dense", "GRU", "LSTM", "Other"]
-    names = ["GRU", "LSTM"]
+    names = ["GRU"]#, "LSTM"]
     
     for layer_type in names:
         Find_Layer_Accuracy(layer_type)
@@ -74,6 +75,7 @@ def Find_Layer_Accuracy(layer_type):
     #Run tuning on this with the given name
     lay_gen = Layer_Generator(m_tuning = "simple")
     model_structures = lay_gen.Load_Model_Structures(layer_type)
+    model_structures = [["GRU"], ["GRU", "Dense"]]
     
     clstm_params = {}
     if layer_type == "ConvLSTM2D_Model_Structures":
@@ -81,8 +83,8 @@ def Find_Layer_Accuracy(layer_type):
     
     data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
-                   'w_size' : 400,
-                   'o_percent' : 0, #0.25,
+                   'w_size' : 200,
+                   'o_percent' : 0.25,
 				   'LOSO' : True,
                    'clstm_params' : clstm_params
                    }
@@ -94,7 +96,7 @@ def Find_Layer_Accuracy(layer_type):
 					  fldr_name = layer_type,
 					  parent_fldr = "step3",
                       fldr_sffx = '1')
-    mt.Tune_Models(epochs = 3, batch_size = 300)
+    mt.Tune_Models(epochs = 1, batch_size = 300, MAX_TRIALS = 2)
     
     return
 
@@ -125,8 +127,8 @@ def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
     
 	data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
-                   'w_size' : 400,
-                   'o_percent' : 0,
+                   'w_size' : 200,
+                   'o_percent' : 0.25,
 				   'LOSO' : True,
                    'clstm_params' : clstm_params
                    }
@@ -138,7 +140,7 @@ def Run_Hyperparameter_Tuning(model_structures_type, model_structures):
 					  parent_fldr = "step5",   #'Project' folder name
 					  fldr_name = layer_type, #This tuning's folder name
                       fldr_sffx = '1')        #Suffix for the folder just in case
-	mt.Tune_Models(epochs = 1, batch_size = 300)
+	mt.Tune_Models(epochs = 500, batch_size = 64)
     
 	return
 
@@ -150,39 +152,37 @@ Run_Hyper_On_Best_By_Category()
 
 def Get_Best_Tuned():
 	mi = Model_Info()
-	parent_folder = "step3"   	#TODO: Change to step5 when done testing
-	best_by_type = mi.Get_Best_Layer_Structure_Types(best_x = 10, parent_folder = parent_folder)
+	parent_folder = "step3"
+	best_by_type = mi.Get_Best_Layer_Structure_Types_With_Hyperparameters(best_x = 10, parent_folder = parent_folder)
 	
 	for key in best_by_type:
-		Run_Data_Hyperparameter_Tuning(key, best_by_type[key])
+		print(key)
+		print(best_by_type[key][0])
+		break
+
+	#	Run_Data_Hyperparameter_Tuning(key, best_by_type[key])
 	
 	return
 
-def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
-	
-	#Pull out the relevant best hyperparameters by structure type
-	#Save them to a file?
-	#Load them in from the Layer_Generator() class when m_tuning == "custom"
-	
+Get_Best_Tuned()
 
-	#THE LIST OF WHAT TO DO TO MAKE THIS STUFF WORK
-	#
-	#Make list of all possible combo's of data parameters (+batch size?)
-	#LOOP OVER DATA PARAMETERS
-	#	Load data with given parameters
-	#	Increment the folder suffix
-	#	Run the models
-	#		HYPERPARAMETERS: load them on a by-layer setup basis
-	#	Save the used data parameters into the folder
-	#Copy all the info from the folders into stage6a folder 
+def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
+
+	#Save the model structures to a file for the futureeeeee
+	#Get_Best_Layer_Structure_Types_With_Hyperparameter
 	
-	batch_size = [200]
 	window_size = [400, 200, 50, 10]
 	overlap_percent = [50, 25, 0]
+	batch_size = [16, 64, 256]
+
+	#Makes all combinations of the three parameters's values
+	all_data_parameters = [window_size, overlap_percent, batch_size]
+	all_data_parameters = list(itertools.product(*all_data_parameters))
 	
-	all_data_parameters = [ [400, 50], [400, 25] ]
-	
+	#Used for creating the folders in the tuner
 	loop_num = 0
+	
+	#Looping through each data parameter set
 	for params in all_data_parameters:
 		layer_type = model_structures_type + "_Models"
 	    
@@ -205,18 +205,15 @@ def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
 	                      m_tuning = "all",	 	  #Whether to use simple or all hyperparamters
 						  parent_fldr = "step5",   #'Project' folder name
 						  fldr_name = layer_type, #This tuning's folder name
-	                      fldr_sffx = '1')        #Suffix for the folder just in case
-		mt.Tune_Models(epochs = 1, batch_size = 300)
+	                      fldr_sffx = str(loop_num))        #Suffix for the folder just in case
+		mt.Tune_Models(epochs = 500, batch_size = 64)
 		
-	
-	
-	
-	
-	
-	
-	
+		loop_num += 1
 	
 	return
+
+
+
 
 #==============================================================================
 #7. Pull out TOP 10 for each tuned
@@ -273,6 +270,5 @@ data_params = {'dataset' : 'pamap2',
 dataset = Load_Data(**data_params)
 """
 
-	    
 
 

@@ -140,6 +140,40 @@ class Model_Info:
 		
 		return models_bestx
 
+	def Get_Best_Layer_Structure_Types_With_Hyperparameters(self, best_x = 15, parent_folder = "test_dir"):
+		dict_acc = self.PullAccuracies(nested = True, path = "data/" + parent_folder + "/")
+	
+		#Iterate through each type
+		model_structures_by_type = {}
+		for key in dict_acc:
+			#If the model styp is not in the dictionary, add it
+			if key not in model_structures_by_type.keys():
+				model_structures_by_type[key] = []
+			model_structures = self.Get_Best_By_Type_With_Hyperparameters(dict_acc[key], best_x, parent_folder)
+	
+			#Appends the new struture to the list in the dictionary
+			model_structures_by_type[key] = model_structures_by_type[key] + model_structures
+		
+		return model_structures_by_type
+
+	#Looks at all of the models by each individual type, sorts them, and returns
+	#the best X number of them
+	def Get_Best_By_Type_With_Hyperparameters(self, models, best_x, parent_folder):
+		#Sort them by accuracy
+		models = sorted(models, key = lambda i: i['val_acc'], reverse = True) 
+		
+		#This checks to see the number of models that were saved, if it is less
+		#than the requested number it prints out a warning and continues
+		if len(models) < best_x:
+			print("WARNING: only have", len(models), "not the requested", best_x)
+			best_x = len(models)
+	
+		#Gets the best X model structures
+		models_bestx = []
+		for i in np.arange(best_x):
+			models_bestx.append( models[i] )
+		
+		return models_bestx
 #------------------------------------------------------------------------------
 #An example of how to pull the info out of the returned dictionary
 #Run JSON/pickle extraction

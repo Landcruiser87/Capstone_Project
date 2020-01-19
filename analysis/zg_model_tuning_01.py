@@ -720,9 +720,8 @@ class Model_Tuning:
     """
     
     #Tunes the model with the given data parameters
-    def Tune_Models(self, epochs = 3, batch_size = 300):
-        MAX_TRIALS = 1000
-        EXECUTIONS_PER_TRIAL = 3
+    def Tune_Models(self, epochs = 500, batch_size = 256, MAX_TRIALS = 1000):
+        EXECUTIONS_PER_TRIAL = 2
         
 		#CODE FOR DOING THE BAYESIAN OPTIMIZATION
         tuner = RandomSearch(
