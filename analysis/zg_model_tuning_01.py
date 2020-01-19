@@ -36,6 +36,7 @@ class Model_Tuning:
         msi = list(np.arange(len(model_str)))
         self.model_structures_index = []
         self.dataset = data
+		self.good_layer_index = -1
         for i in msi:
             self.model_structures_index.append(int(i))
         return
@@ -50,6 +51,14 @@ class Model_Tuning:
         bias_init = None
         model_index = hp.Choice("model_structures_index", self.model_structures_index)
         chosen_model = self.model_structures[model_index]
+		
+		#Find the index of the layer setup in the case of this being for data tuning
+		if self.model_tuning == "data":
+			for i in len(all_layer_params):
+				if all_layer_params[i][0] == chosen_model:
+					self.good_layer_index = i
+					all_layer_params = all_layer_params[i][1]
+					break
     
         #Goes through each layer
         for layer_index in np.arange(len(chosen_model)):
@@ -113,9 +122,12 @@ class Model_Tuning:
         #GRU_1_Activation
         #GRU_2_Activation
         
-        #We do this here just because we can
-        layer_parameters = all_layer_params["GRU"]
-        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["GRU"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
+		
         #Random choice for these two parameters
         units = hp.Choice(name_prefix + "units", layer_parameters["units"])
         dropout = hp.Choice(name_prefix + "dropout", layer_parameters["dropout"])
@@ -199,7 +211,13 @@ class Model_Tuning:
         name_prefix = "LSTM_" + str(layer_index) + "_"
         
         #We do this here just because we can
-        layer_parameters = all_layer_params["LSTM"]
+        #layer_parameters = all_layer_params["LSTM"]
+        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["LSTM"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
         
         #Random choice for these two parameters
         units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -285,8 +303,14 @@ class Model_Tuning:
         name_prefix = "Dense_" + str(layer_index) + "_"
         
         #We do this here just because we can
-        layer_parameters = all_layer_params["Dense"]
-        
+        #layer_parameters = all_layer_params["Dense"]
+                
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["Dense"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
+		
         #Random choice for these two parameters
         units = hp.Choice(name_prefix + "units", layer_parameters["units"])
         #dropout = hp.Choice(name_prefix + "dropout", layer_parameters["dropout"])
@@ -346,7 +370,13 @@ class Model_Tuning:
         name_prefix = "BidirectionalLSTM_" + str(layer_index) + "_"
         
         #We do this here just because we can
-        layer_parameters = all_layer_params["LSTM"]
+        #layer_parameters = all_layer_params["LSTM"]
+		        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["LSTM"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
         
         #Random choice for these two parameters
         units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -431,7 +461,13 @@ class Model_Tuning:
         name_prefix = "BidirectionalGRU_" + str(layer_index) + "_"
         
         #We do this here just because we can
-        layer_parameters = all_layer_params["GRU"]
+        #layer_parameters = all_layer_params["GRU"]
+		
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["GRU"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
         
         #Random choice for these two parameters
         units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -516,7 +552,13 @@ class Model_Tuning:
         name_prefix = "Conv1D_" + str(layer_index) + "_"
         
         #We do this here just because we can
-        layer_parameters = all_layer_params["Conv1D"]
+        #layer_parameters = all_layer_params["Conv1D"]
+		        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["Conv1D"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
         
         #all bias_initializer in the model should be the same
         #when activation is relu, use RandomNormal or Zero
@@ -583,7 +625,13 @@ class Model_Tuning:
         name_prefix = "ConvLSTM2D_" + str(layer_index) + "_"
         
         #We do this here just because we can
-        layer_parameters = all_layer_params["ConvLSTM2D"]
+        #layer_parameters = all_layer_params["ConvLSTM2D"]
+		        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["ConvLSTM2D"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
     
         #all bias_initializer in the model should be the same
         #activation function can be different across layers
@@ -688,14 +736,30 @@ class Model_Tuning:
     #Adds the Dropout layer and hyperparameters by condition
     def Add_Dropout_Layer(self, hp, layer_index, all_layer_params):
         name_prefix = "Dropout_" + str(layer_index) + "_"
-        layer_parameters = all_layer_params["Dropout"]
+        
+		#layer_parameters = all_layer_params["Dropout"]
+		        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["Dropout"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
+		
         dropout = hp.Choice(name_prefix + "rate", layer_parameters["rate"])
         return Dropout(rate=dropout)
     
     def Add_MaxPooling1D_Layer(self, hp, layer_index, all_layer_params):
         #pool_size is currently a percent, multiply it by window_size to get an int
         name_prefix = "MaxPooling1D_" + str(layer_index) + "_"
-        layer_parameters = all_layer_params["MaxPooling1D"]
+
+        #layer_parameters = all_layer_params["MaxPooling1D"]
+		        
+		if self.good_layer_index == -1:
+	        #We do this here just because we can
+	        layer_parameters = all_layer_params["MaxPooling1D"]
+        else:
+			layer_parameters = all_layer_params[layer_index]
+
         pool_size = int(self.dataset.window_size*hp.Choice(name_prefix + "pool_size", layer_parameters["pool_size"]))
         return MaxPooling1D(pool_size = pool_size)
     
