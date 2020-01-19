@@ -580,6 +580,16 @@ class Layer_Generator:
 					if pool_indices[i] == (pool_indices[i-1]+1):
 						return True	   
 			
+			#Pool-Dropout-Pool is bad
+			dropout_indices = [i for i,d in enumerate(model) if d == 'Dropout']
+			for i in np.arange(len(pool_indices)):
+				if i > 0:
+					#if there is pool ____ pool
+					if pool_indices[i] == (pool_indices[i-1]+2):
+						#if that middle index is dropout its invalid
+						if (pool_indices[i]-1) in dropout_indices:
+							return True
+			
 			#Can't be after flatten
 			flatten_indices = [i for i,d in enumerate(model) if d == 'Flatten']
 			for pi in pool_indices:
