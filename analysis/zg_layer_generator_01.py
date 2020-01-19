@@ -26,6 +26,8 @@ class Layer_Generator:
 		
 		#This gets called in the case of layer tuning, not hyperparmeter tuning
 		if self.model_tuning != "all":
+			if self.model_tuning == "data":
+				return self.Generate_Data_Layer_Parameters()
 			if self.model_layer != []:
 				return self.Generate_Specific_Layer_Parameters()
 			return self.Generate_Simple_Layer_Parameters()
@@ -68,6 +70,16 @@ class Layer_Generator:
 		
 		#print("TODO: Had to remove print in the Invalid_LayerName area, earch the file for 'TODO'")
 		return layer_parameters
+
+	#This grabs the hyperparameters that have already been tuned for the model structure	
+	def	Generate_Data_Layer_Parameters(self):
+		model_structures = []
+		
+		# open file and read the content in a list
+		with open("data/ModelStr_Hyp.pkl", "rb") as fp:   # Unpickling
+			model_structures = pickle.load(fp)
+		
+		return model_structures
 	
 	#Returns the hyperparameters for the layers that need specific parameters
 	def Generate_Specific_Layer_Parameters(self):

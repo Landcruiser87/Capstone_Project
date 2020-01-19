@@ -174,6 +174,111 @@ class Model_Info:
 			models_bestx.append( models[i] )
 		
 		return models_bestx
+
+	def Restructure_Layer_Hyp(best_by_type):
+		types_hyp_list = {}
+		#Loop through different types (GRU, LSTM, etc)
+		for key in best_by_type:
+			if key not in types_hyp_list.keys():
+				types_hyp_list[key] = {}
+			
+			all_layers = []
+			
+			#Loop through the models of that type
+			for model in best_by_type[key]:
+				index = -1
+				
+				#These are the hyperparameters for the specific layer
+				layer_parameters = {}
+	
+				#Iterate through the hyperparameters
+				for lay_type in model["model_hyp"]:
+					#print(lay_type, model["model_hyp"][lay_type])
+					#Ignore the model structure index
+					if index == -1:
+						index = 0
+						continue
+	
+					s = lay_type.split("_", 2)
+	
+					#This is a new layer, add it + index to dictionary
+					if str(s[0] + "_" + s[1]) not in layer_parameters.keys():
+						layer_parameters[str(s[0] + "_" + s[1])] = {}
+						index += 1
+					
+					#Makes the dictionary of layer parameters
+					hyp_name = Get_Real_Hyp_Name(s[2])
+					hyp_val = Get_Real_Hyp_Type(hyp_name, model["model_hyp"][lay_type])
+					layer_parameters[str(s[0] + "_" + s[1])][hyp_name] = [hyp_val]
+				
+				struct = model["model_struct"]
+				#Check to see if this structure is already in the list
+				pos = Struct_Position(all_layers, struct)
+				if pos == -1:
+					#This is a new layer structure, add a new entry
+					all_layers.append([struct, layer_parameters])
+				else:
+					#Layer structure already exists, add hyperparameter list
+					all_layers[pos].append(layer_parameters)
+	
+			types_hyp_list[key] = all_layers
+	
+		return types_hyp_list
+	
+	def Struct_Position(all_layers, cur_struct):
+		#Checks if this layer setup already exists	
+		for i in np.arange(len(all_layers)):
+			if all_layers[i][0] == cur_struct:
+				return i
+	
+		#There is no layer, so we reutrn -1	
+		return -1
+	
+	def Is_Int(val):
+		try:
+			int(val)
+			return True
+		except:
+			return False
+	
+	def Is_Float(val):
+		try:
+			float(val)
+			return True
+		except:
+			return False
+	
+	def Get_Real_Hyp_Type(name, val):
+		#Setting the value to an int/float if it is one
+		if Is_Float(val):
+			if Is_Int(val):
+				val = int(val)
+			else:
+				val = float(val)
+		
+		if name == "filters":
+			default_window_size = 200.0
+			#Our saved filter size is a percentage of window size, converting to that
+			val = val/float(default_window_size)
+			#Just in case the value isn't exact, we round it to the a valid value
+			val = min([0.25, 0.5, 0.75], key=lambda x:abs(x-val))
+		elif name == "activation":
+			#LeakyReLU acts weird so this might be necessary
+			if val.lower() != "relu" and val.lower() != "tanh":
+				val = "LeakyReLU"
+	
+		return val
+	
+	def Get_Real_Hyp_Name(name):
+		params = ["units", "activation", "bias_initializer", "dropout", "filters",
+				   "n_steps", "rate", "pool_size"]
+	
+		#This is the only hyperparameter name that is not exactly itself
+		if name not in params:
+			name = "activation"
+			
+		return name
+
 #------------------------------------------------------------------------------
 #An example of how to pull the info out of the returned dictionary
 #Run JSON/pickle extraction

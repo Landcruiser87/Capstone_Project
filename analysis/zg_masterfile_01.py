@@ -26,6 +26,7 @@
 import itertools
 import numpy as np
 import pandas as pd
+import pickle
 import os
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.zg_Load_Data import Load_Data
@@ -75,7 +76,6 @@ def Find_Layer_Accuracy(layer_type):
     #Run tuning on this with the given name
     lay_gen = Layer_Generator(m_tuning = "simple")
     model_structures = lay_gen.Load_Model_Structures(layer_type)
-    model_structures = [["GRU"], ["GRU", "Dense"]]
     
     clstm_params = {}
     if layer_type == "ConvLSTM2D_Model_Structures":
@@ -96,7 +96,7 @@ def Find_Layer_Accuracy(layer_type):
 					  fldr_name = layer_type,
 					  parent_fldr = "step3",
                       fldr_sffx = '1')
-    mt.Tune_Models(epochs = 1, batch_size = 300, MAX_TRIALS = 2)
+    mt.Tune_Models(epochs = 1, batch_size = 300, MAX_TRIALS = 2)        #TODO: CHANGE BACK TO 500, 64, 1000
     
     return
 
@@ -150,27 +150,19 @@ Run_Hyper_On_Best_By_Category()
 #6. Pull out TOP 10 for each tuned
 #6a. Run the TOP 10 with data hyperparameters
 
-def Get_Best_Tuned():
+def Run_Data_Hyperparameter_Tuning():
 	mi = Model_Info()
 	parent_folder = "step3"
 	best_by_type = mi.Get_Best_Layer_Structure_Types_With_Hyperparameters(best_x = 10, parent_folder = parent_folder)
-	
+
+	s = mi.Restructure_Layer_Hyp(best_by_type)
+
 	for key in best_by_type:
-		print(key)
-		print(best_by_type[key][0])
-		break
+		Data_Hyperparameter_Tuning(key, best_by_type[key], s[key])
 
-	#	Run_Data_Hyperparameter_Tuning(key, best_by_type[key])
-	
 	return
-
-Get_Best_Tuned()
-
-def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
-
-	#Save the model structures to a file for the futureeeeee
-	#Get_Best_Layer_Structure_Types_With_Hyperparameter
 	
+def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str):
 	window_size = [400, 200, 50, 10]
 	overlap_percent = [50, 25, 0]
 	batch_size = [16, 64, 256]
@@ -182,9 +174,13 @@ def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
 	#Used for creating the folders in the tuner
 	loop_num = 0
 	
+	#Save the parameters to the data folder
+	with open("data/ModelStr_Hyp.pkl", "wb") as fp:   #Pickling
+		pickle.dump(hyp_str, fp)
+	
 	#Looping through each data parameter set
 	for params in all_data_parameters:
-		layer_type = model_structures_type + "_Models"
+		layer_type = model_structures_type + "_Data_Models"
 	    
 		lay_gen = Layer_Generator()
 		clstm_params = {}
@@ -199,21 +195,28 @@ def Run_Data_Hyperparameter_Tuning(model_structures_type, model_structures):
 	                   'clstm_params' : clstm_params
 	                   }
 		dataset = Load_Data(**data_params)
-	    
+		   
 		mt = Model_Tuning(model_structures,
 	                      dataset,
 	                      m_tuning = "all",	 	  #Whether to use simple or all hyperparamters
-						  parent_fldr = "step5",   #'Project' folder name
-						  fldr_name = layer_type, #This tuning's folder name
-	                      fldr_sffx = str(loop_num))        #Suffix for the folder just in case
-		mt.Tune_Models(epochs = 500, batch_size = 64)
+						  parent_fldr = "step6a",   #'Project' folder name
+						  fldr_name = layer_type + "_" + model_structures_type + "_", #This tuning's folder name
+	                      fldr_sffx = str(loop_num))        #Suffix for the folder
+		mt.Tune_Models(epochs = 500, batch_size = params[2])
 		
 		loop_num += 1
-	
+
+		#Save the data parameters to the file
+		curFolder = layer_type + "_" + model_structures_type + "_" + str(loop_num)
+		with open("data/step6a/" + curFolder + "/data_parameters.pkl", "wb") as fp:   #Pickling
+			pickle.dump(hyp_str, fp)
+
+	#Delete the pkl file
+	os.remove("data/ModelStr_Hyp.pkl") 
+
 	return
 
-
-
+Run_Data_Hyperparameter_Tuning()
 
 #==============================================================================
 #7. Pull out TOP 10 for each tuned
