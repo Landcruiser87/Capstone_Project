@@ -811,14 +811,17 @@ class Model_Tuning:
 		
 		#tuner.reload()
 		#callbacks = [tf.keras.callbacks.EarlyStopping('val_loss', patience=3)]
-		callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', min_delta=1, patience = 8, restore_best_weights=True)]
+		#callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', min_delta=1, patience = 8, restore_best_weights=True)]
+		callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
 		
+		#strategy = tf.distribute.MirroredStrategy()
 		tuner.search(x = self.dataset.x_train,
 					 y = self.dataset.y_train,
 					 epochs = epochs,
 					 batch_size = batch_size,
 					 callbacks = callbacks,
 					 validation_data = (self.dataset.x_test, self.dataset.y_test))
+					 #distribution_strategy = strategy)
 		
 		#models = tuner.get_best_models(num_models=2)
 		
