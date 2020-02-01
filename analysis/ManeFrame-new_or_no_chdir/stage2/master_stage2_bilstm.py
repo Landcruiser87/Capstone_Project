@@ -62,7 +62,7 @@ def Find_Layer_Accuracy(layer_type):
 					  parent_fldr = "step2",
                       fldr_sffx = '1')
 	#Runs the model tuner, in this instance it is Layer Tuning
-    mt.Tune_Models(epochs = 500, batch_size = 64, MAX_TRIALS = 1000)
+    mt.Tune_Models(epochs = 60, batch_size = 64, MAX_TRIALS = 1000)
     
     return
 
