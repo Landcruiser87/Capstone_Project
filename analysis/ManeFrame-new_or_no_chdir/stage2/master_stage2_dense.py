@@ -47,7 +47,7 @@ def Find_Layer_Accuracy(layer_type):
 	#Load the data with the fixed parameters into memory
     data_params = {'dataset' : 'firebusters',
                    'train_p' : 0.8,
-                   'w_size' : 200,
+                   'w_size' : 0,
                    'o_percent' : 0.25,
 				   'LOSO' : True,
                    'clstm_params' : clstm_params
