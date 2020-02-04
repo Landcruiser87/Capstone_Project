@@ -114,7 +114,7 @@ class Model_Info:
 
 	#Returns the best layer structures by layer setup type (GRU, LSTM, etc)
 	def Get_Best_Layer_Structure_Types(self, best_x = 15, parent_folder = "test_dir"):
-		dict_acc = self.PullAccuracies(nested = True, path = "data/" + parent_folder + "/")
+		dict_acc = self.PullAccuracies(nested = True, path = "data\\" + parent_folder + "\\")
 	
 		#Iterate through each type
 		model_structures_by_type = {}
@@ -149,7 +149,7 @@ class Model_Info:
 		return models_bestx
 
 	def Get_Best_Layer_Structure_Types_With_Hyperparameters(self, best_x = 15, parent_folder = "test_dir"):
-		dict_acc = self.PullAccuracies(nested = True, path = "data/" + parent_folder + "/")
+		dict_acc = self.PullAccuracies(nested = True, path = "data\\" + parent_folder + "\\")
 	
 		#Iterate through each type
 		model_structures_by_type = {}
