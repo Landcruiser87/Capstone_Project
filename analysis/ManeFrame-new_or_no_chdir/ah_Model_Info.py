@@ -8,8 +8,8 @@ import os
 #os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 #from analysis.zg_layer_generator_01 import Layer_Generator
 
-#import warnings
-#warnings.filterwarnings("ignore")
+import warnings
+warnings.filterwarnings("ignore")
 
 class Model_Info:
 
@@ -41,7 +41,8 @@ class Model_Info:
 		for file, num in zip(files, np.arange(len(files))):
 			print(num, end = "...")
 			tempDict = self.MakeAccuracyDict(file)
-			AccDict.append(tempDict)
+			if tempDict != {}:
+				AccDict.append(tempDict)
 	
 		print("\nModel Structures have been uploaded")
 		#print("###########################################################")
@@ -69,6 +70,13 @@ class Model_Info:
 		with open(file,"r") as f:
 			data = f.read()
 		d = json.loads(data)
+		
+		#For some reason a few have no metrics, so we return an empty dictionary
+		#print("|" + str(d['metrics']['metrics']) + "|")
+		if d['metrics']['metrics'] == {}:
+			print("NULL results:", d['trial_id'])
+			return {}
+
 		#Extracts Model Info
 		model_index = d['hyperparameters']['values']['model_structures_index']
 		model_acc = d['metrics']['metrics']['accuracy']['observations'][0]['value']
