@@ -8,8 +8,8 @@ import numpy as np
 import pickle
 import os
 #os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
-#import warnings
-#warnings.filterwarnings("ignore")
+import warnings
+warnings.filterwarnings("ignore")
 
 #==============================================================================
 #START SETTING UP THE PARAMETERS/LAYERS FOR THE MODELS
@@ -111,9 +111,9 @@ class Layer_Generator:
 		layer_parameters["BidirectionalLSTM"] = {"layer" : ["LSTM"]}
 		layer_parameters["BidirectionalGRU"] = {"layer" : ["GRU"]}
 	
-		layer_parameters["Conv1D"] = {"filters" : [0.75],
+		layer_parameters["Conv1D"] = {"filters" : [0.5],
 										"activation" : activation}
-		layer_parameters["ConvLSTM2D"] = {"filters" : [0.75],
+		layer_parameters["ConvLSTM2D"] = {"filters" : [0.5],
 										"activation" : activation,
 										"n_steps" : [4],
 										"dropout" : dropout}
@@ -153,9 +153,9 @@ class Layer_Generator:
 		layer_parameters["BidirectionalLSTM"] = {"layer" : ["LSTM"]}
 		layer_parameters["BidirectionalGRU"] = {"layer" : ["GRU"]}
 	
-		layer_parameters["Conv1D"] = {"filters" : [0.75],
+		layer_parameters["Conv1D"] = {"filters" : [0.5],
 										"activation" : activation}
-		layer_parameters["ConvLSTM2D"] = {"filters" : [0.75],
+		layer_parameters["ConvLSTM2D"] = {"filters" : [0.5],
 										"activation" : activation,
 										"n_steps" : [4],
 										"dropout" : dropout}
