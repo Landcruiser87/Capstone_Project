@@ -2,6 +2,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Conv1D
 from tensorflow.keras.layers import MaxPooling1D
+from tensorflow.keras.layers import MaxPooling2D
+from tensorflow.keras.layers import MaxPooling3D
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import LSTM
@@ -19,8 +21,8 @@ import os
 from analysis.zg_Load_Data import Load_Data
 from analysis.zg_layer_generator_01 import Layer_Generator
 
-#import warnings
-#warnings.filterwarnings("ignore")
+import warnings
+warnings.filterwarnings("ignore")
 
 #==============================================================================
 #START MODEL CONSTRUCTION AND TUNING
@@ -52,6 +54,8 @@ class Model_Tuning:
 		model_index = hp.Choice("model_structures_index", self.model_structures_index)
 		chosen_model = self.model_structures[model_index]
 		
+		print(chosen_model)
+		
 		#Find the index of the layer setup in the case of this being for data tuning
 		if self.model_tuning == "data":
 			for i in len(all_layer_params):
@@ -62,6 +66,7 @@ class Model_Tuning:
 	
 		#Goes through each layer
 		for layer_index in np.arange(len(chosen_model)):
+			print(chosen_model[layer_index])
 			if chosen_model[layer_index] == "GRU":
 				bias_init, layers = self.Add_GRU_Layer(hp, bias_init, chosen_model, layer_index, all_layer_params)
 				for l in layers:
@@ -93,7 +98,7 @@ class Model_Tuning:
 			elif chosen_model[layer_index] == "Dropout":
 				model.add(self.Add_Dropout_Layer(hp, layer_index, all_layer_params))
 			elif chosen_model[layer_index] == "MaxPooling1D":
-				model.add(self.Add_MaxPooling1D_Layer(hp, layer_index, all_layer_params))
+				model.add(self.Add_MaxPooling1D_Layer(hp, layer_index, chosen_model, all_layer_params))
 			elif chosen_model[layer_index] == "Flatten":
 				model.add(self.Add_Flatten_Layer())
 		
@@ -586,10 +591,17 @@ class Model_Tuning:
 			
 		#Convert filter percent to a int by multiplying it times the window_size
 		filters = int(self.dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
+		print("FILTERS:", filters)
+		
+		if filters < 1:
+			filters = 1
 		
 		#TODO: kernel_size is window_size/filter (for our purposes)
 		#kernel_size = filters
-		kernel_size = int(filters*0.25)
+		kernel_size = int(filters*0.1)
+		
+		if kernel_size < 2:
+			kernel_size = 2
 		
 		#If this is the first layer so stuffs
 		if activation != "LeakyReLU":
@@ -597,20 +609,20 @@ class Model_Tuning:
 				n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
 				layer = Conv1D(filters=filters, kernel_size=kernel_size,
 										activation=activation,
-										input_shape=(n_timesteps, n_features))
+										input_shape=(n_timesteps, n_features), padding="same")
 				these_layers.append(layer)
 			else:
 				layer = Conv1D(filters=filters, kernel_size=kernel_size,
-										activation=activation)
+										activation=activation, padding="same")
 				these_layers.append(layer)
 		else:
 			if layer_index == 0:
 				n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
 				layer = Conv1D(filters=filters, kernel_size=kernel_size,
-										input_shape=(n_timesteps, n_features))
+										input_shape=(n_timesteps, n_features), padding="same")
 				these_layers.append(layer)
 			else:
-				layer = Conv1D(filters=filters, kernel_size=kernel_size)
+				layer = Conv1D(filters=filters, kernel_size=kernel_size, padding="same")
 				these_layers.append(layer)
 			these_layers.append(LeakyReLU())
 	 
@@ -661,9 +673,15 @@ class Model_Tuning:
 		#Convert filter percent to a int by multiplying it times the window_size
 		filters = int(self.dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
 		
+		if filters < 1:
+			filters = 1
+		
 		#TODO: kernel_size is window_size/filter (for our purposes)
 		#kernel_size = filters
-		kernel_size = int(filters*0.25)
+		kernel_size = int(filters*0.1)
+		
+		if kernel_size < 2:
+			kernel_size = 2
 	
 		#	n_timesteps, n_features, n_outputs = x_train.shape[1], x_train.shape[2], y_train.shape[1]
 		  	# reshape into subsequences (samples, time steps, rows, cols, channels)
@@ -683,12 +701,21 @@ class Model_Tuning:
 			if all_layers[layer_index + 1] in rnn_types:	#GRU-RNN type
 				return_sequences = True
 			else:
-				if all_layers[layer_index + 1] == "Dropout":
+				if all_layers[layer_index + 1] == "Dropout" or all_layers[layer_index + 1] == "MaxPooling1D":
 					if len(all_layers) > (layer_index + 2):
 						if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
 							return_sequences = True
 						else:
-							return_sequences = False
+							if all_layers[layer_index + 2] == "Dropout" or all_layers[layer_index + 2] == "MaxPooling1D":
+								if len(all_layers) > (layer_index + 3):
+									if all_layers[layer_index + 3] in rnn_types: #GRU-Dropout-MaxPool-RNN type
+										return_sequences = True
+									else:
+										return_sequences = False
+								else:
+									return_sequences = False
+							else:
+								return_sequences = False
 					else:
 						return_sequences = False
 				else:
@@ -701,32 +728,34 @@ class Model_Tuning:
 		if activation != "LeakyReLU":
 			if layer_index == 0:
 				#n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
-				layer = ConvLSTM2D(filters=filters, kernel_size=(1, 3),
+				layer = ConvLSTM2D(filters=filters, kernel_size=(1, kernel_size),
 									activation=activation,
 									return_sequences = return_sequences,
 									input_shape=(self.dataset.x_train.shape[1],
 												 self.dataset.x_train.shape[2],
 												 self.dataset.x_train.shape[3],
-												 self.dataset.x_train.shape[4]))
+												 self.dataset.x_train.shape[4]),
+									padding="same")
 				these_layers.append(layer)
 			else:
-				layer = ConvLSTM2D(filters=filters, kernel_size=(1, 3),
+				layer = ConvLSTM2D(filters=filters, kernel_size=(1, kernel_size),
 										return_sequences = return_sequences,
-										activation=activation)
+										activation=activation, padding="same")
 				these_layers.append(layer)
 		else:
 			if layer_index == 0:
 				#n_timesteps, n_features = self.dataset.x_train.shape[1], self.dataset.x_train.shape[2]
-				layer = ConvLSTM2D(filters=filters, kernel_size=(1, 3),
+				layer = ConvLSTM2D(filters=filters, kernel_size=(1, kernel_size),
 									return_sequences = return_sequences,
 									input_shape=(self.dataset.x_train.shape[1],
 												 self.dataset.x_train.shape[2],
 												 self.dataset.x_train.shape[3],
-												 self.dataset.x_train.shape[4]))
+												 self.dataset.x_train.shape[4]),
+									padding="same")
 				these_layers.append(layer)
 			else:
 				layer = ConvLSTM2D(filters=filters, return_sequences = return_sequences,
-									kernel_size=(1, 3))
+									kernel_size=(1, kernel_size), padding="same")
 				these_layers.append(layer)
 			these_layers.append(LeakyReLU())
 	
@@ -748,7 +777,7 @@ class Model_Tuning:
 		dropout = hp.Choice(name_prefix + "rate", layer_parameters["rate"])
 		return Dropout(rate=dropout)
 	
-	def Add_MaxPooling1D_Layer(self, hp, layer_index, all_layer_params):
+	def Add_MaxPooling1D_Layer(self, hp, layer_index, chosen_model, all_layer_params):
 		#pool_size is currently a percent, multiply it by window_size to get an int
 		name_prefix = "MaxPooling1D_" + str(layer_index) + "_"
 
@@ -761,7 +790,17 @@ class Model_Tuning:
 			layer_parameters = all_layer_params[layer_index]
 
 		pool_size = int(self.dataset.window_size*hp.Choice(name_prefix + "pool_size", layer_parameters["pool_size"]))
-		return MaxPooling1D(pool_size = pool_size)
+		
+		if "ConvLSTM2D" in chosen_model:
+			cl2d_indices = [i for i,d in enumerate(chosen_model) if d == 'ConvLSTM2D']
+			
+			#if there is a convlstm2d after the current one, use maxpool3d, else maxpool2d
+			if len([cli for cli in cl2d_indices if cli > layer_index]) > 0:
+				return MaxPooling3D(pool_size = (1, pool_size, pool_size), padding="same")
+			else:
+				return MaxPooling2D(pool_size = (1, pool_size), padding="same")
+		
+		return MaxPooling1D(pool_size = pool_size, padding="same")
 	
 	def Add_Flatten_Layer(self):
 		return Flatten()
