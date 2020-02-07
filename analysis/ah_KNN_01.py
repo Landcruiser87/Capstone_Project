@@ -22,10 +22,12 @@ warnings.filterwarnings("ignore")
 # 	x, y, z = (input[i] for i in 13)
 # 	return([square(x[i]) + square(y[i]) + square(z[i]) for i in range(0, len(x))])
 
-data_params = {'dataset' : 'pamap2',
+data_params = {'dataset' : 'firebusters',
                'train_p' : 0.8,
                'w_size' : 0,
-               'o_percent' : 0.25
+               'o_percent' : 0.25,
+			    'LOSO' : True,
+                'clstm_params' : {}
                }
 dataset = Load_Data(**data_params)
 

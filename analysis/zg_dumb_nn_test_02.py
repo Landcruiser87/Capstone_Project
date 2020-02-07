@@ -171,7 +171,7 @@ model_params = {'epochs' : 2,
                 'batch_size' : 32
                 }
 run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
-                model_gru_01, model_params, 3)
+                model_lstm_01, model_params, 1)
 
 
 
