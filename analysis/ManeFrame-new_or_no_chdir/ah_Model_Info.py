@@ -183,7 +183,7 @@ class Model_Info:
 		
 		return models_bestx
 
-	def Restructure_Layer_Hyp(best_by_type):
+	def Restructure_Layer_Hyp(self, best_by_type):
 		types_hyp_list = {}
 		#Loop through different types (GRU, LSTM, etc)
 		for key in best_by_type:
@@ -215,13 +215,13 @@ class Model_Info:
 						index += 1
 					
 					#Makes the dictionary of layer parameters
-					hyp_name = Get_Real_Hyp_Name(s[2])
-					hyp_val = Get_Real_Hyp_Type(hyp_name, model["model_hyp"][lay_type])
+					hyp_name = self.Get_Real_Hyp_Name(s[2])
+					hyp_val = self.Get_Real_Hyp_Type(hyp_name, model["model_hyp"][lay_type])
 					layer_parameters[str(s[0] + "_" + s[1])][hyp_name] = [hyp_val]
 				
 				struct = model["model_struct"]
 				#Check to see if this structure is already in the list
-				pos = Struct_Position(all_layers, struct)
+				pos = self.Struct_Position(all_layers, struct)
 				if pos == -1:
 					#This is a new layer structure, add a new entry
 					all_layers.append([struct, layer_parameters])
@@ -233,7 +233,7 @@ class Model_Info:
 	
 		return types_hyp_list
 	
-	def Struct_Position(all_layers, cur_struct):
+	def Struct_Position(self, all_layers, cur_struct):
 		#Checks if this layer setup already exists	
 		for i in np.arange(len(all_layers)):
 			if all_layers[i][0] == cur_struct:
@@ -242,25 +242,28 @@ class Model_Info:
 		#There is no layer, so we reutrn -1	
 		return -1
 	
-	def Is_Int(val):
+	def Is_Int(self, val):
 		try:
 			int(val)
 			return True
 		except:
 			return False
 	
-	def Is_Float(val):
+	def Is_Float(self, val):
 		try:
 			float(val)
 			return True
 		except:
 			return False
 	
-	def Get_Real_Hyp_Type(name, val):
+	def Get_Real_Hyp_Type(self, name, val):
 		#Setting the value to an int/float if it is one
-		if Is_Float(val):
-			if Is_Int(val):
+		if self.Is_Float(val):
+			v = float(val)
+			if self.Is_Int(val):
 				val = int(val)
+				if val != v:    #This makes sure to not make 0.2 -> 0
+					val = v
 			else:
 				val = float(val)
 		
@@ -277,7 +280,7 @@ class Model_Info:
 	
 		return val
 	
-	def Get_Real_Hyp_Name(name):
+	def Get_Real_Hyp_Name(self, name):
 		params = ["units", "activation", "bias_initializer", "dropout", "filters",
 				   "n_steps", "rate", "pool_size"]
 	

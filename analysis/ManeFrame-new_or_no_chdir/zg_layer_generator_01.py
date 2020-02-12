@@ -6,6 +6,7 @@
 from itertools import product
 import numpy as np
 import pickle
+import random
 import os
 #os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 import warnings
@@ -26,8 +27,10 @@ class Layer_Generator:
 		
 		#This gets called in the case of layer tuning, not hyperparmeter tuning
 		if self.model_tuning != "all":
-			if self.model_tuning == "data":
-				return self.Generate_Data_Layer_Parameters()
+			if self.model_tuning.startswith("data"):
+				#This is so we can get the model type (EX: GRU or LSTM)
+				s = self.model_tuning.split("_")
+				return self.Generate_Data_Layer_Parameters(s[1])
 			if self.model_layer != []:
 				return self.Generate_Specific_Layer_Parameters()
 			return self.Generate_Simple_Layer_Parameters()
@@ -72,14 +75,28 @@ class Layer_Generator:
 		return layer_parameters
 
 	#This grabs the hyperparameters that have already been tuned for the model structure	
-	def	Generate_Data_Layer_Parameters(self):
+	def	Generate_Data_Layer_Parameters(self, m_s_type):
 		model_structures = []
 		
 		# open file and read the content in a list
-		with open("data/ModelStr_Hyp.pkl", "rb") as fp:   # Unpickling
+		with open("data/step4_hyp/" + m_s_type + "_ModelStr_Hyp.pkl", "rb") as fp:   # Unpickling
 			model_structures = pickle.load(fp)
 		
-		return model_structures
+		#Because it is possible for the same layer setup to exist with
+		#two different hyperparameter setups we need to scramble these so that
+		#on load we have equal possibilities of getting any of them.
+		m_str = []
+		for m in model_structures:
+			#Pull out the first element (the layer setup)
+			lay = m.pop(0)
+			#Shuffle the remaining elements in the list
+			shf = random.shuffle(m)
+			#Re-insert the layer setup back at the front
+			m.insert(0, lay)
+			#Append this newly shuffled thing to m_str
+			m_str.append(m)
+		
+		return m_str
 	
 	#Returns the hyperparameters for the layers that need specific parameters
 	def Generate_Specific_Layer_Parameters(self):
