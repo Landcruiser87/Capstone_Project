@@ -57,16 +57,16 @@ class Model_Tuning:
 		print(chosen_model)
 		
 		#Find the index of the layer setup in the case of this being for data tuning
-		if self.model_tuning == "data":
-			for i in len(all_layer_params):
+		if self.model_tuning.startswith("data"):
+			for i in np.arange(len(all_layer_params)):
 				if all_layer_params[i][0] == chosen_model:
-					self.good_layer_index = i
+					self.good_layer_index = i     #Dont remember what this does
 					all_layer_params = all_layer_params[i][1]
 					break
-	
+
 		#Goes through each layer
 		for layer_index in np.arange(len(chosen_model)):
-			print(chosen_model[layer_index])
+			#print(chosen_model[layer_index])
 			if chosen_model[layer_index] == "GRU":
 				bias_init, layers = self.Add_GRU_Layer(hp, bias_init, chosen_model, layer_index, all_layer_params)
 				for l in layers:
@@ -97,17 +97,22 @@ class Model_Tuning:
 					model.add(l)
 			elif chosen_model[layer_index] == "Dropout":
 				model.add(self.Add_Dropout_Layer(hp, layer_index, all_layer_params))
-			elif chosen_model[layer_index] == "MaxPooling1D":
+			elif chosen_model[layer_index].startswith("MaxPooling"): #Fix for 1D, 2D, 3D
 				model.add(self.Add_MaxPooling1D_Layer(hp, layer_index, chosen_model, all_layer_params))
 			elif chosen_model[layer_index] == "Flatten":
 				model.add(self.Add_Flatten_Layer())
 		
 		model.add(Dense(3, activation='softmax'))
-		model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+		
+		optimizer = "adam"
+		#For the data tuning stage (stage 4)
+		if self.model_tuning.startswith("data"):
+			optimizer = hp.Choice("optimizer", ["adam", "RMSprop"])
+		model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 		
 		#print(model.get_config())
 		#print(model.summary())
-		print("The_Model is not completed")
+		#print("The_Model is not completed")
 		return model
 	
 	def Add_GRU_Layer(self, hp, bias_init, all_layers, layer_index, all_layer_params):
@@ -131,7 +136,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["GRU"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["GRU_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
 		units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -222,7 +229,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["LSTM"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["LSTM_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
 		units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -314,7 +323,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["Dense"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["Dense_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
 		units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -381,7 +392,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["LSTM"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["LSTM_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
 		units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -472,7 +485,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["GRU"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["GRU_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
 		units = hp.Choice(name_prefix + "units", layer_parameters["units"])
@@ -549,6 +564,7 @@ class Model_Tuning:
 		return (bias_init, these_layers)
 	
 	def Add_Conv1D_Layer(self, hp, bias_init, all_layers, layer_index, all_layer_params):
+		print(all_layer_params)
 		#Because of leakyReLU, we technically return multiple layers
 		these_layers = []
 		
@@ -563,7 +579,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["Conv1D"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["Conv1D_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		#all bias_initializer in the model should be the same
 		#when activation is relu, use RandomNormal or Zero
@@ -591,7 +609,7 @@ class Model_Tuning:
 			
 		#Convert filter percent to a int by multiplying it times the window_size
 		filters = int(self.dataset.window_size*hp.Choice(name_prefix + "filters", layer_parameters["filters"]))
-		print("FILTERS:", filters)
+		#print("FILTERS:", filters)
 		
 		if filters < 1:
 			filters = 1
@@ -643,7 +661,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["ConvLSTM2D"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["ConvLSTM2D_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 	
 		#all bias_initializer in the model should be the same
 		#activation function can be different across layers
@@ -701,12 +721,12 @@ class Model_Tuning:
 			if all_layers[layer_index + 1] in rnn_types:	#GRU-RNN type
 				return_sequences = True
 			else:
-				if all_layers[layer_index + 1] == "Dropout" or all_layers[layer_index + 1] == "MaxPooling1D":
+				if all_layers[layer_index + 1] == "Dropout" or all_layers[layer_index + 1].startswith("MaxPooling"):
 					if len(all_layers) > (layer_index + 2):
 						if all_layers[layer_index + 2] in rnn_types: #GRU-Dropout-RNN type
 							return_sequences = True
 						else:
-							if all_layers[layer_index + 2] == "Dropout" or all_layers[layer_index + 2] == "MaxPooling1D":
+							if all_layers[layer_index + 2] == "Dropout" or all_layers[layer_index + 2].startswith("MaxPooling"):
 								if len(all_layers) > (layer_index + 3):
 									if all_layers[layer_index + 3] in rnn_types: #GRU-Dropout-MaxPool-RNN type
 										return_sequences = True
@@ -772,7 +792,9 @@ class Model_Tuning:
 			#We do this here just because we can
 			layer_parameters = all_layer_params["Dropout"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["Dropout_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 		
 		dropout = hp.Choice(name_prefix + "rate", layer_parameters["rate"])
 		return Dropout(rate=dropout)
@@ -785,9 +807,16 @@ class Model_Tuning:
 				
 		if self.good_layer_index == -1:
 			#We do this here just because we can
-			layer_parameters = all_layer_params["MaxPooling1D"]
+			if "MaxPooling1D" in all_layer_params:
+				layer_parameters = all_layer_params["MaxPooling1D"]
+			elif "MaxPooling2D" in all_layer_params:
+				layer_parameters = all_layer_params["MaxPooling2D"]
+			elif "MaxPooling3D" in all_layer_params:
+				layer_parameters = all_layer_params["MaxPooling3D"]
 		else:
-			layer_parameters = all_layer_params[layer_index]
+			#Data tuning
+			layer_parameters = all_layer_params["MaxPooling1D_"+ str(layer_index)]
+			#layer_parameters = all_layer_params[layer_index]
 
 		pool_size = int(self.dataset.window_size*hp.Choice(name_prefix + "pool_size", layer_parameters["pool_size"]))
 		
