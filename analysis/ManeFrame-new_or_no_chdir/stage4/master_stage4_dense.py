@@ -58,8 +58,8 @@ def Run_Data_Hyperparameter_Tuning(categories):
 	return
 	
 def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str):
-	window_size = [400, 200, 50, 10]
-	overlap_percent = [50, 25, 0]
+	window_size = [0]
+	overlap_percent = [0]
 	batch_size = [16, 64, 256]
 
 	#Makes all combinations of the three parameters's values
