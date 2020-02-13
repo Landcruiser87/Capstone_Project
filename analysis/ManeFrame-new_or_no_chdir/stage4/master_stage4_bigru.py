@@ -105,7 +105,7 @@ def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str)
 
 		#Save the data parameters to the file
 		curFolder = layer_type + "_" + model_structures_type + "_" + str(loop_num)
-		with open("data/step4/" + curFolder + "/data_parameters.pkl", "wb") as fp:   #Pickling
+		with open("data\\step4\\/" + curFolder + "\\/data_parameters.pkl", "wb") as fp:   #Pickling
 			pickle.dump([params, model_structures], fp)
 
 		loop_num += 1

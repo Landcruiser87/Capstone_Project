@@ -393,7 +393,7 @@ class Model_Tuning:
 			layer_parameters = all_layer_params["LSTM"]
 		else:
 			#Data tuning
-			layer_parameters = all_layer_params["LSTM_"+ str(layer_index)]
+			layer_parameters = all_layer_params["BidirectionalLSTM_"+ str(layer_index)]
 			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
@@ -486,7 +486,7 @@ class Model_Tuning:
 			layer_parameters = all_layer_params["GRU"]
 		else:
 			#Data tuning
-			layer_parameters = all_layer_params["GRU_"+ str(layer_index)]
+			layer_parameters = all_layer_params["BidirectionalGRU_"+ str(layer_index)]
 			#layer_parameters = all_layer_params[layer_index]
 		
 		#Random choice for these two parameters
