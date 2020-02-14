@@ -21,10 +21,10 @@ from tensorflow.keras.utils import to_categorical
 import itertools
 import random
 
-#import os
+import os
 #os.chdir("C:/githubrepo/CapstoneA/data/") #Zack and Andy's github data folder
-#import warnings
-#warnings.filterwarnings("ignore")
+import warnings
+warnings.filterwarnings("ignore")
 
 class Load_Data:
     #Initializes the class with the desired parameters
@@ -48,6 +48,8 @@ class Load_Data:
             n_features = self.x_train.shape[2]
             # reshape into subsequences (samples, time steps, rows, cols, channels)
             n_steps = clstm_params["n_steps"][0]
+            if (self.window_size%n_steps) != 0:
+                n_steps = 5
             n_length = int(self.x_train.shape[1]/n_steps)
             self.x_train = self.x_train.reshape((self.x_train.shape[0], n_steps, 1, n_length, n_features))
             self.x_test = self.x_test.reshape((self.x_test.shape[0], n_steps, 1, n_length, n_features))
