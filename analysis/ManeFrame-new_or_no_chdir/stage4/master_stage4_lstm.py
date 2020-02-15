@@ -12,6 +12,7 @@ import pandas as pd
 import pickle
 import random
 import os
+import pickle
 #os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.zg_Load_Data import Load_Data
 from analysis.zg_layer_generator_01 import Layer_Generator
@@ -72,6 +73,9 @@ def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str)
 	
 	#Used for creating the folders in the tuner
 	loop_num = 0
+	#If we have already run this and it crashed, using this will allow us
+	#to find the number that we stopped on and skip ones already ran.
+	start_num = get_last_run_num(model_structures_type)
 	
 	#Save the parameters to the data folder
 	with open("data/step4_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl", "wb") as fp:   #Pickling
@@ -79,6 +83,11 @@ def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str)
 	
 	#Looping through each data parameter set
 	for params in all_data_parameters:
+		#If we have already run this and it crashed, using this will allow us
+		#to skip the ones that have already run.
+		if loop_num <= start_num:
+			continue
+		
 		layer_type = model_structures_type + "_Data_Models"
 	    
 		lay_gen = Layer_Generator()
@@ -114,6 +123,20 @@ def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str)
 	os.remove("data/step4_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl") 
 
 	return
+
+#If we have already run this and it crashed, using this will allow us
+#to get the number of the already run ones.
+def get_last_run_num(model_structures_type):
+	files = os.listdir('./data\\step4\\/')
+
+	max_run = -1
+	for file in files:
+		s = file.split("_")
+		if( s[0] == model_structures_type ):
+			max_run = max(int(s[-1]), max_run)
+
+	return max_run
+
 
 """["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D", "Dense", "GRU", "LSTM"]"""
 categories = ["LSTM"]
