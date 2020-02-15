@@ -86,6 +86,7 @@ def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str)
 		#If we have already run this and it crashed, using this will allow us
 		#to skip the ones that have already run.
 		if loop_num <= start_num:
+			loop_num += 1
 			continue
 		
 		layer_type = model_structures_type + "_Data_Models"
@@ -133,7 +134,7 @@ def get_last_run_num(model_structures_type):
 	for file in files:
 		s = file.split("_")
 		if( s[0] == model_structures_type ):
-			max_run = max(int(s[-1]), max_run)
+			max_run = max(int(s[-1][0:-1]), max_run)
 
 	return max_run
 
