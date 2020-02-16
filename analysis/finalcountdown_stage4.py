@@ -230,6 +230,7 @@ class Final_Accuracy:
 					else:
 						layer_parameters[str(s[0] + "_" + s[1])][hyp_name] = [hyp_val]
 				
+				layer_parameters["optimizer"] = model["model_hyp"]["optimizer"]
 				struct = model["model_struct"]
 				acc = model["acc"]
 				loss = model["loss"]
@@ -323,25 +324,93 @@ class Final_Accuracy:
 				#Pulling out only the hyperparamters we use 
 				real_hyp = {}
 				for i in np.arange(len(layers)):
-					real_hyp[layers[i] + "_" + str(i)] = mod[1][layers[i] + "_" + str(i)]
+					if layers[i] != "Flatten":
+						real_hyp[layers[i] + "_" + str(i)] = mod[1][layers[i] + "_" + str(i)]
+				real_hyp["optimizer"] = mod[1]["optimizer"]
 				#Adds these parameters and the model info to the list
 				all_for_this_type.append([mod[0], real_hyp])
 			#Appends all the info+parameters to the dictionary
 			acc[key] = all_for_this_type
 		
 		return acc
+	
+	#Generates and saves the final results .pkl file
+	def Generate_The_File(self, folder = "step4"):
+		raw_acc_s4 = self.Get_Accuracy(folder = folder)
+		raw2_acc_s4 = self.Restructure_Layer_Hyp(raw_acc_s4)
+		acc_s4 = self.Remove_Extra_Parameters(raw2_acc_s4)
+		
+		with open("results/results.pkl", "wb") as fp:   #Pickling
+			pickle.dump(acc_s4, fp)
+		
+		return
+	
+	#Loads in the final results .pkl file
+	def Load_The_File(self, directory = 'data/step4/'):
+		data = []
+		with open("results/results.pkl", 'rb') as f:
+		    data = pickle.load(f)
+			
+		return data
+		
+	#Tells ya stuff
+	def Help(self):
+		print("""
+		Generate_The_File function generates the DICTIONARY file and saves it
+		to the indicated folder.
+		Load_The_File function loads in the DICTIONARY file and returns it. 
+		
+		The keys in the DICTIONARY are the Neural Network categories (GRU,
+		LSTM, etc). Those keys give you a LIST of the models run for that category.
 
-#TODO: NEED THE OPTIMIZER FROM Restructure_... function
+		for model in acc_file["Conv1D"]:
+			print(model)
 
-fa = Final_Accuracy()
-#bbt_s3 = mi.Get_Best_Layer_Structure_Types_With_Hyperparameters(best_x = 10, parent_folder = "step3")
+		model[0] will give you a LIST of:
+			layer structure, acc, loss, val_acc, val_loss, data_params
+		layer structure is a LIST of the layers
+		data_params is a LIST of:
+			window_size, overlap_percent, batch_size
+		
+		model[1] gives you the DICTIONARY containing the hyperparameters. Each
+		parameter is of the form TYPE_NUMBER where TYPE is the neural network
+		type (like GRU, LSTM, etc) and NUMBER is the layer number. Example:
+			Conv1D_1
+		One other parameter inside model[1] is the optimizer, which can be
+		accessed by model[1]['optimizer'].
+
+		fa = Final_Accuracy()
+		fa.Help()
+		fa.Generate_The_File()   #Generates the file, not necessary if you have it
+		acc = fa.Load_The_File() #Loads the .pkl file from the results directory
+		""")
+		return
+
+#fa = Final_Accuracy()
+#fa.Help()
+#fa.Generate_The_File()
+#acc = fa.Load_The_File()
+
+#print(acc["Dense"][0][0])
+
+#fa = Final_Accuracy()
 #raw_acc_s4 = fa.Get_Accuracy(folder = "step4")
 #raw2_acc_s4 = fa.Restructure_Layer_Hyp(raw_acc_s4)
-acc_s4 = fa.Remove_Extra_Parameters(raw2_acc_s4)
+#acc_s4 = fa.Remove_Extra_Parameters(raw2_acc_s4)
 
 # 0 Model Structures, 1 Accuracy, 2 Loss,
 # 3 Validation Accuracy, 4 Validation Loss, 5 Data Parameters
-#print(raw2_acc_s4["Dense"][0][0])
 
-#print(acc_s4["Dense"])
+#Prints out all the accuracies
+#for model in acc_s4["Dense"]:
+#	print(model[0][3])
 
+#i = 0
+#Prints out top 100 accuracies
+#for model in acc_s4["Conv1D"]:
+#	print(model)
+#	i += 1
+#	if i > 10:
+#		break
+	
+	
