@@ -224,7 +224,7 @@ class Final_Accuracy:
 						hyp_name = s[0]
 					else:
 						hyp_name = self.Get_Real_Hyp_Name(s[2])
-					hyp_val = self.Get_Real_Hyp_Type(hyp_name, model["model_hyp"][lay_type])
+					hyp_val = self.Get_Real_Hyp_Type(hyp_name, model["model_hyp"][lay_type], model["data_params"][0])
 					if len(s) == 1:
 						layer_parameters[str(s[0])][hyp_name] = [hyp_val]
 					else:
@@ -391,7 +391,8 @@ class Final_Accuracy:
 #fa.Generate_The_File()
 #acc = fa.Load_The_File()
 
-#print(acc["Dense"][0][0])
+
+#print(acc["Conv1D"][0][1])
 
 #fa = Final_Accuracy()
 #raw_acc_s4 = fa.Get_Accuracy(folder = "step4")
