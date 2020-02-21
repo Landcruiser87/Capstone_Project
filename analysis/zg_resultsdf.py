@@ -6,6 +6,7 @@ import random
 import os
 import pickle
 import seaborn as sns
+import matplotlib.pyplot as plt
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.finalcountdown_stage4 import Final_Accuracy
 
@@ -93,28 +94,60 @@ colnames.append("avg_num_nodes")
 df.columns = colnames
 
 #Removes all the perfect accuracies, because im sure some of them are bad
-df = df[df["val_accuracy"] < 1]
+#df_2 = df[df["val_accuracy"] < 1]
+df_2 = df
+df_2 = df_2[ abs(df_2["val_accuracy"] - df_2["train_accuracy"]) <= 0.03 ]
+sns.distplot(df_2["val_accuracy"])
+plt.xlabel('Validation accuracy where Validation and Training accuracy are less than 3% different', fontsize=8)
+plt.title('Stage 4 Density Plot of Validation Accuracy', fontsize=12)
 
+#Makes dataframe with Validation and Train accuracies are less than 10% away
+df_a = df[ abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1 ]
+
+#Accuracies greater than 90% and < 100%
+great90less100 = len(df[ (df["val_accuracy"] >= 0.9) & (df["val_accuracy"] < 1)] )
+print(great90less100, round(great90less100/float(len(df)),4), "||| 90 <= X < 100")
+
+#Accuracies greater than 90%
+great90 = len(df[ (df["val_accuracy"] >= 0.9)] )
+print(great90, round(great90/float(len(df)), 4), "||| 90 <= X")
+
+#Accuracies greater than 90% where val and train < 10% apart
+great90ten = len(df_a[df_a["val_accuracy"] >= 0.9])
+print(great90ten, round(great90ten/float(len(df)), 4), "||| 90 <= X, 10% apart Val/Train")
+
+#Plot all accuracies where val and train are 10 apart
+sns.scatterplot(df_a["val_accuracy"], df_a["train_accuracy"])
+
+#Density plot of validation accuracies where val/train acc are less than 10% diff
+sns.distplot(df_a["val_accuracy"])
+
+print(df_a["val_accuracy"].describe())
+sns.boxplot(df["window_size"], df["val_accuracy"])
+
+sns.boxplot(df_a["window_size"], df_a["val_accuracy"])		#Expected
+sns.boxplot(df_a["batch_size"], df_a["val_accuracy"])		#Ok
+sns.boxplot(df_a["overlap%"], df_a["val_accuracy"])			#Suprising!
+sns.boxplot(df_a["depth"], df_a["val_accuracy"])			#Suprising!
+numLT4 = len(df_a[df_a["depth"] == 4])
+print(numLT4, numLT4/len(df), "||| Number/Percent with depth of 4")
+sns.boxplot(df_a["optimizer"], df_a["val_accuracy"])		#Expected
+sns.boxplot(df_a["optimizer"], df_a["val_accuracy"][df_a.val_accuracy >= 0.9])		#Expected
+sns.scatterplot(df_a["val_accuracy"], df_a["avg_num_nodes"])		#?
+
+sns.boxplot(df_a["overlap%"], df_a["val_accuracy"])			#Suprising!
+plt.title('Validation Accuracy vs Overlap Percentage', fontsize=12)
+plt.xlabel('Overlap Percentage', fontsize=12)
+plt.ylabel('Validation Accuracy', fontsize=12)
+
+#avg_num_nodes
 #print(df[df["key"] == "GRU"].head())
-
 #print(df[(df["key"] == "GRU") & (df["window_size"] < 50)].head())
-
 #df2 = df[(df["key"] == "GRU") & (df["val_accuracy"] >= 0.8)]
-
 #print(df2.head())
 #sns.distplot(df2["val_accuracy"])
-
 #sns.distplot(df["val_accuracy"])
-
-ns.pairplot(df)
-
-
-
-
-
-
-
-
+#sns.pairplot(df)
 
 
 
