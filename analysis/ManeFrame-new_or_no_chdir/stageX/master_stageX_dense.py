@@ -738,7 +738,7 @@ def model_bidirgru_19(x_train, y_train, x_test, y_test, epochs = 10, batch_size 
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 50,				#200:firebusters, 25:har, 50:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -754,7 +754,7 @@ run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 100,				#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -789,7 +789,7 @@ print("===========BidirectionGRU PAMAP2 Done!===========")
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 25,				#200:firebusters, 25:har, 50:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -805,7 +805,7 @@ run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 50,				#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -843,7 +843,7 @@ print("===========BidirectionGRU HAR Done!===========")
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 50,				#200:firebusters, 25:har, 50:pamap2
-               'o_percent' : 50,
+               'o_percent' : 0.5,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -895,7 +895,7 @@ print("===========BidirectionLSTM PAMAP2 Done!===========")
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 25,				#200:firebusters, 25:har, 50:pamap2
-               'o_percent' : 50,
+               'o_percent' : 0.5,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -951,7 +951,7 @@ clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 100,				#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : clstm_params
                }
@@ -969,7 +969,7 @@ clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 100,				#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 50,
+               'o_percent' : 0.5,
 			   'LOSO' : True,
                'clstm_params' : clstm_params
                }
@@ -1008,7 +1008,7 @@ clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 50,				#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : clstm_params
                }
@@ -1026,7 +1026,7 @@ clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 50,				#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 50,
+               'o_percent' : 0.5,
 			   'LOSO' : True,
                'clstm_params' : clstm_params
                }
@@ -1171,7 +1171,7 @@ print("=========== Dense HAR Done!===========")
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 100,			#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -1187,7 +1187,7 @@ run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
 data_params = {'dataset' : 'pamap2',
                'train_p' : 0.96,
                'w_size' : 100,			#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 50,
+               'o_percent' : 0.5,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -1222,7 +1222,7 @@ print("=========== LSTM PAMAP2 Done!===========")
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 50,			#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 25,
+               'o_percent' : 0.25,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
@@ -1238,7 +1238,7 @@ run_experiment(dataset.x_train, dataset.y_train, dataset.x_test, dataset.y_test,
 data_params = {'dataset' : 'har',
                'train_p' : 0.96,
                'w_size' : 50,			#400:firebusters, 50:har, 100:pamap2
-               'o_percent' : 50,
+               'o_percent' : 0.5,
 			   'LOSO' : True,
                'clstm_params' : {}
                }
