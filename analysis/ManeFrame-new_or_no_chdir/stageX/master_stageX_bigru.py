@@ -20,7 +20,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
 
 import os
-os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
+#os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.zg_Load_Data import Load_Data
 from analysis.zg_layer_generator_01 import Layer_Generator
 
