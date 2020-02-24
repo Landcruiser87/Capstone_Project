@@ -4,8 +4,8 @@ import numpy as np
 import json
 import pickle
 import os
-#os.chdir("C:/githubrepo/CapstoneA/")
-os.chdir("E:/CAPSTONE STAGES/")
+os.chdir("C:/githubrepo/CapstoneA/")
+#os.chdir("E:/CAPSTONE STAGES/")
 #from analysis.zg_layer_generator_01 import Layer_Generator
 
 import warnings
