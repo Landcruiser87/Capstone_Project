@@ -49,13 +49,15 @@ print(acc["BidirectionalLSTM"][0])
 print(acc["Conv1D"][0])
 print(acc["ConvLSTM2D"][0])
 
-colnames = ["key", "val_accuracy", "train_accuracy", "depth", "optimizer"]
+colnames = ["key", "index", "val_accuracy", "train_accuracy", "depth", "optimizer"]
 #key, acc, val_acc, layer depth, optimizer
 rows = []
 for key in acc:
+	i = 0
 	for model in acc[key]:
 		row = []
 		row.append(key)						#key
+		row.append(i)						#index of where it was in orig
 		row.append(*model[0][3])			#validation accuracy
 		row.append(*model[0][1])			#training accuracy
 		row.append(len(model[0][0]))		#depth
@@ -74,6 +76,7 @@ for key in acc:
 		row.append(model[0][5][2])
 		row.append(Avg_Num_Nodes(model[1]))
 		rows.append(row)
+		i += 1
 
 #Makes the rows into a dataframe
 df = pd.DataFrame(rows)
@@ -93,16 +96,52 @@ colnames.append("batch_size")
 colnames.append("avg_num_nodes")
 df.columns = colnames
 
+sns.distplot(df["val_accuracy"])
+
 #Removes all the perfect accuracies, because im sure some of them are bad
 #df_2 = df[df["val_accuracy"] < 1]
-df_2 = df
-df_2 = df_2[ abs(df_2["val_accuracy"] - df_2["train_accuracy"]) <= 0.03 ]
-sns.distplot(df_2["val_accuracy"])
-plt.xlabel('Validation accuracy where Validation and Training accuracy are less than 3% different', fontsize=8)
-plt.title('Stage 4 Density Plot of Validation Accuracy', fontsize=12)
+
+#------------------------------------------------------------------------------
+df_2 = df[ abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1 ]
+#sns.distplot(df_2["val_accuracy"])
+#plt.xlabel('Validation accuracy where Validation and Training accuracy are less than 3% different', fontsize=8)
+#plt.title('Stage 4 Density Plot of Validation Accuracy', fontsize=12)
+
+params = ["val_accuracy", "batch_size", "depth", "window_size", "overlap%", "index"]
+print(df_2[df_2["key"] == "BidirectionalGRU"][params].head(20))
+
+print(acc["BidirectionalGRU"][7])
+print(acc["BidirectionalGRU"][14])
+print(acc["BidirectionalGRU"][19])
+
+print(acc["BidirectionalLSTM"][2])
+print(acc["BidirectionalLSTM"][14])
+print(acc["BidirectionalLSTM"][27])
+
+print(acc["ConvLSTM2D"][0])
+print(acc["ConvLSTM2D"][14])
+print(acc["ConvLSTM2D"][36])
+
+print(acc["Dense"][0])
+print(acc["Dense"][1])
+print(acc["Dense"][4])
+
+print(acc["LSTM"][4])
+print(acc["LSTM"][5])
+print(acc["LSTM"][16])
+
+print(acc["GRU"][7])
+print(acc["GRU"][12])
+print(acc["GRU"][15])
+
+print(acc["Conv1D"][5])
+print(acc["Conv1D"][16])
+print(acc["Conv1D"][27])
+
+#------------------------------------------------------------------------------
 
 #Makes dataframe with Validation and Train accuracies are less than 10% away
-df_a = df[ abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1 ]
+df_a = df[ abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.03 ]
 
 #Accuracies greater than 90% and < 100%
 great90less100 = len(df[ (df["val_accuracy"] >= 0.9) & (df["val_accuracy"] < 1)] )
@@ -113,7 +152,7 @@ great90 = len(df[ (df["val_accuracy"] >= 0.9)] )
 print(great90, round(great90/float(len(df)), 4), "||| 90 <= X")
 
 #Accuracies greater than 90% where val and train < 10% apart
-great90ten = len(df_a[df_a["val_accuracy"] >= 0.9])
+great90ten = len(df_a[df_a["val_accuracy"] >= 0.98])
 print(great90ten, round(great90ten/float(len(df)), 4), "||| 90 <= X, 10% apart Val/Train")
 
 #Plot all accuracies where val and train are 10 apart
@@ -139,6 +178,8 @@ sns.boxplot(df_a["overlap%"], df_a["val_accuracy"])			#Suprising!
 plt.title('Validation Accuracy vs Overlap Percentage', fontsize=12)
 plt.xlabel('Overlap Percentage', fontsize=12)
 plt.ylabel('Validation Accuracy', fontsize=12)
+
+print(len(df_a))
 
 #avg_num_nodes
 #print(df[df["key"] == "GRU"].head())
