@@ -47,13 +47,15 @@ class Load_Data:
 		
 		#In the case of this being a ConvLSTM2D
 		if clstm_params != {}:
+			n_steps = clstm_params["n_steps"][0]
+			n_length = int(self.x_train[0].shape[1]/n_steps)
+			if (self.window_size%n_steps) != 0:
+				n_steps = 5
+			n_features = self.x_train[0].shape[2]
 			self.x_test = self.x_test.reshape((self.x_test.shape[0], n_steps, 1, n_length, n_features))
 			if self.val_index == None:
 				n_features = self.x_train.shape[2]
 				# reshape into subsequences (samples, time steps, rows, cols, channels)
-				n_steps = clstm_params["n_steps"][0]
-				if (self.window_size%n_steps) != 0:
-					n_steps = 5
 				n_length = int(self.x_train.shape[1]/n_steps)
 				self.x_train = self.x_train.reshape((self.x_train.shape[0], n_steps, 1, n_length, n_features))
 			else: #THIS IS WHERE WE HAVE THE CROSSVALIDATION
