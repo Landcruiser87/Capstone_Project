@@ -221,7 +221,7 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 		#END FOR LOOP
 
 	#SAVE THE RESULTS TO A FILE
-	with open("data/step5_res/results_" + model_structures_type + ".pkl", "wb") as fp:   #Pickling
+	with open("data/step5_res/" + model_structures_type + "_results.pkl", "wb") as fp:   #Pickling
 		pickle.dump(results_here, fp)
 
 	return
@@ -233,7 +233,7 @@ df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1) & (df["val
 
 #Model Category
 #["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D", "Dense", "GRU", "LSTM"]
-model_structures_type = "ConvLSTM2D"
+model_structures_type = "Conv1D"
 
 #Select the model category
 df_best = df_best[df_best["key"] == model_structures_type]
@@ -241,38 +241,13 @@ df_best = df_best[df_best["key"] == model_structures_type]
 #Gets the best indices (indices are from the original pkl file)
 best_idx = list(df_best["index"])
 
-best_idx = [best_idx[0]]
+#best_idx = [best_idx[0]]
 
 #Pull out those best models
 best_setups = acc[model_structures_type]
 best_setups = [best_setups[i] for i in best_idx ]
 
 Stage_Five(best_setups, best_idx, model_structures_type)
-
-
-
-
-'''lay_gen = Layer_Generator()
-clstm_params = {}
-if model_structures_type == "ConvLSTM2D":
-	clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
-
-#Loading in the dataset
-data_params = {'dataset' : 'firebusters',
-				'train_p' : 0.8,
-				'w_size' : window_size,
-				'o_percent' : overlap_per,
-				'LOSO' : True,
-				'clstm_params' : clstm_params,
-				'valIndex' : val_index
-				}
-dataset = Load_Data(**data_params)'''
-
-
-
-
-
-
 
 
 
