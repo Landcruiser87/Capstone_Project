@@ -54,7 +54,7 @@ class Model_Tuning:
 		model_index = hp.Choice("model_structures_index", self.model_structures_index)
 		chosen_model = self.model_structures[model_index]
 		
-		print(chosen_model)
+		#print(chosen_model)
 		
 		#Find the index of the layer setup in the case of this being for data tuning
 		if self.model_tuning.startswith("data"):
@@ -63,6 +63,8 @@ class Model_Tuning:
 					self.good_layer_index = i     #Dont remember what this does
 					all_layer_params = all_layer_params[i][1]
 					break
+		if self.model_tuning.startswith("val"):
+			self.good_layer_index = 1
 
 		#Goes through each layer
 		for layer_index in np.arange(len(chosen_model)):
@@ -108,6 +110,8 @@ class Model_Tuning:
 		#For the data tuning stage (stage 4)
 		if self.model_tuning.startswith("data"):
 			optimizer = hp.Choice("optimizer", ["adam", "RMSprop"])
+		elif self.model_tuning.startswith("val"):
+			optimizer = hp.Choice("optimizer", all_layer_params["optimizer"])
 		model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 		
 		#print(model.get_config())

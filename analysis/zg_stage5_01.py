@@ -169,7 +169,6 @@ for i in np.arange(len(model_structures)):
 			clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 		clstm_params = {}
 
-		print("TODO: LOAD IN DATA PARAMETERS")
 		#Loading in the dataset
 		data_params = {'dataset' : 'firebusters',
 						'train_p' : 0.8,
@@ -182,16 +181,17 @@ for i in np.arange(len(model_structures)):
 		dataset = Load_Data(**data_params)
 
 		#The indices of the test set (0-27), the other ones are made into the train
-		testIndices = sample(np.arange(27), 3)
+		test_set_size = 3
+		testIndices = sample(np.arange(27), test_set_size)
 		#Based on the test indices, it makes the training/test sets
 		x_train, y_train, x_test, y_test = dataset.GetTrainTestFromFolds(testIndices)
 		x_val = dataset.x_test
 		y_val = dataset.y_test
 		
+		#Because we send it the dataset, we make a fake dataset class that will
+		#contain the data so that it can be referenced
 		fake_dataset = FakeDataset(x_train, x_test, y_train, y_test, window_size)
-		#TODO: because we send it the dataset, we need to change how we do this
-		#and make it so that this will work
-		mt = Model_Tuning(model_structures,
+		mt = Model_Tuning([model_structures[i]],
 							fake_dataset,
 							m_tuning = "val_" + model_structures_type,
 							parent_fldr = "",
