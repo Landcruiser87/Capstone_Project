@@ -166,7 +166,7 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 			if model_structures_type == "ConvLSTM2D":
 				clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 			
-			print(clstm_params)
+			#print(clstm_params)
 			
 			#Loading in the dataset
 			data_params = {'dataset' : 'firebusters',
