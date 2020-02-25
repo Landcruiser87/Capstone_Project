@@ -20,6 +20,7 @@ import pandas as pd
 import pickle
 import random
 import os
+import statistics
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -56,9 +57,10 @@ def Avg_Num_Nodes(hyp):
 
 def Get_Accuracy(y_true, y_pred):
 	correct = 0
+
 	for i in np.arange(len(y_true)):
-		if y_true[i] == y_pred[i]:
-			correct += 1
+		if y_true[i][y_pred[i]] == 1:
+			correct += 1.0
 	
 	return correct/float(len(y_true))
 
@@ -173,9 +175,10 @@ for i in np.arange(len(model_structures)):
 	val_acc = []
 	train_acc = []
 	test_acc = []
-	val_index = []
+	val_indices = []
 	test_indices = []
 	for val_index in np.arange(28):
+		print("SUBJECT:", val_index)
 		#ConvLSTM2D has extra stuff, so if this is that it gets the parameters
 		lay_gen = Layer_Generator()
 		if model_structures_type == "ConvLSTM2D":
@@ -215,19 +218,19 @@ for i in np.arange(len(model_structures)):
 		model = mt.The_Model(hp)
 		callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
 		result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
-							  epochs = 2, batch_size = batch_size, callbacks=callbacks)
+							  epochs = 6, batch_size = batch_size, callbacks=callbacks)
 		result_val = model.predict_classes(x_val)
 
 		accuracy = Get_Accuracy(y_val, result_val)
-		print(accuracy)
-		
-
-		print("HOW TO GET THE ACCURACY") #https://machinelearningmastery.com/how-to-make-classification-and-regression-predictions-for-deep-learning-models-in-keras/
-		print("Save the val/train/test accuracy, Save indices of test set, save val index")
+		val_acc.append(accuracy)
+		test_indices.append(testIndices)
+		val_indices.append(val_index)
+	
+	print(statistics.mean(val_acc), "\n", val_acc)
 	print("Save the lists of stuff")
 	#Delete the pkl file
 	os.remove("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl") 
-	
+	 
 
 
 
