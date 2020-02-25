@@ -66,6 +66,8 @@ class Model_Tuning:
 		if self.model_tuning.startswith("val"):
 			self.good_layer_index = 1
 
+		#print(all_layer_params)
+
 		#Goes through each layer
 		for layer_index in np.arange(len(chosen_model)):
 			#print(chosen_model[layer_index])
@@ -111,7 +113,7 @@ class Model_Tuning:
 		if self.model_tuning.startswith("data"):
 			optimizer = hp.Choice("optimizer", ["adam", "RMSprop"])
 		elif self.model_tuning.startswith("val"):
-			optimizer = hp.Choice("optimizer", all_layer_params["optimizer"])
+			optimizer = hp.Choice("optimizer", [all_layer_params["optimizer"]])
 		model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 		
 		#print(model.get_config())

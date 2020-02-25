@@ -19,11 +19,11 @@ import numpy as np
 import pandas as pd
 import pickle
 import random
-from random import sample 
 import os
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn import metrics
 os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.finalcountdown_stage4 import Final_Accuracy
 from analysis.zg_Load_Data import Load_Data
@@ -53,6 +53,14 @@ def Avg_Num_Nodes(hyp):
 		return 0
 
 	return int(float(val)/float(count))
+
+def Get_Accuracy(y_true, y_pred):
+	correct = 0
+	for i in np.arange(len(y_true)):
+		if y_true[i] == y_pred[i]:
+			correct += 1
+	
+	return correct/float(len(y_true))
 
 class FakeTuner:
 	def Choice(self, name = "", ls = []):
@@ -139,18 +147,23 @@ best_idx = list(df_best["index"])
 best_setups = acc[model_structures_type]
 best_setups = [best_setups[i] for i in best_idx ]
 
+#THIS IS JUST FOR TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+best_setups = [best_setups[0]]
+
 #Putting the structures into this ordering
 model_structures = []
 hyp_str = []
 for setup in best_setups:
 	model_structures.append(setup[0][0])
-	hyp_str.append(setup[0][1])
+	hyp_str.append(setup[1])
+
+#print(hyp_str)
 
 #def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str):
 
 for i in np.arange(len(model_structures)):
 	with open("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl", "wb") as fp:   #Pickling
-		pickle.dump(hyp_str, fp)
+		pickle.dump(hyp_str[i], fp)
 		
 	window_size = best_setups[i][0][5][0]
 	overlap_per = float(best_setups[i][0][5][1])/float(100.0)
@@ -182,7 +195,7 @@ for i in np.arange(len(model_structures)):
 
 		#The indices of the test set (0-27), the other ones are made into the train
 		test_set_size = 3
-		testIndices = sample(np.arange(27), test_set_size)
+		testIndices = random.sample(list(np.arange(27)), test_set_size)
 		#Based on the test indices, it makes the training/test sets
 		x_train, y_train, x_test, y_test = dataset.GetTrainTestFromFolds(testIndices)
 		x_val = dataset.x_test
@@ -202,8 +215,12 @@ for i in np.arange(len(model_structures)):
 		model = mt.The_Model(hp)
 		callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
 		result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
-							  epochs = 60, batch_size = batch_size, callbacks=callbacks)
+							  epochs = 2, batch_size = batch_size, callbacks=callbacks)
 		result_val = model.predict_classes(x_val)
+
+		accuracy = Get_Accuracy(y_val, result_val)
+		print(accuracy)
+		
 
 		print("HOW TO GET THE ACCURACY") #https://machinelearningmastery.com/how-to-make-classification-and-regression-predictions-for-deep-learning-models-in-keras/
 		print("Save the val/train/test accuracy, Save indices of test set, save val index")
