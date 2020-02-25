@@ -84,6 +84,8 @@ fa = Final_Accuracy()
 fa.Help()
 acc = fa.Load_The_File()
 
+print(acc["Conv1D"][0])
+
 colnames = ["key", "index", "val_accuracy", "train_accuracy", "depth", "optimizer"]
 #key, acc, val_acc, layer depth, optimizer
 rows = []
@@ -131,13 +133,107 @@ colnames.append("batch_size")
 colnames.append("avg_num_nodes")
 df.columns = colnames
 
-#------------------------------------------------------------------------------
+#==============================================================================
+
+#Stage 5 function
+def Stage_Five(best_setups, best_idx, model_structures_type):
+	#Putting the structures into this ordering
+	model_structures = []
+	hyp_str = []
+	for setup in best_setups:
+		model_structures.append(setup[0][0])
+		hyp_str.append(setup[1])
+	
+	results_here = []
+	for i in np.arange(len(model_structures)):
+		with open("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl", "wb") as fp:   #Pickling
+			pickle.dump(hyp_str[i], fp)
+			
+		window_size = best_setups[i][0][5][0]
+		overlap_per = float(best_setups[i][0][5][1])/float(100.0)
+		batch_size = best_setups[i][0][5][2]
+	
+		#List of model accuracies for the 28 validations
+		val_acc = []
+		test_acc = []
+		val_indices = []
+		test_indices = []
+		for val_index in np.arange(28):
+			print("SUBJECT:", val_index)
+			#ConvLSTM2D has extra stuff, so if this is that it gets the parameters
+			lay_gen = Layer_Generator()
+			clstm_params = {}
+			if model_structures_type == "ConvLSTM2D":
+				clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
+			
+			print(clstm_params)
+			
+			#Loading in the dataset
+			data_params = {'dataset' : 'firebusters',
+							'train_p' : 0.8,
+							'w_size' : window_size,
+							'o_percent' : overlap_per,
+							'LOSO' : True,
+							'clstm_params' : clstm_params,
+							'valIndex' : val_index
+							}
+			dataset = Load_Data(**data_params)
+	
+			#The indices of the test set (0-27), the other ones are made into the train
+			test_set_size = 3
+			testIndices = random.sample(list(np.arange(27)), test_set_size)
+			#Based on the test indices, it makes the training/test sets
+			x_train, y_train, x_test, y_test = dataset.GetTrainTestFromFolds(testIndices)
+			x_val = dataset.x_test
+			y_val = dataset.y_test
+			
+			#Because we send it the dataset, we make a fake dataset class that will
+			#contain the data so that it can be referenced
+			fake_dataset = FakeDataset(x_train, x_test, y_train, y_test, window_size)
+			mt = Model_Tuning([model_structures[i]],
+								fake_dataset,
+								m_tuning = "val_" + model_structures_type,
+								parent_fldr = "",
+								fldr_name = "",
+								fldr_sffx = "")
+	
+			hp = FakeTuner()
+			model = mt.The_Model(hp)
+			callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
+			result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
+								  epochs = 2, batch_size = batch_size, callbacks=callbacks)
+			result_val = model.predict_classes(x_val)
+	
+			accuracy = Get_Accuracy(y_val, result_val)
+			val_acc.append(accuracy)
+			test_indices.append(testIndices)
+			val_indices.append(val_index)
+			test_acc.append(max(result_train.history["val_accuracy"][-8:]))
+			#END FOR LOOP
+		
+		data_params = best_setups[i][0][5]
+		first_idx = [model_structures[i], best_idx[i], test_acc, test_indices, val_acc, val_indices, data_params]
+		res_loop = [first_idx, hyp_str[i]]
+		#Appends the results from this model/validation set
+		results_here.append(res_loop)
+		#Delete the pkl file
+		os.remove("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl") 
+		#END FOR LOOP
+
+	#SAVE THE RESULTS TO A FILE
+	with open("data/step5_res/results_" + model_structures_type + ".pkl", "wb") as fp:   #Pickling
+		pickle.dump(results_here, fp)
+
+	return
+
+#==============================================================================
 
 #Chooses the ones with the highest accuracy based on conditions
 df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1) & (df["val_accuracy"] >= 0.9) ]
 
 #Model Category
-model_structures_type = "Conv1D"
+#["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D", "Dense", "GRU", "LSTM"]
+model_structures_type = "ConvLSTM2D"
 
 #Select the model category
 df_best = df_best[df_best["key"] == model_structures_type]
@@ -145,123 +241,32 @@ df_best = df_best[df_best["key"] == model_structures_type]
 #Gets the best indices (indices are from the original pkl file)
 best_idx = list(df_best["index"])
 
+best_idx = [best_idx[0]]
+
 #Pull out those best models
 best_setups = acc[model_structures_type]
 best_setups = [best_setups[i] for i in best_idx ]
 
-#THIS IS JUST FOR TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-best_setups = [best_setups[0]]
-
-#Putting the structures into this ordering
-model_structures = []
-hyp_str = []
-for setup in best_setups:
-	model_structures.append(setup[0][0])
-	hyp_str.append(setup[1])
-
-#print(hyp_str)
-
-#def Data_Hyperparameter_Tuning(model_structures_type, model_structures, hyp_str):
-
-for i in np.arange(len(model_structures)):
-	with open("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl", "wb") as fp:   #Pickling
-		pickle.dump(hyp_str[i], fp)
-		
-	window_size = best_setups[i][0][5][0]
-	overlap_per = float(best_setups[i][0][5][1])/float(100.0)
-	batch_size = best_setups[i][0][5][2]
-
-	#List of model accuracies for the 28 validations
-	val_acc = []
-	train_acc = []
-	test_acc = []
-	val_indices = []
-	test_indices = []
-	for val_index in np.arange(28):
-		print("SUBJECT:", val_index)
-		#ConvLSTM2D has extra stuff, so if this is that it gets the parameters
-		lay_gen = Layer_Generator()
-		if model_structures_type == "ConvLSTM2D":
-			clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
-		clstm_params = {}
-
-		#Loading in the dataset
-		data_params = {'dataset' : 'firebusters',
-						'train_p' : 0.8,
-						'w_size' : window_size,
-						'o_percent' : overlap_per,
-						'LOSO' : True,
-						'clstm_params' : clstm_params,
-						'valIndex' : val_index
-						}
-		dataset = Load_Data(**data_params)
-
-		#The indices of the test set (0-27), the other ones are made into the train
-		test_set_size = 3
-		testIndices = random.sample(list(np.arange(27)), test_set_size)
-		#Based on the test indices, it makes the training/test sets
-		x_train, y_train, x_test, y_test = dataset.GetTrainTestFromFolds(testIndices)
-		x_val = dataset.x_test
-		y_val = dataset.y_test
-		
-		#Because we send it the dataset, we make a fake dataset class that will
-		#contain the data so that it can be referenced
-		fake_dataset = FakeDataset(x_train, x_test, y_train, y_test, window_size)
-		mt = Model_Tuning([model_structures[i]],
-							fake_dataset,
-							m_tuning = "val_" + model_structures_type,
-							parent_fldr = "",
-							fldr_name = "",
-							fldr_sffx = "")
-
-		hp = FakeTuner()
-		model = mt.The_Model(hp)
-		callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
-		result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
-							  epochs = 6, batch_size = batch_size, callbacks=callbacks)
-		result_val = model.predict_classes(x_val)
-
-		accuracy = Get_Accuracy(y_val, result_val)
-		val_acc.append(accuracy)
-		test_indices.append(testIndices)
-		val_indices.append(val_index)
-	
-	print(statistics.mean(val_acc), "\n", val_acc)
-	print("Save the lists of stuff")
-	#Delete the pkl file
-	os.remove("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl") 
-	 
-
-
-
-#	return results.history["val_accuracy"][-1]
-	
-		#mt.Tune_Models(epochs = 60, batch_size = params[2], MAX_TRIALS = 20)
-	
-#LOOP over all models
-	#Save the parameters to the data folder
-
-	#LOOP 28 times for the LOSO dude
-		#Load the data
-		#Select a random test set
-		#Return the model with model_tuning.The_Model(self, hp)
-		#Run the model and save the weights
-
-		#Run the model with weights on LOSO dude
-		#record val acc, train acc, test acc, test idx's
-
-
-
-#modify the layer generator so that it has a val category in the 
-	#Generate_Layer_Parameters(self) function
+Stage_Five(best_setups, best_idx, model_structures_type)
 
 
 
 
+'''lay_gen = Layer_Generator()
+clstm_params = {}
+if model_structures_type == "ConvLSTM2D":
+	clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
 
-
-
-
+#Loading in the dataset
+data_params = {'dataset' : 'firebusters',
+				'train_p' : 0.8,
+				'w_size' : window_size,
+				'o_percent' : overlap_per,
+				'LOSO' : True,
+				'clstm_params' : clstm_params,
+				'valIndex' : val_index
+				}
+dataset = Load_Data(**data_params)'''
 
 
 

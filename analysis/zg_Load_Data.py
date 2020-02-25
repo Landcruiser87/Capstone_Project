@@ -646,7 +646,7 @@ class Load_Data:
 		if self.clstm_params != {}:
 			n_features = xtrain.shape[2]
 			# reshape into subsequences (samples, time steps, rows, cols, channels)
-			n_steps = clstm_params["n_steps"][0]
+			n_steps = self.clstm_params["n_steps"][0]
 			if (self.window_size%n_steps) != 0:
 				n_steps = 5
 			n_length = int(xtrain.shape[1]/n_steps)
