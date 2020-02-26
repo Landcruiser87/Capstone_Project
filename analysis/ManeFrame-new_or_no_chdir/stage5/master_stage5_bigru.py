@@ -208,9 +208,9 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 				#Because of the way that the indices are made, when the val dude
 				#is removed, the id list works like a stack. So this makes it so that
 				#the values are able to be compared during our analysis.
-				for i in np.arange(len(testIndices)):
-					if testIndices[i] >= val_index:
-						testIndices[i] = testIndices[i] + 1
+				for k in np.arange(len(testIndices)):
+					if testIndices[k] >= val_index:
+						testIndices[k] = testIndices[k] + 1
 				
 				test_indices.append(testIndices)
 				val_indices.append(val_index)
