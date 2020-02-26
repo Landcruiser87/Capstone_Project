@@ -22,9 +22,6 @@ import random
 import os
 import statistics
 import pickle
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn import metrics
 #os.chdir("C:/githubrepo/CapstoneA/") #Zack and Andy's github data folder
 from analysis.finalcountdown_stage4 import Final_Accuracy
 from analysis.zg_Load_Data import Load_Data
@@ -153,80 +150,86 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 		overlap_per = float(best_setups[i][0][5][1])/float(100.0)
 		batch_size = best_setups[i][0][5][2]
 	
-		#List of model accuracies for the 28 validations
-		val_acc = []
-		test_acc = []
-		val_indices = []
-		test_indices = []
-		for val_index in np.arange(28):
-			print("SUBJECT:", val_index)
-			#ConvLSTM2D has extra stuff, so if this is that it gets the parameters
-			lay_gen = Layer_Generator()
-			clstm_params = {}
-			if model_structures_type == "ConvLSTM2D":
-				clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
-			
-			#print(clstm_params)
-			
-			#Loading in the dataset
-			data_params = {'dataset' : 'firebusters',
-							'train_p' : 0.8,
-							'w_size' : window_size,
-							'o_percent' : overlap_per,
-							'LOSO' : True,
-							'clstm_params' : clstm_params,
-							'valIndex' : val_index
-							}
-			dataset = Load_Data(**data_params)
-	
-			#The indices of the test set (0-27), the other ones are made into the train
-			test_set_size = 3
-			testIndices = random.sample(list(np.arange(27)), test_set_size)
-			#Based on the test indices, it makes the training/test sets
-			x_train, y_train, x_test, y_test = dataset.GetTrainTestFromFolds(testIndices)
-			x_val = dataset.x_test
-			y_val = dataset.y_test
-			
-			#Because we send it the dataset, we make a fake dataset class that will
-			#contain the data so that it can be referenced
-			fake_dataset = FakeDataset(x_train, x_test, y_train, y_test, window_size)
-			mt = Model_Tuning([model_structures[i]],
-								fake_dataset,
-								m_tuning = "val_" + model_structures_type,
-								parent_fldr = "",
-								fldr_name = "",
-								fldr_sffx = "")
-	
-			hp = FakeTuner()
-			model = mt.The_Model(hp)
-			callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
-			result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
-								  epochs = 60, batch_size = batch_size, callbacks=callbacks)
-			result_val = model.predict_classes(x_val)
-	
-			accuracy = Get_Accuracy(y_val, result_val)
-			val_acc.append(accuracy)
-
-			#Because of the way that the indices are made, when the val dude
-			#is removed, the id list works like a stack. So this makes it so that
-			#the values are able to be compared during our analysis.
-			for i in np.arange(len(testIndices)):
-				if testIndices[i] >= val_index:
-					testIndices[i] = testIndices[i] + 1
-			
-			test_indices.append(testIndices)
-			val_indices.append(val_index)
-			test_acc.append(max(result_train.history["val_accuracy"][-8:]))
-			#END FOR LOOP
+		try:
+			#List of model accuracies for the 28 validations
+			val_acc = []
+			test_acc = []
+			val_indices = []
+			test_indices = []
+			for val_index in np.arange(28):
+				print("SUBJECT:", val_index)
+				#ConvLSTM2D has extra stuff, so if this is that it gets the parameters
+				lay_gen = Layer_Generator()
+				clstm_params = {}
+				if model_structures_type == "ConvLSTM2D":
+					clstm_params = lay_gen.Generate_Layer_Parameters()["ConvLSTM2D"]
+				
+				#print(clstm_params)
+				
+				#Loading in the dataset
+				data_params = {'dataset' : 'firebusters',
+								'train_p' : 0.8,
+								'w_size' : window_size,
+								'o_percent' : overlap_per,
+								'LOSO' : True,
+								'clstm_params' : clstm_params,
+								'valIndex' : val_index
+								}
+				dataset = Load_Data(**data_params)
 		
-		data_params = best_setups[i][0][5]
-		first_idx = [model_structures[i], best_idx[i], test_acc, test_indices, val_acc, val_indices, data_params]
-		res_loop = [first_idx, hyp_str[i]]
-		#Appends the results from this model/validation set
-		results_here.append(res_loop)
-		#Delete the pkl file
-		os.remove("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl") 
-		#END FOR LOOP
+				#The indices of the test set (0-27), the other ones are made into the train
+				test_set_size = 3
+				testIndices = random.sample(list(np.arange(27)), test_set_size)
+				#Based on the test indices, it makes the training/test sets
+				x_train, y_train, x_test, y_test = dataset.GetTrainTestFromFolds(testIndices)
+				x_val = dataset.x_test
+				y_val = dataset.y_test
+				
+				#Because we send it the dataset, we make a fake dataset class that will
+				#contain the data so that it can be referenced
+				fake_dataset = FakeDataset(x_train, x_test, y_train, y_test, window_size)
+				mt = Model_Tuning([model_structures[i]],
+									fake_dataset,
+									m_tuning = "val_" + model_structures_type,
+									parent_fldr = "",
+									fldr_name = "",
+									fldr_sffx = "")
+		
+				hp = FakeTuner()
+				model = mt.The_Model(hp)
+				callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
+				result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
+									  epochs = 60, batch_size = batch_size, callbacks=callbacks)
+				result_val = model.predict_classes(x_val)
+		
+				accuracy = Get_Accuracy(y_val, result_val)
+				val_acc.append(accuracy)
+	
+				#Because of the way that the indices are made, when the val dude
+				#is removed, the id list works like a stack. So this makes it so that
+				#the values are able to be compared during our analysis.
+				for i in np.arange(len(testIndices)):
+					if testIndices[i] >= val_index:
+						testIndices[i] = testIndices[i] + 1
+				
+				test_indices.append(testIndices)
+				val_indices.append(val_index)
+				test_acc.append(max(result_train.history["val_accuracy"][-8:]))
+				#END FOR LOOP
+			
+			data_params = best_setups[i][0][5]
+			first_idx = [model_structures[i], best_idx[i], test_acc, test_indices, val_acc, val_indices, data_params]
+			res_loop = [first_idx, hyp_str[i]]
+			#Appends the results from this model/validation set
+			results_here.append(res_loop)
+			#Delete the pkl file
+			os.remove("data/step5_hyp/" + model_structures_type + "_ModelStr_Hyp.pkl") 
+			#SAVE THE RESULTS TO A FILE INCREMENTALLY
+			with open("data/step5_res/" + model_structures_type + "_" + str(best_idx[i]) + "_results.pkl", "wb") as fp:   #Pickling
+				pickle.dump(res_loop, fp)
+			#END FOR LOOP
+		except:
+			print("ERROR with", model_structures_type, "number", best_idx[i])
 
 	#SAVE THE RESULTS TO A FILE
 	with open("data/step5_res/" + model_structures_type + "_results.pkl", "wb") as fp:   #Pickling
