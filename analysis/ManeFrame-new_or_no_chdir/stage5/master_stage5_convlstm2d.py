@@ -214,7 +214,7 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 				
 				test_indices.append(testIndices)
 				val_indices.append(val_index)
-				test_acc.append(max(result_train.history["val_accuracy"][-8:]))
+				test_acc.append(max(result_train.history["val_accuracy"][-9:]))
 				#END FOR LOOP
 			
 			data_params = best_setups[i][0][5]
