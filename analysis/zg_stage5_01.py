@@ -201,11 +201,19 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 			model = mt.The_Model(hp)
 			callbacks = [EarlyStopping(monitor='val_accuracy', mode='max', patience = 8, restore_best_weights=True)]
 			result_train = model.fit(x_train, y_train, validation_data=(x_test, y_test),
-								  epochs = 2, batch_size = batch_size, callbacks=callbacks)
+								  epochs = 60, batch_size = batch_size, callbacks=callbacks)
 			result_val = model.predict_classes(x_val)
 	
 			accuracy = Get_Accuracy(y_val, result_val)
 			val_acc.append(accuracy)
+
+			#Because of the way that the indices are made, when the val dude
+			#is removed, the id list works like a stack. So this makes it so that
+			#the values are able to be compared during our analysis.
+			for i in np.arange(len(testIndices)):
+				if testIndices[i] >= val_index:
+					testIndices[i] = testIndices[i] + 1
+			
 			test_indices.append(testIndices)
 			val_indices.append(val_index)
 			test_acc.append(max(result_train.history["val_accuracy"][-8:]))
@@ -229,7 +237,20 @@ def Stage_Five(best_setups, best_idx, model_structures_type):
 #==============================================================================
 
 #Chooses the ones with the highest accuracy based on conditions
-df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1) & (df["val_accuracy"] >= 0.9) ]
+#ConvLSTM2D          65
+#Conv1D              34
+df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.03) & (df["val_accuracy"] >= 0.9) ]
+#BidirectionalGRU    48
+#BidirectionalLSTM   46
+df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.05) & (df["val_accuracy"] >= 0.9) ]
+#LSTM                38
+df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.08) & (df["val_accuracy"] >= 0.9) ]
+#GRU                 37
+df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.1) & (df["val_accuracy"] >= 0.8) ]
+#Dense               34
+df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.3) & (df["val_accuracy"] >= 0.6) ]
+
+#print( df_best[["key"]].apply(pd.value_counts) )
 
 #Model Category
 #["BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D", "Dense", "GRU", "LSTM"]
@@ -241,13 +262,16 @@ df_best = df_best[df_best["key"] == model_structures_type]
 #Gets the best indices (indices are from the original pkl file)
 best_idx = list(df_best["index"])
 
-#best_idx = [best_idx[0]]
+#Randomly chooses 20 of them to run
+best_idx = random.sample(best_idx, 20)
 
 #Pull out those best models
 best_setups = acc[model_structures_type]
 best_setups = [best_setups[i] for i in best_idx ]
 
 Stage_Five(best_setups, best_idx, model_structures_type)
+
+
 
 
 
