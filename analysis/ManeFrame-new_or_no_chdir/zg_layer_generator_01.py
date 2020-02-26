@@ -27,6 +27,9 @@ class Layer_Generator:
 		
 		#This gets called in the case of layer tuning, not hyperparmeter tuning
 		if self.model_tuning != "all":
+			if self.model_tuning.startswith("val"):
+				s = self.model_tuning.split("_")
+				return self.Generate_Val_Layer_Parameters(s[1])
 			if self.model_tuning.startswith("data"):
 				#This is so we can get the model type (EX: GRU or LSTM)
 				s = self.model_tuning.split("_")
@@ -73,6 +76,16 @@ class Layer_Generator:
 		
 		#print("TODO: Had to remove print in the Invalid_LayerName area, earch the file for 'TODO'")
 		return layer_parameters
+
+	#This grabs the hyperparameters that have already been tuned for the model structure	
+	def	Generate_Val_Layer_Parameters(self, m_s_type):
+		hyp_structures = []
+		
+		# open file and read the content in a list
+		with open("data/step5_hyp/" + m_s_type + "_ModelStr_Hyp.pkl", "rb") as fp:   # Unpickling
+			hyp_structures = pickle.load(fp)
+		
+		return hyp_structures
 
 	#This grabs the hyperparameters that have already been tuned for the model structure	
 	def	Generate_Data_Layer_Parameters(self, m_s_type):
