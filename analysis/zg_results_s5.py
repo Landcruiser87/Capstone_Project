@@ -112,33 +112,34 @@ df.columns = colnames
 #Dense               34
 #df_best = df[ (abs(df["val_accuracy"] - df["train_accuracy"]) <= 0.3) & (df["val_accuracy"] >= 0.6) ]
 
+#The category of data you want to look at
+the_type = "ConvLSTM2D"
 
-
-df_d = df[df["key"] == "Dense"]
+#Just looking at "the_type" of data
+df_d = df[df["key"] == the_type]
 df_d = df_d.sort_values(by=['key', 'val_accuracy'], ascending = False)
 print(df_d[["val_accuracy", "test_accuracy", "batch_size", "avg_num_nodes"]].head(20))
 
+#Describing the dataset
 print(df_d[["val_accuracy", "test_accuracy", "batch_size", "avg_num_nodes"]].describe())
 
-
-
-#VAL  [0.65402085, 0.7366484, 0.7569586, 0.7145491, 0.76112837, 0.62909293, 0.7233946, 0.6956209, 0.5817551, 0.67078376, 0.69893175, 0.7135816, 0.8172009, 0.65173197, 0.69747627, 0.85378927, 0.7969646, 0.725286, 0.72483516, 0.7041986, 0.62666714, 0.68792313, 0.727321, 0.7521572, 0.7338967, 0.8040567, 0.6212909, 0.6098632]
-#TEST [0.5968610698365527, 0.8380146644106035, 0.7463837994214079, 0.47888086642599276, 0.4924565535680183, 0.586472602739726, 0.7314519345831672, 0.8412087098207673, 0.7130554598691009, 0.6383859286083807, 0.7489443378119002, 0.5925369933519193, 0.3602969166349448, 0.5846422338568935, 0.4988640666414237, 0.639744824265768, 0.7471320717717423, 0.6908971121115626, 0.7177318295739349, 0.7543960464314446, 0.816782578953369, 0.6421096259454979, 0.7552730956986277, 0.6860406091370559, 0.5524208921082729, 0.47478085931886765, 0.4167401991680323, 0.2818829290006677]
-
-
+#Boxplots of validation accuracy vs who it was validating
 rows = []
 for key in acc:
-	i = 0
 	for model in acc[key]:
-		row = []
-		row.append(key)						#key
-		row.extend(model[0][4])
-		rows.append(row)
+		for i in np.arange(len(model[0][4])):
+			row = []
+			row.append(key)
+			row.append(model[0][4][i])
+			row.append(i)
+			rows.append(row)
 
 df_val = pd.DataFrame(rows)
-df_d2 = df_val[df_val[0] == "Dense"]
+df_val.columns = ["key", "val_acc", "index"]
+df_d2 = df_val[df_val["key"] == the_type]
+df_d2 = df_d2[["val_acc", "index"]]
 
-sns.boxplot(df_d2)
+sns.boxplot(df_d2["index"], df_d2["val_acc"])
 
 
 
