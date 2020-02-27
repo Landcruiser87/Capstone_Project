@@ -35,8 +35,7 @@ def Avg_Num_Nodes(hyp):
 
 #==============================================================================
 
-#categories = ["Dense", "GRU", "LSTM", "BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D"]
-categories = ["Dense", "LSTM", "BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D"]
+categories = ["Dense", "GRU", "LSTM", "BidirectionalGRU", "BidirectionalLSTM", "Conv1D", "ConvLSTM2D"]
 acc = {}
 for c in categories:
 	with open("./results/" + c + "_s5_results.pkl", 'rb') as f:
