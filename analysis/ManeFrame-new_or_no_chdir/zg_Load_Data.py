@@ -223,7 +223,11 @@ class Load_Data:
 
 		rand_subject = -1
 		if self.loso == True:
-			rand_subject = int(random.choice(df_subid))
+			while True:
+				rand_subject = int(random.choice(df_subid))
+				#This makes sure that the subject has all 13 activities
+				if len((df[df["subject_id"] == rand_subject])['activityID'].unique()) == 13:
+					break
 
 		loso_windows = []
 		windows = []
@@ -320,7 +324,14 @@ class Load_Data:
 		else:
 			#get all subject ID's
 			df_subid = df['subject_id'].unique()
-			rand_subject = int(random.choice(df_subid))
+
+			rand_subject = -1
+			while True:
+				rand_subject = int(random.choice(df_subid))
+				#This makes sure that the subject has all 13 activities
+				if len((df[df["subject_id"] == rand_subject])['activityID'].unique()) == 13:
+					break
+			#rand_subject = int(random.choice(df_subid))
 				
 			x_train = df.loc[df['subject_id'] != rand_subject]
 			x_test = df.loc[df['subject_id'] == rand_subject]
