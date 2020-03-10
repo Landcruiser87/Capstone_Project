@@ -42,13 +42,13 @@ for c in categories:
 		acc[c] = pickle.load(f) 
 
 #Example printing of original data of each type
-#print(acc["Dense"][0])
-#print(acc["GRU"][0])
-#print(acc["LSTM"][0])
+# print(acc["Dense"][0])
+# print(acc["GRU"][0])
+# print(acc["LSTM"][0])
 #print(acc["BidirectionalGRU"][0])
 #print(acc["BidirectionalLSTM"][0])
 #print(acc["Conv1D"][0])
-print(acc["ConvLSTM2D"][0])
+#print(acc["ConvLSTM2D"][0])
 
 colnames = ["key", "index", "val_accuracy", "test_accuracy", "depth", "optimizer"]
 #key, acc, val_acc, layer depth, optimizer
@@ -60,7 +60,7 @@ for key in acc:
 		row.append(key)						#key
 		row.append(i)						#index of where it was in orig
 		row.append(statistics.mean(model[0][4]))			#validation accuracy
-		row.append(statistics.mean([float(i) for i in model[0][2]]))			#test accuracy
+		row.append(statistics.mean(model[0][2]))			#test accuracy
 		row.append(len(model[0][0]))		#depth
 		row.append(model[1]["optimizer"])	#optimizer
 		row.append(Percent_Layer_Type(model[0][0], "Dropout"))
@@ -138,15 +138,7 @@ df_val.columns = ["key", "val_acc", "index"]
 df_d2 = df_val[df_val["key"] == the_type]
 df_d2 = df_d2[["val_acc", "index"]]
 
-plt.rcParams['figure.figsize']=(30,20)
-plt.rcParams['font.size']=42
-plt.rcParams["axes.labelsize"] = 42
-
-plt.rcParams['figure.dpi']=300
-plt.rcParams['boxplot.flierprops.linewidth'] = 50
-
-palette = sns.cubehelix_palette(8, start=.5, rot=-.75)
-sns.boxplot(df_d2["index"], df_d2["val_acc"],palette=palette)
+sns.boxplot(df_d2["index"], df_d2["val_acc"])
 
 
 
