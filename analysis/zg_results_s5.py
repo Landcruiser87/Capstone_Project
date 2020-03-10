@@ -141,13 +141,14 @@ df_d2 = df_d2[["val_acc", "index"]]
 plt.rcParams['figure.figsize']=(30,20)
 plt.rcParams['font.size']=42
 plt.rcParams["axes.labelsize"] = 42
-
 plt.rcParams['figure.dpi']=300
-plt.rcParams['boxplot.flierprops.linewidth'] = 50
+plt.rcParams['lines.linewidth'] = 6
 
 palette = sns.cubehelix_palette(8, start=.5, rot=-.75)
-sns.boxplot(df_d2["index"], df_d2["val_acc"],palette=palette)
-
+sns.boxplot(df_d2["index"], df_d2["val_acc"], palette=palette)
+plt.xlabel("Validation Subject ID")
+plt.ylabel("Validation Accuracy")
+plt.savefig('THANKYOUZACK')
 
 
 
