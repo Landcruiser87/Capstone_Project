@@ -26,6 +26,8 @@ from keras.layers import Embedding
 from keras.utils import to_categorical
 import itertools
 import random
+import tensorflow as tf
+
 
 os.chdir("C:/githubrepo/CapstoneA/data/Zenshin_Data/")
 
